@@ -26,14 +26,10 @@ void keyboard::pokey::Controller::receiveInputReport(const InputReport& report) 
     while (scanCode-- != 0) {
       if (util::to_underlying(report.keyCode) == scanCode) {
         m_kr1.activate();
-      } else {
-        m_kr1.deactivate();
       }
 
       if (util::to_underlying(report.modifierCode) == scanCode) {
         m_kr2.activate();
-      } else {
-        m_kr2.deactivate();
       }
 
       while(m_k0.isActive() == k0Active);
