@@ -18,6 +18,7 @@
 #define DEFINE_OUTPUT_SIGNAL(name, gpio, activeValue)\
   gpio_init(gpio);\
   gpio_set_dir(gpio, GPIO_OUT);\
+  gpio_put(gpio, !activeValue);\
   hardware::OutputSignal name([](){ gpio_put(gpio, activeValue); }, [](){ gpio_put(gpio, !activeValue); })
 
 namespace {
@@ -54,6 +55,23 @@ private:
   keyboard::usb::InputReport m_currentInputReport;
 };
 
+void powerOnSequence(const hardware::OutputSignal& power, const hardware::OutputSignal& reset) {
+  reset.activate();
+  power.activate();
+  sleep_ms(500);
+  reset.deactivate();
+}
+
+bool busyWaitEq(const hardware::InputSignal& signal, bool value, std::uint64_t timeoutDurationUs) {
+  std::uint64_t timeoutTimePoint = time_us_64() + timeoutDurationUs;
+  while (signal.isActive() != value) {
+    if (time_us_64() >= timeoutTimePoint) {
+      return false;
+    }
+  }
+  return true;
+}
+
 } // namespace
 
 int main() {
@@ -62,22 +80,24 @@ int main() {
 #endif
   tusb_init();
 
+#if 0
+  DEFINE_OUTPUT_SIGNAL(reserved1, 29, false); // Pin 1
+  DEFINE_OUTPUT_SIGNAL(reserved2, 28, false); // Pin 2
+#endif
+  DEFINE_OUTPUT_SIGNAL(power, 27, true);      // Pin 3
+  DEFINE_OUTPUT_SIGNAL(reset, 26, false);     // Pin 4
+  DEFINE_OUTPUT_SIGNAL(option, 24, false);    // Pin 5
+  DEFINE_OUTPUT_SIGNAL(select, 25, false);    // Pin 6
+  DEFINE_OUTPUT_SIGNAL(start, 20, false);     // Pin 7
+  keyboard::console::Controller consoleController(start, select, option, reset, power, powerOnSequence);
+
   DEFINE_INPUT_SIGNAL(k0, 5, false);          // Pin 8
   DEFINE_INPUT_SIGNAL(k5, 6, false);          // Pin 9
   DEFINE_OUTPUT_SIGNAL(kr1, 4, false);        // Pin 10
   DEFINE_OUTPUT_SIGNAL(kr2, 3, false);        // Pin 11
-  keyboard::pokey::Controller pokeyController(k0, k5, kr1, kr2);
+  keyboard::pokey::Controller pokeyController(k0, k5, kr1, kr2, busyWaitEq);
 
-  DEFINE_OUTPUT_SIGNAL(start, 20, false);     // Pin 7
-  DEFINE_OUTPUT_SIGNAL(select, 25, false);    // Pin 6
-  DEFINE_OUTPUT_SIGNAL(option, 24, false);    // Pin 5
-  DEFINE_OUTPUT_SIGNAL(reset, 26, false);     // Pin 4
-#if 0
-  DEFINE_OUTPUT_SIGNAL(reserved1, 27, false); // Pin 3
-  DEFINE_OUTPUT_SIGNAL(reserved2, 28, false); // Pin 2
-  DEFINE_OUTPUT_SIGNAL(reserved3, 29, false); // Pin 1
-#endif
-  keyboard::Controller keyboardController(start, select, option, reset, &pokeyController);
+  keyboard::Controller keyboardController(&consoleController, &pokeyController);
 
   const UsbState& usbState = UsbState::get();
   for(;;) {

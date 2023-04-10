@@ -1,7 +1,8 @@
 #ifndef keyboard_Controller_h
 #define keyboard_Controller_h
 
-#include "hardware/OutputSignal.h"
+#include "console/Controller.h"
+#include "console/KeyBit.h"
 #include "pokey/Controller.h"
 #include "pokey/InputReport.h"
 #include "usb/InputReport.h"
@@ -14,25 +15,20 @@ namespace keyboard {
 
 class Controller {
 public:
-  Controller(
-      ::hardware::OutputSignal start,
-      ::hardware::OutputSignal select,
-      ::hardware::OutputSignal option,
-      ::hardware::OutputSignal reset,
-      const pokey::Controller* pokeyController);
+  Controller(console::Controller* consoleController, pokey::Controller* pokeyController);
 
   /** Receive a USB (boot interface) keyboard report. */
-  void receiveInputReport(const usb::InputReport& report) const;
+  void receiveInputReport(const usb::InputReport& report);
 
 private:
-  void dispatchInputReportToNonPokey(const usb::InputReport& report) const;
-  void dispatchInputReportToPokey(const usb::InputReport& report) const;
+  void dispatchInputReportToConsole(const usb::InputReport& report);
+  void dispatchInputReportToPokey(const usb::InputReport& report);
 
-  const std::vector<std::pair<const usb::InputReport, const ::hardware::OutputSignal>> m_usbToNonPokeyKeyMap;
+  console::Controller* const m_consoleController;
+  const std::unordered_map<usb::InputReport, const console::KeyBit, usb::InputReport::Hash> m_usbToConsoleKeyMap;
 
+  pokey::Controller* const m_pokeyController;
   const std::unordered_map<usb::InputReport, const pokey::InputReport, usb::InputReport::Hash> m_usbToPokeyKeyMap;
-
-  const pokey::Controller* const m_pokeyController;
 };
 
 } // namespace keyboard

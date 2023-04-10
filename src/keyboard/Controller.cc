@@ -51,18 +51,16 @@ keyboard::usb::ModifierBitset tieShiftAndCtrl(keyboard::usb::ModifierBitset modi
 
 }
 
-keyboard::Controller::Controller(
-    ::hardware::OutputSignal start,
-    ::hardware::OutputSignal select,
-    ::hardware::OutputSignal option,
-    ::hardware::OutputSignal reset,
-    const pokey::Controller* pokeyController)
-  : m_usbToNonPokeyKeyMap{
-      {usb::KeyCode::F2, start},
-      {usb::KeyCode::F3, select},
-      {usb::KeyCode::F4, option},
-      {usb::KeyCode::F12, reset}
+keyboard::Controller::Controller(console::Controller* consoleController, pokey::Controller* pokeyController)
+  : m_consoleController(consoleController)
+  , m_usbToConsoleKeyMap{
+      {usb::KeyCode::F2, console::KeyBit::Start},
+      {usb::KeyCode::F3, console::KeyBit::Select},
+      {usb::KeyCode::F4, console::KeyBit::Option},
+      {usb::KeyCode::F12, console::KeyBit::Reset},
+      {{usbTiedCtrl, usb::KeyCode::F12}, console::KeyBit::Power}
     }
+  , m_pokeyController(pokeyController)
   , m_usbToPokeyKeyMap{
       {{usb::KeyCode::F1}, {pokey::KeyCode::Help}},
       // Row 1
@@ -86,7 +84,7 @@ keyboard::Controller::Controller(
       MAKE_SHIFTED_USB_TO_UNSHIFTED_POKEY_MAPPING(Period_GreaterThan, GreaterThan_Insert),
       MAKE_UNSHIFTED_USB_TO_UNSHIFTED_POKEY_MAPPING(Insert, GreaterThan_Insert),
       MAKE_SIMPLE_MAPPING(Delete, Backspace),
-      MAKE_UNSHIFTED_USB_TO_POKEY_MODIFIER(F11, Break),
+      MAKE_UNSHIFTED_USB_TO_POKEY_MODIFIER(Pause, Break),
       // Row 2
       MAKE_SIMPLE_MAPPING(Tab, Tab),
       MAKE_SIMPLE_MAPPING(Q, Q),
@@ -141,37 +139,27 @@ keyboard::Controller::Controller(
       MAKE_SIMPLE_MAPPING(F7, Invert),
       // Row 5
       MAKE_SIMPLE_MAPPING(Spacebar, Space)
-    }
-  , m_pokeyController(pokeyController) {
-    start.deactivate();
-    select.deactivate();
-    option.deactivate();
-    reset.deactivate();
+    } {
 }
 
-void keyboard::Controller::receiveInputReport(const usb::InputReport& report) const {
-  dispatchInputReportToNonPokey(report);
+void keyboard::Controller::receiveInputReport(const usb::InputReport& report) {
+  dispatchInputReportToConsole(report);
   dispatchInputReportToPokey(report);
 }
 
-void keyboard::Controller::dispatchInputReportToNonPokey(const usb::InputReport& report) const {
-  auto tiedShiftAndCtrlModifiers = tieShiftAndCtrl(report.modifierBitset);
-  for (const auto& usbToNonPokeyMapping : m_usbToNonPokeyKeyMap) {
-    auto keyCodeIt = report.keyCodes.cbegin();
-    auto keyCodeEnd = report.keyCodes.cend();
-    for (; keyCodeIt != keyCodeEnd; ++keyCodeIt) {
-      if (usbToNonPokeyMapping.first == usb::InputReport(tiedShiftAndCtrlModifiers, usb::KeyCode(*keyCodeIt))) {
-        usbToNonPokeyMapping.second.activate();
-        break;
-      }
-    }
-    if (keyCodeIt == keyCodeEnd) {
-      usbToNonPokeyMapping.second.deactivate();
+void keyboard::Controller::dispatchInputReportToConsole(const usb::InputReport& report) {
+  console::KeyBitset consoleKeyBitset = 0;
+  for (auto usbKeyCode : report.keyCodes) {
+    usb::InputReport simpleInputReport(tieShiftAndCtrl(report.modifierBitset), usb::KeyCode(usbKeyCode));
+    auto it = m_usbToConsoleKeyMap.find(simpleInputReport);
+    if (it != m_usbToConsoleKeyMap.end()) {
+      consoleKeyBitset |= it->second;
     }
   }
+  m_consoleController->receiveInputReport(consoleKeyBitset);
 }
 
-void keyboard::Controller::dispatchInputReportToPokey(const usb::InputReport& report) const {
+void keyboard::Controller::dispatchInputReportToPokey(const usb::InputReport& report) {
   usb::InputReport simpleInputReport(tieShiftAndCtrl(report.modifierBitset), usb::KeyCode(report.keyCodes[0]));
   const auto it = m_usbToPokeyKeyMap.find(simpleInputReport);
   m_pokeyController->receiveInputReport(it != m_usbToPokeyKeyMap.end() ? it->second : pokey::InputReport());

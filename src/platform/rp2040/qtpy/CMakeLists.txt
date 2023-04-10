@@ -26,6 +26,9 @@ add_executable(atari-fw_qtpy
   ${ATARI_FW_ROOT}/src/hardware/OutputSignal.cc
   ${ATARI_FW_ROOT}/src/keyboard/Controller.h
   ${ATARI_FW_ROOT}/src/keyboard/Controller.cc
+  ${ATARI_FW_ROOT}/src/keyboard/console/Controller.h
+  ${ATARI_FW_ROOT}/src/keyboard/console/Controller.cc
+  ${ATARI_FW_ROOT}/src/keyboard/console/KeyBit.h
   ${ATARI_FW_ROOT}/src/keyboard/pokey/Controller.h
   ${ATARI_FW_ROOT}/src/keyboard/pokey/Controller.cc
   ${ATARI_FW_ROOT}/src/keyboard/pokey/InputReport.h

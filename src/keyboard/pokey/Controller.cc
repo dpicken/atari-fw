@@ -2,22 +2,32 @@
 
 #include "util/type_traits.h"
 
+namespace {
+
+static const std::uint64_t PokeyKeyScanTimeoutUs = 250 * 1000;
+
+} // namespace
+
 keyboard::pokey::Controller::Controller(
     ::hardware::InputSignal k0,
     ::hardware::InputSignal k5,
     ::hardware::OutputSignal kr1,
-    ::hardware::OutputSignal kr2)
+    ::hardware::OutputSignal kr2,
+    BusyWaitEq busyWaitEq)
   : m_k0(k0)
   , m_k5(k5)
   , m_kr1(kr1)
-  , m_kr2(kr2) {
-    m_kr1.deactivate();
-    m_kr2.deactivate();
+  , m_kr2(kr2)
+  , m_busyWaitEq(busyWaitEq) {
 }
 
 void keyboard::pokey::Controller::receiveInputReport(const InputReport& report) const {
-  while (m_k5.isActive());
-  while (!m_k5.isActive());
+  if (!m_busyWaitEq(m_k5, false, PokeyKeyScanTimeoutUs)) {
+    return;
+  }
+  if (!m_busyWaitEq(m_k5, true, PokeyKeyScanTimeoutUs)) {
+    return;
+  }
 
   bool k0Active = true;
 
@@ -32,11 +42,15 @@ void keyboard::pokey::Controller::receiveInputReport(const InputReport& report) 
         m_kr2.activate();
       }
 
-      while(m_k0.isActive() == k0Active);
+      bool timedOut = !m_busyWaitEq(m_k0, !k0Active, PokeyKeyScanTimeoutUs);
       k0Active = !k0Active;
 
       m_kr1.deactivate();
       m_kr2.deactivate();
+
+      if (timedOut) {
+        return;
+      }
     }
   }
 }

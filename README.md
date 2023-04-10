@@ -28,14 +28,9 @@ make
 
 ## Install firmware: QT PY RP2040
 
-Connect the QT PY to the build host and boot into UF2 bootloader:
+Note: Do not flash the QT PY whilst it's installed in an Atari.
 
-- Disconnect the Atari's power supply (to ensure power is not backfed into the build host)
-- Disconnect POKEY interposer's J2 5V supply (to ensure the build host does not power up the Atari)
-- Connect the QT PY via its USB-C port to the build host
-- Hold down BOOTSEL button and then reset the QT PY
-
-Copy `./build_qtpy/atari-fw_qtpy.uf2` to the QT PY drive, or have the build system do it for you:
+Connect the QT PY to the build host, then hold and release both its buttons to boot it into its UF2 bootloader.  Copy `./build_qtpy/atari-fw_qtpy.uf2` to the QT PY drive, or have the build system do it for you:
 
 On macOS:
 
@@ -48,5 +43,3 @@ On other platforms:
 ```
 QTPY_MOUNT=<qtpy-mount-path> make qtpy_install
 ```
-
-Reconnect POKEY interposer's J2 5V supply.
