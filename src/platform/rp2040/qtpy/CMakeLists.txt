@@ -20,6 +20,8 @@ pico_sdk_init()
 include_directories(${ATARI_FW_ROOT}/src)
 
 add_executable(atari-fw_qtpy
+  ${ATARI_FW_ROOT}/src/app/App.h
+  ${ATARI_FW_ROOT}/src/app/App.cc
   ${ATARI_FW_ROOT}/src/hardware/InputSignal.h
   ${ATARI_FW_ROOT}/src/hardware/InputSignal.cc
   ${ATARI_FW_ROOT}/src/hardware/OutputSignal.h
@@ -45,10 +47,13 @@ add_executable(atari-fw_qtpy
   ${ATARI_FW_ROOT}/src/util/type_traits.h
 )
 
+pico_generate_pio_header(atari-fw_qtpy ${CMAKE_CURRENT_LIST_DIR}/${ATARI_FW_ROOT}/../pico-examples/pio/ws2812/ws2812.pio)
+
 target_include_directories(atari-fw_qtpy PRIVATE
   ${ATARI_FW_ROOT}/src/platform/rp2040/qtpy
+  ${ATARI_FW_ROOT}/build_qtpy
 )
 
-target_link_libraries(atari-fw_qtpy PUBLIC pico_stdlib tinyusb_host tinyusb_board)
+target_link_libraries(atari-fw_qtpy PRIVATE pico_stdlib tinyusb_host tinyusb_board hardware_pio)
 
 pico_add_extra_outputs(atari-fw_qtpy)

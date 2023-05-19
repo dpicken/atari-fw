@@ -6,7 +6,7 @@ keyboard::console::Controller::Controller(
     ::hardware::OutputSignal option,
     ::hardware::OutputSignal reset,
     ::hardware::OutputSignal power,
-    PowerOnSequence powerOnSequence)
+    ::hardware::PowerOnSequence powerOnSequence)
   : m_start(start)
   , m_select(select)
   , m_option(option)

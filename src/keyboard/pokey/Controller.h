@@ -4,6 +4,7 @@
 #include "InputReport.h"
 
 #include "hardware/InputSignal.h"
+#include "hardware/misc.h"
 #include "hardware/OutputSignal.h"
 
 #include <cstdint>
@@ -11,15 +12,13 @@
 namespace keyboard { namespace pokey {
 
 class Controller {
-  typedef bool(*BusyWaitEq)(const ::hardware::InputSignal& signal, bool value, std::uint64_t timeoutDurationUs);
-
 public:
   Controller(
       ::hardware::InputSignal k0,
       ::hardware::InputSignal k5,
       ::hardware::OutputSignal kr1,
       ::hardware::OutputSignal kr2,
-      BusyWaitEq busyWaitEq);
+      ::hardware::BusyWaitEq busyWaitEq);
 
   /** Receive a keyboard report. */
   void receiveInputReport(const InputReport& report) const;
@@ -30,7 +29,7 @@ private:
   const ::hardware::OutputSignal m_kr1;
   const ::hardware::OutputSignal m_kr2;
 
-  const BusyWaitEq m_busyWaitEq;
+  const ::hardware::BusyWaitEq m_busyWaitEq;
 };
 
 } } // namespace keyboard::pokey

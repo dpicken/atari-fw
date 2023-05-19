@@ -18,8 +18,11 @@ Clone and build:
 
 ```
 git clone https://github.com/raspberrypi/pico-sdk.git
+git clone https://github.com/raspberrypi/pico-examples.git
 git -C pico-sdk submodule update --init
-git -C pico-sdk checkout 1.4.0
+git -C pico-sdk checkout 1.5.0
+git -C pico-sdk submodule update
+git -C pico-examples git checkout sdk-1.5.0
 git clone https://github.com/dpicken/fab.git
 git clone https://github.com/dpicken/atari-fw.git
 cd atari-fw

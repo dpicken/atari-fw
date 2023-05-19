@@ -8,15 +8,18 @@ PICO_SDK_INCLUDE_DIRS += $(QTPY_BUILD_DIR)/generated/pico_base
 PICO_SDK_INCLUDE_DIRS += $(shell find -L $(PICO_SDK_DIR) -name include -type d | grep -v pico_stdio_usb)
 PICO_SDK_INCLUDE_DIRS += $(PICO_SDK_DIR)/lib/tinyusb/src
 
+PICO_WS2812_PIO_INCLUDE_DIR := $(QTPY_BUILD_DIR)
+
 TUSB_CONFIG_INCLUDE_DIR := $(SRC_DIR)/platform/rp2040/qtpy
 
 QTPY_CXXFLAGS :=
-QTPY_CXXFLAGS += $(patsubst %,-isystem%,$(PICO_SDK_INCLUDE_DIRS))
+QTPY_CXXFLAGS += $(patsubst %,-isystem %,$(PICO_SDK_INCLUDE_DIRS))
+QTPY_CXXFLAGS += $(patsubst %,-isystem %,$(PICO_WS2812_PIO_INCLUDE_DIR))
 QTPY_CXXFLAGS += -I$(TUSB_CONFIG_INCLUDE_DIR)
 
 CXXFLAGS += $(QTPY_CXXFLAGS)
 
-$(BUILD_DIR)/platform/rp2040/qtpy/app.cc.o: $(QTPY_BUILD_DIR)/Makefile
+$(BUILD_DIR)/platform/rp2040/qtpy/app.cc.o: qtpy
 
 $(QTPY_BUILD_DIR)/Makefile: $(SRC_DIR)/platform/rp2040/qtpy/CMakeLists.txt
 	$(echo_recipe)rm -rf $(QTPY_BUILD_DIR)

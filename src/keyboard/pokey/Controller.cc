@@ -13,7 +13,7 @@ keyboard::pokey::Controller::Controller(
     ::hardware::InputSignal k5,
     ::hardware::OutputSignal kr1,
     ::hardware::OutputSignal kr2,
-    BusyWaitEq busyWaitEq)
+    ::hardware::BusyWaitEq busyWaitEq)
   : m_k0(k0)
   , m_k5(k5)
   , m_kr1(kr1)
