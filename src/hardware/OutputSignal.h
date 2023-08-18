@@ -6,7 +6,10 @@ namespace hardware {
 struct OutputSignal {
   typedef void (* const Action)();
 
-  OutputSignal(Action a, Action d);
+  constexpr OutputSignal(Action a, Action d)
+    : activate(a)
+    , deactivate(d) {
+  }
 
   const Action activate;
   const Action deactivate;

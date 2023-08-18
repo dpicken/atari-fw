@@ -29,20 +29,17 @@ cd atari-fw
 make
 ```
 
-## Install firmware: QT PY RP2040
+## Install firmware
 
-Note: Do not flash the QT PY whilst it's installed in an Atari.
+Note: Do not flash an RP2040 board whilst it's installed (in a powered-on) Atari.
 
-Connect the QT PY to the build host, then hold and release both its buttons to boot it into its UF2 bootloader.  Copy `./build_qtpy/atari-fw_qtpy.uf2` to the QT PY drive, or have the build system do it for you:
+Connect the board to the build host, then boot it into it's bootloader (hold the boot button then press and release the reset button).  Next, copy the appropriate image to the `RPI-RP2` drive/mount (adjust the `RP2040_MOUNT` option as necessary):
 
-On macOS:
-
-```
-make qtpy_install
-```
-
-On other platforms:
-
-```
-QTPY_MOUNT=<qtpy-mount-path> make qtpy_install
-```
+  - [adafruit qtpy](https://www.adafruit.com/product/4900):
+  ```
+  RP2040_MOUNT=/Volumes/RPI-RP2 RP2040_BOARD=adafruit_qtpy_rp2040 make rp2040_install
+  ```
+  - [waveshare rp2040 zero](https://www.waveshare.com/rp2040-zero.htm):
+  ```
+  RP2040_MOUNT=/Volumes/RPI-RP2 RP2040_BOARD=waveshare_rp2040_zero make rp2040_install
+  ```

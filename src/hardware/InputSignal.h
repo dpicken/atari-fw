@@ -6,7 +6,9 @@ namespace hardware {
 struct InputSignal {
   typedef bool (* const Action)();
 
-  InputSignal(Action ia);
+  constexpr InputSignal(Action ia)
+    : isActive(ia) {
+  }
 
   const Action isActive;
 };
