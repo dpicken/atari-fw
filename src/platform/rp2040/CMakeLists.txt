@@ -19,11 +19,11 @@ include_directories(${ATARI_FW_ROOT}/src)
 
 add_executable(atari-fw_${RP2040_BOARD}
 
-  ${ATARI_FW_ROOT}/src/hardware/OutputSignal.h
-  ${ATARI_FW_ROOT}/src/hardware/misc.h
-  ${ATARI_FW_ROOT}/src/hardware/OutputSignal.cc
-  ${ATARI_FW_ROOT}/src/hardware/InputSignal.h
-  ${ATARI_FW_ROOT}/src/hardware/InputSignal.cc
+  ${ATARI_FW_ROOT}/src/hal/OutputSignal.h
+  ${ATARI_FW_ROOT}/src/hal/misc.h
+  ${ATARI_FW_ROOT}/src/hal/OutputSignal.cc
+  ${ATARI_FW_ROOT}/src/hal/InputSignal.h
+  ${ATARI_FW_ROOT}/src/hal/InputSignal.cc
   ${ATARI_FW_ROOT}/src/app/App.cc
   ${ATARI_FW_ROOT}/src/app/App.h
   ${ATARI_FW_ROOT}/src/util/type_traits.h

@@ -3,34 +3,34 @@
 
 #include "KeyBit.h"
 
-#include "hardware/misc.h"
-#include "hardware/OutputSignal.h"
+#include "hal/misc.h"
+#include "hal/OutputSignal.h"
 
 namespace keyboard { namespace console {
 
 class Controller {
 public:
   Controller(
-      ::hardware::OutputSignal start,
-      ::hardware::OutputSignal select,
-      ::hardware::OutputSignal option,
-      ::hardware::OutputSignal reset,
-      ::hardware::OutputSignal power,
-      ::hardware::PowerOnSequence powerOnSequence);
+      ::hal::OutputSignal start,
+      ::hal::OutputSignal select,
+      ::hal::OutputSignal option,
+      ::hal::OutputSignal reset,
+      ::hal::OutputSignal power,
+      ::hal::PowerOnSequence powerOnSequence);
 
   /** Receive a keyboard report. */
   void receiveInputReport(const KeyBitset keyBitset);
 
 private:
   template<KeyBit keyBit>
-  void processKeyBit(const KeyBitset keyBitset, const ::hardware::OutputSignal& signal);
+  void processKeyBit(const KeyBitset keyBitset, const ::hal::OutputSignal& signal);
 
-  const ::hardware::OutputSignal m_start;
-  const ::hardware::OutputSignal m_select;
-  const ::hardware::OutputSignal m_option;
-  const ::hardware::OutputSignal m_reset;
-  const ::hardware::OutputSignal m_power;
-  const ::hardware::PowerOnSequence m_powerOnSequence;
+  const ::hal::OutputSignal m_start;
+  const ::hal::OutputSignal m_select;
+  const ::hal::OutputSignal m_option;
+  const ::hal::OutputSignal m_reset;
+  const ::hal::OutputSignal m_power;
+  const ::hal::PowerOnSequence m_powerOnSequence;
   bool m_powerLatched;
   bool m_powerActive;
 };

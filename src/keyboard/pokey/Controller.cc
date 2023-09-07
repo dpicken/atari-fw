@@ -9,11 +9,11 @@ static const std::uint64_t PokeyKeyScanTimeoutUs = 250 * 1000;
 } // namespace
 
 keyboard::pokey::Controller::Controller(
-    ::hardware::InputSignal k0,
-    ::hardware::InputSignal k5,
-    ::hardware::OutputSignal kr1,
-    ::hardware::OutputSignal kr2,
-    ::hardware::BusyWaitEq busyWaitEq)
+    ::hal::InputSignal k0,
+    ::hal::InputSignal k5,
+    ::hal::OutputSignal kr1,
+    ::hal::OutputSignal kr2,
+    ::hal::BusyWaitEq busyWaitEq)
   : m_k0(k0)
   , m_k5(k5)
   , m_kr1(kr1)

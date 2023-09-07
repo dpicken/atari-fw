@@ -1,7 +1,7 @@
-#ifndef hardware_InputSignal_h
-#define hardware_InputSignal_h
+#ifndef hal_InputSignal_h
+#define hal_InputSignal_h
 
-namespace hardware {
+namespace hal {
 
 struct InputSignal {
   typedef bool (* const Action)();
@@ -13,6 +13,6 @@ struct InputSignal {
   const Action isActive;
 };
 
-} // namespace hardware
+} // namespace hal
 
-#endif // ifndef hardware_InputSignal_h
+#endif // ifndef hal_InputSignal_h

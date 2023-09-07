@@ -3,9 +3,9 @@
 
 #include "InputReport.h"
 
-#include "hardware/InputSignal.h"
-#include "hardware/misc.h"
-#include "hardware/OutputSignal.h"
+#include "hal/InputSignal.h"
+#include "hal/misc.h"
+#include "hal/OutputSignal.h"
 
 #include <cstdint>
 
@@ -14,22 +14,22 @@ namespace keyboard { namespace pokey {
 class Controller {
 public:
   Controller(
-      ::hardware::InputSignal k0,
-      ::hardware::InputSignal k5,
-      ::hardware::OutputSignal kr1,
-      ::hardware::OutputSignal kr2,
-      ::hardware::BusyWaitEq busyWaitEq);
+      ::hal::InputSignal k0,
+      ::hal::InputSignal k5,
+      ::hal::OutputSignal kr1,
+      ::hal::OutputSignal kr2,
+      ::hal::BusyWaitEq busyWaitEq);
 
   /** Receive a keyboard report. */
   void receiveInputReport(const InputReport& report) const;
 
 private:
-  const ::hardware::InputSignal m_k0;
-  const ::hardware::InputSignal m_k5;
-  const ::hardware::OutputSignal m_kr1;
-  const ::hardware::OutputSignal m_kr2;
+  const ::hal::InputSignal m_k0;
+  const ::hal::InputSignal m_k5;
+  const ::hal::OutputSignal m_kr1;
+  const ::hal::OutputSignal m_kr2;
 
-  const ::hardware::BusyWaitEq m_busyWaitEq;
+  const ::hal::BusyWaitEq m_busyWaitEq;
 };
 
 } } // namespace keyboard::pokey

@@ -1,21 +1,21 @@
 #include "App.h"
 
-#include "hardware/InputSignal.h"
-#include "hardware/OutputSignal.h"
+#include "hal/InputSignal.h"
+#include "hal/OutputSignal.h"
 
 #include <pico/stdlib.h>
 
 #define DEFINE_INPUT_SIGNAL(gpioSet, name, activeValue)\
   gpio_init(gpioSet.name);\
   gpio_set_dir(gpioSet.name, GPIO_IN);\
-  hardware::InputSignal name(\
+  hal::InputSignal name(\
       [](){ return gpio_get(gpioSet.name) == activeValue; })
 
 #define DEFINE_OUTPUT_SIGNAL(gpioSet, name, activeValue)\
   gpio_init(gpioSet.name);\
   gpio_set_dir(gpioSet.name, GPIO_OUT);\
   gpio_put(gpioSet.name, !activeValue);\
-  hardware::OutputSignal name(\
+  hal::OutputSignal name(\
       [](){ gpio_put(gpioSet.name, activeValue); },\
       [](){ gpio_put(gpioSet.name, !activeValue); })
 
@@ -23,20 +23,20 @@
   gpio_init(gpioSet.name);\
   gpio_set_dir(gpioSet.name, GPIO_OUT);\
   gpio_put(gpioSet.name, !activeValue);\
-  hardware::OutputSignal name(\
+  hal::OutputSignal name(\
       [](){ gpio_put(gpioSet.name, activeValue); App::instance().onSwitchedPowerChanged(true); },\
       [](){ gpio_put(gpioSet.name, !activeValue); App::instance().onSwitchedPowerChanged(false); })
 
 namespace {
 
-void powerOnSequence(const hardware::OutputSignal& power, const hardware::OutputSignal& reset) {
+void powerOnSequence(const hal::OutputSignal& power, const hal::OutputSignal& reset) {
   reset.activate();
   power.activate();
   sleep_ms(500);
   reset.deactivate();
 }
 
-bool busyWaitEq(const hardware::InputSignal& signal, bool value, std::uint64_t timeoutDurationUs) {
+bool busyWaitEq(const hal::InputSignal& signal, bool value, std::uint64_t timeoutDurationUs) {
   std::uint64_t timeoutTimePoint = time_us_64() + timeoutDurationUs;
   while (signal.isActive() != value) {
     if (time_us_64() >= timeoutTimePoint) {

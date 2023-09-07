@@ -1,9 +1,9 @@
 #ifndef app_app_h
 #define app_app_h
 
-#include "hardware/InputSignal.h"
-#include "hardware/misc.h"
-#include "hardware/OutputSignal.h"
+#include "hal/InputSignal.h"
+#include "hal/misc.h"
+#include "hal/OutputSignal.h"
 #include "keyboard/Controller.h"
 #include "keyboard/console/Controller.h"
 #include "keyboard/pokey/Controller.h"
@@ -12,17 +12,17 @@ namespace app {
 
 class App {
 public:
-  App(::hardware::OutputSignal start,
-      ::hardware::OutputSignal select,
-      ::hardware::OutputSignal option,
-      ::hardware::OutputSignal reset,
-      ::hardware::OutputSignal power,
-      ::hardware::PowerOnSequence powerOnSequence,
-      ::hardware::InputSignal k0,
-      ::hardware::InputSignal k5,
-      ::hardware::OutputSignal kr1,
-      ::hardware::OutputSignal kr2,
-      ::hardware::BusyWaitEq busyWaitEq);
+  App(::hal::OutputSignal start,
+      ::hal::OutputSignal select,
+      ::hal::OutputSignal option,
+      ::hal::OutputSignal reset,
+      ::hal::OutputSignal power,
+      ::hal::PowerOnSequence powerOnSequence,
+      ::hal::InputSignal k0,
+      ::hal::InputSignal k5,
+      ::hal::OutputSignal kr1,
+      ::hal::OutputSignal kr2,
+      ::hal::BusyWaitEq busyWaitEq);
 
   bool isKeyboardAttached() const {
     return m_keyboardAttachedCount != 0;

@@ -4,8 +4,6 @@
 #include "NeoPixelSerializeColor.h"
 
 #include "app/App.h"
-#include "hardware/InputSignal.h"
-#include "hardware/OutputSignal.h"
 
 #ifdef CFG_TUSB_MCU
 #include <bsp/board.h>

@@ -1,12 +1,12 @@
 #include "Controller.h"
 
 keyboard::console::Controller::Controller(
-    ::hardware::OutputSignal start,
-    ::hardware::OutputSignal select,
-    ::hardware::OutputSignal option,
-    ::hardware::OutputSignal reset,
-    ::hardware::OutputSignal power,
-    ::hardware::PowerOnSequence powerOnSequence)
+    ::hal::OutputSignal start,
+    ::hal::OutputSignal select,
+    ::hal::OutputSignal option,
+    ::hal::OutputSignal reset,
+    ::hal::OutputSignal power,
+    ::hal::PowerOnSequence powerOnSequence)
   : m_start(start)
   , m_select(select)
   , m_option(option)
@@ -18,7 +18,7 @@ keyboard::console::Controller::Controller(
 }
 
 template<keyboard::console::KeyBit keyBit>
-void keyboard::console::Controller::processKeyBit(const KeyBitset keyBitset, const ::hardware::OutputSignal& signal) {
+void keyboard::console::Controller::processKeyBit(const KeyBitset keyBitset, const ::hal::OutputSignal& signal) {
   if ((keyBitset & keyBit) != 0) {
     signal.activate();
   } else {
@@ -27,7 +27,7 @@ void keyboard::console::Controller::processKeyBit(const KeyBitset keyBitset, con
 }
 
 template<>
-void keyboard::console::Controller::processKeyBit<keyboard::console::KeyBit::Power>(const KeyBitset keyBitset, const ::hardware::OutputSignal& power) {
+void keyboard::console::Controller::processKeyBit<keyboard::console::KeyBit::Power>(const KeyBitset keyBitset, const ::hal::OutputSignal& power) {
   if ((keyBitset & KeyBit::Power) != 0) {
     if (m_powerLatched) {
       return;

@@ -1,7 +1,7 @@
-#ifndef hardware_OutputSignal_h
-#define hardware_OutputSignal_h
+#ifndef hal_OutputSignal_h
+#define hal_OutputSignal_h
 
-namespace hardware {
+namespace hal {
 
 struct OutputSignal {
   typedef void (* const Action)();
@@ -15,6 +15,6 @@ struct OutputSignal {
   const Action deactivate;
 };
 
-} // namespace hardware
+} // namespace hal
 
-#endif // ifndef hardware_OutputSignal_h
+#endif // ifndef hal_OutputSignal_h
