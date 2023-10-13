@@ -3,7 +3,8 @@
 
 #include "NeoPixelSerializeColor.h"
 
-#include "app/App.h"
+#include "keyboard/App.h"
+#include "sio/App.h"
 
 #ifdef CFG_TUSB_MCU
 #include <bsp/board.h>
@@ -14,6 +15,7 @@
 #endif
 #include <tusb.h>
 
+#include <atomic>
 #include <cstdint>
 
 namespace platform { namespace rp2040 {
@@ -24,13 +26,16 @@ public:
 
   void initNeoPixel(unsigned int txGpio, NeoPixelSerializeColor neoPixelSerializeColor);
 
-  [[noreturn]] void run(::app::App& app);
+  [[noreturn]] void run(::keyboard::App& keyboardApp);
+  [[noreturn]] void run(::sio::App& app);
 
   void onSwitchedPowerChanged(bool active);
-  void onKeyboardAttachFailed();
   void onKeyboardAttached();
   void onKeyboardDetached();
   void onKeyboardInput(const keyboard::usb::InputReport& report);
+
+  void onSioXfer(bool active);
+  void onSioXferTimeout();
 
 private:
   App();
@@ -39,9 +44,15 @@ private:
   void setNeoPixelRGB(std::uint8_t r, std::uint8_t g, std::uint8_t b);
 
   NeoPixelSerializeColor m_neoPixelSerializeColor;
+  std::uint32_t m_neoPixelRefreshTimePoint;
+
   bool m_switchedPowerActive;
-  bool m_keyboardAttachFailed;
-  ::app::App* m_app;
+
+  std::atomic_bool m_sioXferActive;
+  std::atomic_bool m_sioXferTimeout;
+
+  ::keyboard::App* m_keyboardApp;
+  ::sio::App* m_sioApp;
 };
 
 } } // namespace platform::rp2040

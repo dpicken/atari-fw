@@ -11,7 +11,9 @@ enum class KeyBit : std::uint8_t {
   Select  = 1 << 1,
   Option  = 1 << 2,
   Reset   = 1 << 3,
-  Power   = 1 << 4
+  Power   = 1 << 4,
+  Eject   = 1 << 5,
+  D1RotateDisk = 1 << 6
 };
 
 using KeyBitset = std::underlying_type<KeyBit>::type;

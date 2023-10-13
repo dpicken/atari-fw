@@ -4,7 +4,7 @@
 
 namespace {
 
-static const std::uint64_t PokeyKeyScanTimeoutUs = 250 * 1000;
+constexpr hal::duration_us PokeyKeyScanTimeout = 250 * 1000;
 
 } // namespace
 
@@ -22,10 +22,10 @@ keyboard::pokey::Controller::Controller(
 }
 
 void keyboard::pokey::Controller::receiveInputReport(const InputReport& report) const {
-  if (!m_busyWaitEq(m_k5, false, PokeyKeyScanTimeoutUs)) {
+  if (!m_busyWaitEq(m_k5, false, PokeyKeyScanTimeout)) {
     return;
   }
-  if (!m_busyWaitEq(m_k5, true, PokeyKeyScanTimeoutUs)) {
+  if (!m_busyWaitEq(m_k5, true, PokeyKeyScanTimeout)) {
     return;
   }
 
@@ -42,7 +42,7 @@ void keyboard::pokey::Controller::receiveInputReport(const InputReport& report) 
         m_kr2.activate();
       }
 
-      bool timedOut = !m_busyWaitEq(m_k0, !k0Active, PokeyKeyScanTimeoutUs);
+      bool timedOut = !m_busyWaitEq(m_k0, !k0Active, PokeyKeyScanTimeout);
       k0Active = !k0Active;
 
       m_kr1.deactivate();

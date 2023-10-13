@@ -38,20 +38,65 @@ struct KeyboardGpio {
   const unsigned int kr2;
 };
 
+template<bool supported>
+struct SioGpio;
+
+template<>
+struct SioGpio<false> {
+  static constexpr bool supported = false;
+};
+
+template<>
+struct SioGpio<true> {
+  static constexpr bool supported = true;
+  const unsigned int command;
+  const unsigned int uartInstance;
+  const unsigned int uartRx;
+  const unsigned int uartTx;
+  const unsigned int motor;
+};
+
+template<bool supported>
+struct SDGpio;
+
+template<>
+struct SDGpio<false> {
+  static constexpr bool supported = false;
+};
+
+template<>
+struct SDGpio<true> {
+  static constexpr bool supported = true;
+  const unsigned int power;
+  const unsigned int detect;
+  const unsigned int cs;
+  const unsigned int clock;
+  const unsigned int dataOut;
+  const unsigned int dataIn;
+};
+
 template<
     auto neoPixelGpioValue,
     SystemGpio systemGpioValue,
-    KeyboardGpio keyboardGpioValue>
+    KeyboardGpio keyboardGpioValue,
+    auto sioGpioValue = SioGpio<false>(),
+    auto sdGpioValue = SDGpio<false>()>
 struct AppTraits {
   static constexpr auto neoPixelGpio = neoPixelGpioValue;
   static constexpr SystemGpio systemGpio = systemGpioValue;
   static constexpr KeyboardGpio keyboardGpio = keyboardGpioValue;
+  static constexpr auto sioGpio = sioGpioValue;
+  static constexpr auto sdGpio = sdGpioValue;
 };
 
 template<typename AppTraits>
 class AppLauncher {
 public:
-  AppLauncher();
+  [[noreturn]] AppLauncher();
+
+private:
+  [[noreturn]] static void runKeyboardApp();
+  [[noreturn]] static void runSioApp();
 };
 
 } } // namespace platform::rp2040

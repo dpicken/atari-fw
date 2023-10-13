@@ -1,8 +1,8 @@
 RP2040_SRC_DIR := $(SRC_DIR)/platform/rp2040
-RP2040_BUILD_DIR := ./build_rp2040
+BUILD_DIR_RP2040 := ./build_rp2040
 
-RP2040_BOARD ?= adafruit_qtpy_rp2040
-RP2040_BOARD_BUILD_DIR := $(RP2040_BUILD_DIR)/$(RP2040_BOARD)
+RP2040_BOARD ?= waveshare_rp2040_zero
+RP2040_BOARD_BUILD_DIR := $(BUILD_DIR_RP2040)/$(RP2040_BOARD)
 
 PICO_SDK_DIR := ../pico-sdk
 
@@ -23,35 +23,45 @@ CXXFLAGS += $(RP2040_CXXFLAGS)
 
 RP2040_MOUNT ?= /Volumes/RPI-RP2
 
+.PHONY: rp2040-src-list
+rp2040-src-list: media-disk-library
+	$(echo_recipe)find src -type f -name '*.cc' -o -name '*.h' | sed 's@^src/platform/rp2040/\(.*\)/app.cc@src/platform/rp2040/$${RP2040_BOARD}/app.cc@' | sed 's@^src/@$${ATARI_FW_ROOT}/src/@' | grep -v '/test/' | sort | uniq
+
 $(RP2040_BOARD_BUILD_DIR)/Makefile: $(RP2040_SRC_DIR)/CMakeLists.txt
 	$(echo_build_message)
 	$(echo_recipe)rm -rf $(RP2040_BOARD_BUILD_DIR)
 	$(echo_recipe)cmake -S $(RP2040_SRC_DIR) -B $(RP2040_BOARD_BUILD_DIR) -DRP2040_BOARD=$(RP2040_BOARD)
 
-.PHONEY: rp2040
-rp2040: $(RP2040_BOARD_BUILD_DIR)/Makefile
+.PHONY: rp2040
+rp2040: $(RP2040_BOARD_BUILD_DIR)/Makefile media-disk-library
 	$(echo_build_message)
-	$(echo_recipe)VERBOSE= COLOR= $(MAKE) -C $(RP2040_BOARD_BUILD_DIR)
+	$(echo_recipe)VERBOSE= COLOR= make -C $(RP2040_BOARD_BUILD_DIR)
 
-.PHONEY: rp2040_install
-rp2040_install: rp2040
+.PHONY: rp2040-all
+rp2040-all:
+	$(echo_build_message)
+	$(echo_recipe)RP2040_BOARD=adafruit_qtpy_rp2040 make rp2040
+	$(echo_recipe)RP2040_BOARD=waveshare_rp2040_zero make rp2040
+
+.PHONY: rp2040-install
+rp2040-install: rp2040
 	$(echo_build_message)
 	$(echo_recipe)cp $(RP2040_BOARD_BUILD_DIR)/atari-fw_$(RP2040_BOARD).uf2 $(RP2040_MOUNT)
 
-.PHONEY: rp2040_distribute
-rp2040_distribute: rp2040
+.PHONY: rp2040-distribute
+rp2040-distribute: rp2040 test
 	$(echo_build_message)
 	$(echo_recipe)cp $(RP2040_BOARD_BUILD_DIR)/atari-fw_$(RP2040_BOARD).uf2 ../atari-hw/prebuilt/
 
-.PHONEY: distribute
+.PHONY: distribute
 distribute:
 	$(echo_build_message)
-	$(echo_recipe)RP2040_BOARD=adafruit_qtpy_rp2040 make rp2040_distribute
-	$(echo_recipe)RP2040_BOARD=waveshare_rp2040_zero make rp2040_distribute
+	$(echo_recipe)ATR_FILES=$(LOCAL_ATR_FILES) RP2040_BOARD=adafruit_qtpy_rp2040 make rp2040-distribute
+	$(echo_recipe)ATR_FILES=$(LOCAL_ATR_FILES) RP2040_BOARD=waveshare_rp2040_zero make rp2040-distribute
 
-.PHONEY: rp2040_clean
-rp2040_clean:
-	$(echo_recipe)rm -rf $(RP2040_BUILD_DIR)
+PHONY: rp2040-clean
+rp2040-clean:
+	$(echo_recipe)rm -rf $(BUILD_DIR_RP2040)
 
-all: rp2040
-clean: rp2040_clean
+init: | rp2040
+clean: rp2040-clean

@@ -1,5 +1,5 @@
-#ifndef app_app_h
-#define app_app_h
+#ifndef keyboard_app_h
+#define keyboard_app_h
 
 #include "hal/InputSignal.h"
 #include "hal/misc.h"
@@ -8,7 +8,7 @@
 #include "keyboard/console/Controller.h"
 #include "keyboard/pokey/Controller.h"
 
-namespace app {
+namespace keyboard {
 
 class App {
 public:
@@ -44,6 +44,6 @@ private:
   ::keyboard::usb::InputReport m_currentInputReport;
 };
 
-} // namespace app
+} // namespace keyboard
 
-#endif // ifndef app_app_h
+#endif // ifndef keyboard_app_h

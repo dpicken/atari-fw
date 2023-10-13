@@ -20,6 +20,14 @@ constexpr platform::rp2040::KeyboardGpio keyboardGpio = {
   .kr2 = 29
 };
 
+constexpr platform::rp2040::SioGpio<true> sioGpio = {
+  .command = 10,
+  .uartInstance = 1,
+  .uartRx = 9,
+  .uartTx = 8,
+  .motor = 7
+};
+
 int main() {
-  platform::rp2040::AppLauncher<platform::rp2040::AppTraits<neoPixelGpio, systemGpio, keyboardGpio>> appLauncher;
+  platform::rp2040::AppLauncher<platform::rp2040::AppTraits<neoPixelGpio, systemGpio, keyboardGpio, sioGpio>> appLauncher;
 }

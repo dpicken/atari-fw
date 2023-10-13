@@ -57,6 +57,8 @@ keyboard::Controller::Controller(console::Controller* consoleController, pokey::
       {usb::KeyCode::F2, console::KeyBit::Start},
       {usb::KeyCode::F3, console::KeyBit::Select},
       {usb::KeyCode::F4, console::KeyBit::Option},
+      {usb::KeyCode::F10, console::KeyBit::D1RotateDisk},
+      {usb::KeyCode::F11, console::KeyBit::Eject},
       {usb::KeyCode::F12, console::KeyBit::Reset},
       {{usbTiedCtrl, usb::KeyCode::F12}, console::KeyBit::Power}
     }
@@ -80,7 +82,7 @@ keyboard::Controller::Controller(console::Controller* consoleController, pokey::
       MAKE_SIMPLE_MAPPING(Nine_OpenParenthesis, Nine_OpenParenthesis),
       MAKE_SIMPLE_MAPPING(Zero_CloseParenthesis, Zero_CloseParenthesis),
       MAKE_SHIFTED_USB_TO_UNSHIFTED_POKEY_MAPPING(Comma_LessThan, LessThan_Clear),
-      MAKE_UNSHIFTED_USB_TO_SHIFTED_POKEY_MAPPING(F10, LessThan_Clear),
+      MAKE_UNSHIFTED_USB_TO_SHIFTED_POKEY_MAPPING(F6, LessThan_Clear),
       MAKE_SHIFTED_USB_TO_UNSHIFTED_POKEY_MAPPING(Period_GreaterThan, GreaterThan_Insert),
       MAKE_UNSHIFTED_USB_TO_UNSHIFTED_POKEY_MAPPING(Insert, GreaterThan_Insert),
       MAKE_SIMPLE_MAPPING(Delete, Backspace),

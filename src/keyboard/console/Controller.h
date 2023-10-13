@@ -2,9 +2,12 @@
 #define keyboard_console_Controller_h
 
 #include "KeyBit.h"
+#include "KeyReleaseObserver.h"
 
 #include "hal/misc.h"
 #include "hal/OutputSignal.h"
+
+#include <functional>
 
 namespace keyboard { namespace console {
 
@@ -25,13 +28,22 @@ private:
   template<KeyBit keyBit>
   void processKeyBit(const KeyBitset keyBitset, const ::hal::OutputSignal& signal);
 
+  template<KeyBit keyBit>
+  void processKeyReleaseObserver(const KeyBitset keyBitset, KeyReleaseObserver* observer, std::function<void()> action);
+
+  void togglePower();
+
   const ::hal::OutputSignal m_start;
   const ::hal::OutputSignal m_select;
   const ::hal::OutputSignal m_option;
   const ::hal::OutputSignal m_reset;
   const ::hal::OutputSignal m_power;
   const ::hal::PowerOnSequence m_powerOnSequence;
-  bool m_powerLatched;
+
+  KeyReleaseObserver m_powerKeyObserver;
+  KeyReleaseObserver m_ejectKeyObserver;
+  KeyReleaseObserver m_d1RotateDiskKeyObserver;
+
   bool m_powerActive;
 };
 

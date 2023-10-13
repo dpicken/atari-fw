@@ -1,6 +1,6 @@
 #include "App.h"
 
-app::App::App(
+keyboard::App::App(
     ::hal::OutputSignal start,
     ::hal::OutputSignal select,
     ::hal::OutputSignal option,
@@ -18,21 +18,21 @@ app::App::App(
   , m_keyboardAttachedCount(0) {
 }
 
-void app::App::onKeyboardAttached() {
+void keyboard::App::onKeyboardAttached() {
   ++m_keyboardAttachedCount;
 }
 
-void app::App::onKeyboardDetached() {
+void keyboard::App::onKeyboardDetached() {
   onKeyboardInput({});
   schedule();
   --m_keyboardAttachedCount;
 }
 
-void app::App::onKeyboardInput(const ::keyboard::usb::InputReport& report) {
+void keyboard::App::onKeyboardInput(const ::keyboard::usb::InputReport& report) {
   m_currentInputReport = report;
 }
 
-void app::App::schedule() {
+void keyboard::App::schedule() {
   if (m_keyboardAttachedCount > 0) {
     m_keyboardController.receiveInputReport(m_currentInputReport);
   }
