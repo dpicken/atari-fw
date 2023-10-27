@@ -29,21 +29,21 @@ public:
   virtual void handle(const Command* command) = 0;
 
   void commandAck() const {
-    m_uart.txByte('A');
+    m_uart.tx('A');
   }
 
   void commandNack() const {
-    m_uart.txByte('N');
+    m_uart.tx('N');
   }
 
   void commandComplete() const {
     busyWaitCommandDeadTime();
-    m_uart.txByte('C');
+    m_uart.tx('C');
   }
 
   void commandError() const {
     busyWaitCommandDeadTime();
-    m_uart.txByte('E');
+    m_uart.tx('E');
   }
 
   const ::hal::Uart* uart() const {

@@ -28,6 +28,16 @@ constexpr platform::rp2040::SioGpio<true> sioGpio = {
   .motor = 7
 };
 
+constexpr platform::rp2040::SDGpio<true> sdGpio = {
+  .detect = 11,
+  .power = 1,
+  .spiInstance = 1,
+  .spiCs = 13,
+  .spiRx = 12,
+  .spiTx = 15,
+  .spiClock = 14
+};
+
 int main() {
-  platform::rp2040::AppLauncher<platform::rp2040::AppTraits<neoPixelGpio, systemGpio, keyboardGpio, sioGpio>> appLauncher;
+  platform::rp2040::AppLauncher<platform::rp2040::AppTraits<neoPixelGpio, systemGpio, keyboardGpio, sioGpio, sdGpio>> appLauncher;
 }

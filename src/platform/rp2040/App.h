@@ -37,6 +37,9 @@ public:
   void onSioXfer(bool active);
   void onSioXferTimeout();
 
+  void onSdXfer(bool active);
+  void onSdXferTimeout();
+
 private:
   App();
 
@@ -50,6 +53,8 @@ private:
 
   std::atomic_bool m_sioXferActive;
   std::atomic_bool m_sioXferTimeout;
+  std::atomic_bool m_sdXferActive;
+  std::atomic_bool m_sdXferTimeout;
 
   ::keyboard::App* m_keyboardApp;
   ::sio::App* m_sioApp;

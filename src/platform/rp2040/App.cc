@@ -9,6 +9,8 @@ platform::rp2040::App::App()
   , m_switchedPowerActive(false)
   , m_sioXferActive(false)
   , m_sioXferTimeout(false)
+  , m_sdXferActive(false)
+  , m_sdXferTimeout(false)
   , m_keyboardApp(nullptr)
   , m_sioApp(nullptr) {
 }
@@ -66,6 +68,16 @@ void platform::rp2040::App::onSioXferTimeout() {
   m_sioXferTimeout.store(true, std::memory_order_relaxed);
 }
 
+void platform::rp2040::App::onSdXfer(bool active) {
+  m_sdXferTimeout.store(false, std::memory_order_relaxed);
+  m_sdXferActive.store(active, std::memory_order_relaxed);
+}
+
+void platform::rp2040::App::onSdXferTimeout() {
+  m_sdXferActive.store(false, std::memory_order_relaxed);
+  m_sdXferTimeout.store(true, std::memory_order_relaxed);
+}
+
 void platform::rp2040::App::reflectStateInNeoPixel() {
   std::uint32_t currentTimePoint = time_us_32();
   if (currentTimePoint - m_neoPixelRefreshTimePoint < 250 * 1000) {
@@ -77,10 +89,14 @@ void platform::rp2040::App::reflectStateInNeoPixel() {
     setNeoPixelRGB(0x00, 0x00, 0xFF); // Blue (bright)
   } else if (!m_switchedPowerActive) {
     setNeoPixelRGB(0x04, 0x00, 0x00); // Red
-  } else if (m_sioXferTimeout.load(std::memory_order_relaxed)) {
+  } else if (m_sdXferTimeout.load(std::memory_order_relaxed)) {
     setNeoPixelRGB(0xFF, 0x00, 0xFF); // Purple (bright)
+  } else if (m_sioXferTimeout.load(std::memory_order_relaxed)) {
+    setNeoPixelRGB(0x04, 0x00, 0x04); // Purple
+  } else if (m_sdXferActive.load(std::memory_order_relaxed)) {
+    setNeoPixelRGB(0xFF, 0xFF, 0xFF); // White (bright)
   } else if (m_sioXferActive.load(std::memory_order_relaxed)) {
-    setNeoPixelRGB(0x00, 0xFF, 0x00); // Green (bright)
+    setNeoPixelRGB(0x04, 0x04, 0x04); // White
   } else {
     setNeoPixelRGB(0x00, 0x04, 0x00); // Green
   }

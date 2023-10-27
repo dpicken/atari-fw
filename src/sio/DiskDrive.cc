@@ -7,7 +7,7 @@ sio::DiskDrive::DiskDrive(::hal::Uart uart, ::hal::BusyWait busyWait)
   : Device(uart, busyWait)
   , m_sink([device = this](const std::uint8_t* sector, std::size_t sectorSize) {
       device->uart()->tx(sector, sectorSize);
-      device->uart()->txByte(checksum(sector, sectorSize));
+      device->uart()->tx(checksum(sector, sectorSize));
     }) {
 }
 

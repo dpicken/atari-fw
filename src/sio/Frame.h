@@ -22,7 +22,7 @@ struct Frame {
   }
 
   bool rx(const ::hal::Uart* uart) {
-    if (!uart->rx(reinterpret_cast<std::uint8_t*>(this), sizeof(*this))) {
+    if (!uart->rx(*this)) {
       return false;
     }
     if (m_checksum != checksum(reinterpret_cast<const std::uint8_t*>(&m_data), sizeof(m_data))) {
@@ -31,9 +31,9 @@ struct Frame {
     return true;
   }
 
-  bool tx(const ::hal::Uart* uart) {
+  void tx(const ::hal::Uart* uart) {
     m_checksum = checksum(reinterpret_cast<std::uint8_t*>(&m_data), sizeof(m_data));
-    return uart->tx(reinterpret_cast<const std::uint8_t*>(this), sizeof(*this));
+    uart->tx(*this);
   }
 
 private:

@@ -67,12 +67,13 @@ struct SDGpio<false> {
 template<>
 struct SDGpio<true> {
   static constexpr bool supported = true;
-  const unsigned int power;
   const unsigned int detect;
-  const unsigned int cs;
-  const unsigned int clock;
-  const unsigned int dataOut;
-  const unsigned int dataIn;
+  const unsigned int power;
+  const unsigned int spiInstance;
+  const unsigned int spiCs;
+  const unsigned int spiRx;
+  const unsigned int spiTx;
+  const unsigned int spiClock;
 };
 
 template<

@@ -2,25 +2,38 @@
 
 #include "hal/InputSignal.h"
 #include "hal/OutputSignal.h"
+#include "hal/Spi.h"
 #include "hal/Uart.h"
+#include "sd/Traits.h"
 #include "sio/App.h"
 #include "sio/Traits.h"
 
+#include <hardware/spi.h>
 #include <pico/multicore.h>
 #include <pico/stdlib.h>
 
+#include <algorithm>
 #include <type_traits>
+
+#define DEFINE_INPUT_SIGNAL(gpioSet, name, activeValue)         auto name = makeInputSignal<gpioSet.name, activeValue>()
+#define DEFINE_OUTPUT_SIGNAL(gpioSet, name, activeValue)        auto name = makeOutputSignal<gpioSet.name, activeValue>()
+#define DEFINE_POWER_OUTPUT_SIGNAL(gpioSet, name, activeValue)  auto name = makePowerOutputSignal<gpioSet.name, activeValue>()
+
+#define MAKE_OPTIONAL_SIGNAL(gpioSet, name, activeValue, makeSignalFn, nullSignal)\
+    [](){\
+      if constexpr(gpioSet.supported) {\
+        return makeSignalFn<gpioSet.name, activeValue>();\
+      } else {\
+        return nullSignal;\
+      }\
+    }()
+#define MAKE_OPTIONAL_INPUT_SIGNAL(gpioSet, name, activeValue)  MAKE_OPTIONAL_SIGNAL(gpioSet, name, activeValue, makeInputSignal, nullInputSignal)
+#define MAKE_OPTIONAL_OUTPUT_SIGNAL(gpioSet, name, activeValue) MAKE_OPTIONAL_SIGNAL(gpioSet, name, activeValue, makeOutputSignal, nullOutputSignal)
 
 namespace {
 
 const hal::InputSignal nullInputSignal([](){ return false; });
 const hal::OutputSignal nullOutputSignal([](){}, [](){});
-
-std::uint32_t getSioUartXferTimeoutDurationUs(std::size_t byteCount) {
-  auto bitCount = byteCount * (sio::Traits::uart_start_bit_count + sio::Traits::uart_data_bit_count + sio::Traits::uart_stop_bit_count);
-  auto timeoutDurationUs = (bitCount * 1000 * 1000) / sio::Traits::uart_baud_rate;
-  return static_cast<std::uint32_t>(timeoutDurationUs * 2);
-}
 
 template<uint gpio, bool activeValue>
 hal::InputSignal makeInputSignal() {
@@ -84,10 +97,17 @@ uart_inst_t* toUart(unsigned int uartInstance) {
   return (uartInstance == 0) ? uart0 : uart1;
 }
 
+std::uint32_t getSioUartXferTimeoutDurationUs(std::size_t byteCount) {
+  unsigned long bitCount = byteCount * (sio::Traits::uart_start_bit_count + sio::Traits::uart_data_bit_count + sio::Traits::uart_stop_bit_count);
+  unsigned long timeoutDurationUs = std::max((bitCount * 1000 * 1000) / sio::Traits::uart_baud_rate, 100UL);
+  return static_cast<std::uint32_t>(timeoutDurationUs * 2);
+}
+
 bool uartRx(unsigned int uartInstance, std::uint8_t* buf, std::size_t byteCount) {
   auto uart = toUart(uartInstance);
   std::uint32_t timeoutDurationUs = getSioUartXferTimeoutDurationUs(byteCount);
   std::uint32_t beginTimePoint = time_us_32();
+  platform::rp2040::App::instance().onSioXfer(true);
   for (auto it = buf, end = buf + byteCount; it != end; ++it) {
     while (!uart_is_readable(uart)) {
       if ((time_us_32() - beginTimePoint) >= timeoutDurationUs) {
@@ -95,29 +115,17 @@ bool uartRx(unsigned int uartInstance, std::uint8_t* buf, std::size_t byteCount)
         return false;
       }
     }
-    platform::rp2040::App::instance().onSioXfer(true);
     uart_read_blocking(uart, it, 1);
   }
   platform::rp2040::App::instance().onSioXfer(false);
   return true;
 }
 
-bool uartTx(unsigned int uartInstance, const std::uint8_t* buf, std::size_t byteCount) {
+void uartTx(unsigned int uartInstance, const std::uint8_t* buf, std::size_t byteCount) {
   auto uart = toUart(uartInstance);
-  std::uint32_t timeoutDurationUs = getSioUartXferTimeoutDurationUs(byteCount);
-  std::uint32_t beginTimePoint = time_us_32();
-  for (auto it = buf, end = buf + byteCount; it != end; ++it) {
-    while (!uart_is_writable(uart)) {
-      if ((time_us_32() - beginTimePoint) >= timeoutDurationUs) {
-        platform::rp2040::App::instance().onSioXferTimeout();
-        return false;
-      }
-    }
-    platform::rp2040::App::instance().onSioXfer(true);
-    uart_write_blocking(uart, it, 1);
-  }
+  platform::rp2040::App::instance().onSioXfer(true);
+  uart_write_blocking(uart, buf, byteCount);
   platform::rp2040::App::instance().onSioXfer(false);
-  return true;
 }
 
 template<auto gpioSet>
@@ -132,32 +140,58 @@ hal::Uart makeUart() {
     uart_set_format(uart, sio::Traits::uart_data_bit_count, sio::Traits::uart_stop_bit_count, UART_PARITY_NONE);
     return hal::Uart(
         [](std::uint8_t* buf, std::size_t byteCount) { return uartRx(gpioSet.uartInstance, buf, byteCount); },
-        [](const std::uint8_t* buf, std::size_t byteCount) { return uartTx(gpioSet.uartInstance, buf, byteCount); });
+        [](const std::uint8_t* buf, std::size_t byteCount) { uartTx(gpioSet.uartInstance, buf, byteCount); });
   } else {
     (void) uartRx;
     (void) uartTx;
     return hal::Uart(
         [](std::uint8_t*, std::size_t) { return false; },
-        [](const std::uint8_t*, std::size_t) { return false; });
+        [](const std::uint8_t*, std::size_t) {});
+  }
+}
+
+spi_inst_t* toSpi(unsigned int spiInstance) {
+  return (spiInstance == 0) ? spi0 : spi1;
+}
+
+void spiRx(unsigned int spiInstance, std::uint8_t* buf, std::size_t byteCount) {
+  auto spi = toSpi(spiInstance);
+  platform::rp2040::App::instance().onSdXfer(true);
+  spi_read_blocking(spi, sd::Traits::spi_null_byte, buf, byteCount);
+  platform::rp2040::App::instance().onSdXfer(false);
+}
+
+void spiTx(unsigned int spiInstance, const std::uint8_t* buf, std::size_t byteCount) {
+  auto spi = toSpi(spiInstance);
+  platform::rp2040::App::instance().onSdXfer(true);
+  spi_write_blocking(spi, buf, byteCount);
+  platform::rp2040::App::instance().onSdXfer(false);
+}
+
+template<auto gpioSet>
+hal::Spi makeSpi() {
+  if constexpr(gpioSet.supported) {
+    static_assert(gpioSet.spiInstance <= 1, "invalid spi instance");
+    auto spi = toSpi(gpioSet.spiInstance);
+    spi_init(spi, sd::Traits::spi_baud_rate);
+    // The SD card SPI protocol isn't strictly SPI.
+    //gpio_set_function(gpioSet.spiCs, GPIO_FUNC_SPI);
+    gpio_set_function(gpioSet.spiRx, GPIO_FUNC_SPI);
+    gpio_set_function(gpioSet.spiTx, GPIO_FUNC_SPI);
+    gpio_set_function(gpioSet.spiClock, GPIO_FUNC_SPI);
+    return hal::Spi(
+        [](std::uint8_t* buf, std::size_t byteCount) { spiRx(gpioSet.spiInstance, buf, byteCount); },
+        [](const std::uint8_t* buf, std::size_t byteCount) { spiTx(gpioSet.spiInstance, buf, byteCount); });
+  } else {
+    (void) spiRx;
+    (void) spiTx;
+    return hal::Spi(
+        [](std::uint8_t*, std::size_t) {},
+        [](const std::uint8_t*, std::size_t) {});
   }
 }
 
 } // namespace
-
-#define DEFINE_INPUT_SIGNAL(gpioSet, name, activeValue)         auto name = makeInputSignal<gpioSet.name, activeValue>()
-#define DEFINE_OUTPUT_SIGNAL(gpioSet, name, activeValue)        auto name = makeOutputSignal<gpioSet.name, activeValue>()
-#define DEFINE_POWER_OUTPUT_SIGNAL(gpioSet, name, activeValue)  auto name = makePowerOutputSignal<gpioSet.name, activeValue>()
-
-#define MAKE_OPTIONAL_SIGNAL(gpioSet, name, activeValue, makeSignalFn, nullSignal)\
-    [](){\
-      if constexpr(gpioSet.supported) {\
-        return makeSignalFn<gpioSet.name, activeValue>();\
-      } else {\
-        return nullSignal;\
-      }\
-    }()
-#define MAKE_OPTIONAL_INPUT_SIGNAL(gpioSet, name, activeValue)  MAKE_OPTIONAL_SIGNAL(gpioSet, name, activeValue, makeInputSignal, nullInputSignal)
-#define MAKE_OPTIONAL_OUTPUT_SIGNAL(gpioSet, name, activeValue) MAKE_OPTIONAL_SIGNAL(gpioSet, name, activeValue, makeOutputSignal, nullOutputSignal)
 
 template<typename AppTraits>
 platform::rp2040::AppLauncher<AppTraits>::AppLauncher() {
@@ -203,6 +237,11 @@ void platform::rp2040::AppLauncher<AppTraits>::runSioApp() {
   auto sioCommand = MAKE_OPTIONAL_INPUT_SIGNAL(AppTraits::sioGpio, command, false);
   auto sioUart = makeUart<AppTraits::sioGpio>();
 
-  ::sio::App sioApp(sioCommand, sioUart, busyWait, busyWaitEq);
+  auto sdDetect = MAKE_OPTIONAL_INPUT_SIGNAL(AppTraits::sdGpio, detect, false);
+  auto sdPower = MAKE_OPTIONAL_OUTPUT_SIGNAL(AppTraits::sdGpio, power, true);
+  auto sdCs = MAKE_OPTIONAL_OUTPUT_SIGNAL(AppTraits::sdGpio, spiCs, false);
+  auto sdSpi = makeSpi<AppTraits::sdGpio>();
+
+  ::sio::App sioApp(sioCommand, sioUart, sdDetect, sdPower, sdCs, sdSpi, busyWait, busyWaitEq);
   App::instance().run(sioApp);
 }

@@ -6,7 +6,9 @@
 
 #include "hal/InputSignal.h"
 #include "hal/misc.h"
+#include "hal/Spi.h"
 #include "hal/Uart.h"
+#include "sd/Controller.h"
 
 namespace sio {
 
@@ -14,6 +16,10 @@ class App {
 public:
   App(::hal::InputSignal command,
       ::hal::Uart uart,
+      ::hal::InputSignal sdDetect,
+      ::hal::OutputSignal sdPower,
+      ::hal::OutputSignal sdCs,
+      ::hal::Spi sdSpi,
       ::hal::BusyWait busyWait,
       ::hal::BusyWaitEq busyWaitEq);
 
@@ -24,6 +30,8 @@ private:
 
   DiskDrive m_d1;
   Controller m_controller;
+
+  ::sd::Controller m_sdController;
 };
 
 } // namespace sio

@@ -24,6 +24,8 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/hal/InputSignal.h
   ${ATARI_FW_ROOT}/src/hal/OutputSignal.cc
   ${ATARI_FW_ROOT}/src/hal/OutputSignal.h
+  ${ATARI_FW_ROOT}/src/hal/Spi.cc
+  ${ATARI_FW_ROOT}/src/hal/Spi.h
   ${ATARI_FW_ROOT}/src/hal/Uart.cc
   ${ATARI_FW_ROOT}/src/hal/Uart.h
   ${ATARI_FW_ROOT}/src/hal/duration_us.h
@@ -67,6 +69,17 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/platform/rp2040/NeoPixelSerializeColor.h
   ${ATARI_FW_ROOT}/src/platform/rp2040/std_atomic_support.cc
   ${ATARI_FW_ROOT}/src/platform/rp2040/tusb_config.h
+  ${ATARI_FW_ROOT}/src/sd/BlockSize.h
+  ${ATARI_FW_ROOT}/src/sd/Command.cc
+  ${ATARI_FW_ROOT}/src/sd/Command.h
+  ${ATARI_FW_ROOT}/src/sd/Controller.cc
+  ${ATARI_FW_ROOT}/src/sd/Controller.h
+  ${ATARI_FW_ROOT}/src/sd/Response.cc
+  ${ATARI_FW_ROOT}/src/sd/Response.h
+  ${ATARI_FW_ROOT}/src/sd/SpiAccessor.cc
+  ${ATARI_FW_ROOT}/src/sd/SpiAccessor.h
+  ${ATARI_FW_ROOT}/src/sd/Traits.h
+  ${ATARI_FW_ROOT}/src/sd/VHS.h
   ${ATARI_FW_ROOT}/src/sio/App.cc
   ${ATARI_FW_ROOT}/src/sio/App.h
   ${ATARI_FW_ROOT}/src/sio/Controller.cc
@@ -85,6 +98,8 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/thread/Pipe.cc
   ${ATARI_FW_ROOT}/src/thread/Pipe.h
   ${ATARI_FW_ROOT}/src/util/PACKED.h
+  ${ATARI_FW_ROOT}/src/util/crc.cc
+  ${ATARI_FW_ROOT}/src/util/crc.h
   ${ATARI_FW_ROOT}/src/util/type_traits.h
 )
 
@@ -95,7 +110,7 @@ target_include_directories(atari-fw_${RP2040_BOARD} PRIVATE
   ${ATARI_FW_ROOT}/build_${RP2040_BOARD}
 )
 
-target_link_libraries(atari-fw_${RP2040_BOARD} PRIVATE pico_stdlib pico_multicore tinyusb_host tinyusb_board hardware_pio hardware_uart)
+target_link_libraries(atari-fw_${RP2040_BOARD} PRIVATE pico_stdlib pico_multicore tinyusb_host tinyusb_board hardware_pio hardware_spi hardware_uart)
 
 pico_enable_stdio_uart(atari-fw_${RP2040_BOARD} 0)
 

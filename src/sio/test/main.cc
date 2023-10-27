@@ -34,9 +34,8 @@ hal::Uart uart(
         }
       }
       if (it != end) {
-        throw std::logic_error("tx overrun");
+        throw std::logic_error("tx underrun");
       }
-      return it == end;
     }
 );
 
@@ -53,7 +52,7 @@ void testDiskDriveCommand(sio::DiskDrive* diskDrive) {
   diskDrive->handle(commandFrame.data());
 
   if (txIt != txEnd) {
-    throw std::logic_error("tx underrun");
+    throw std::logic_error("tx overrun");
   }
 }
 

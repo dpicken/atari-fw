@@ -1,32 +1,34 @@
-#ifndef hal_Uart_h
-#define hal_Uart_h
+#ifndef hal_Spi_h
+#define hal_Spi_h
+
+#include "OutputSignal.h"
 
 #include <cstddef>
 #include <cstdint>
 
 namespace hal {
 
-struct Uart {
-  typedef bool (* const Rx)(std::uint8_t* buf, std::size_t byteCount);
+struct Spi {
+  typedef void (* const Rx)(std::uint8_t* buf, std::size_t byteCount);
   typedef void (* const Tx)(const std::uint8_t* buf, std::size_t byteCount);
 
-  constexpr Uart(Rx rx, Tx tx)
+  constexpr Spi(Rx rx, Tx tx)
     : m_rx(rx)
     , m_tx(tx) {
   }
 
   template<typename PackedType>
-  bool rx(PackedType& value) const {
-    return m_rx(reinterpret_cast<std::uint8_t*>(&value), sizeof(value));
+  void rx(PackedType& value) const {
+    m_rx(reinterpret_cast<std::uint8_t*>(&value), sizeof(value));
+  }
+
+  void rx(std::uint8_t* data, std::size_t size) const {
+    m_rx(data, size);
   }
 
   template<typename PackedType>
   void tx(const PackedType& value) const {
     m_tx(reinterpret_cast<const std::uint8_t*>(&value), sizeof(value));
-  }
-
-  void tx(const std::uint8_t* data, std::size_t size) const {
-    m_tx(data, size);
   }
 
 private:
@@ -36,4 +38,4 @@ private:
 
 } // namespace hal
 
-#endif // ifndef hal_Uart_h
+#endif // ifndef hal_Spi_h

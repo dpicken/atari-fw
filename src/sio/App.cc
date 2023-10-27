@@ -3,18 +3,25 @@
 #include "Pipe.h"
 
 #include "media/DiskLibrary.h"
+#include "sd/Controller.h"
 
 sio::App::App(
     ::hal::InputSignal command,
     ::hal::Uart uart,
+    ::hal::InputSignal sdDetect,
+    ::hal::OutputSignal sdPower,
+    ::hal::OutputSignal sdCs,
+    ::hal::Spi sdSpi,
     ::hal::BusyWait busyWait,
     ::hal::BusyWaitEq busyWaitEq)
   : m_d1(uart, busyWait)
-  , m_controller(command, uart, busyWaitEq, &m_d1) {
+  , m_controller(command, uart, busyWaitEq, &m_d1)
+  , m_sdController(sdDetect, sdPower, sdCs, sdSpi, busyWait) {
 }
 
 void sio::App::schedule() {
   pollPipe();
+  m_sdController.poll();
   m_controller.poll();
 }
 
