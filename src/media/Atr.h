@@ -3,12 +3,13 @@
 
 #include "Disk.h"
 
-#include <cstdint>
+#include "io/File.h"
+
 #include <memory>
 
 namespace media {
 
-  std::unique_ptr<Disk> makeAtr(const std::uint8_t* data, std::size_t size);
+  std::unique_ptr<Disk> makeAtr(std::unique_ptr<::io::File> atrFile);
 
 } // namespace media
 

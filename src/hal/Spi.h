@@ -11,11 +11,14 @@ namespace hal {
 struct Spi {
   typedef void (* const Rx)(std::uint8_t* buf, std::size_t byteCount);
   typedef void (* const Tx)(const std::uint8_t* buf, std::size_t byteCount);
+  typedef void (* const SetBaudRate)(unsigned int baudRate);
 
-  constexpr Spi(Rx rx, Tx tx)
+  constexpr Spi(Rx rx, Tx tx, SetBaudRate setBaudRate)
     : m_rx(rx)
-    , m_tx(tx) {
+    , m_tx(tx)
+    , setBaudRate(setBaudRate) {
   }
+
 
   template<typename PackedType>
   void rx(PackedType& value) const {
@@ -34,6 +37,9 @@ struct Spi {
 private:
   const Rx m_rx;
   const Tx m_tx;
+
+public:
+  const SetBaudRate setBaudRate;
 };
 
 } // namespace hal

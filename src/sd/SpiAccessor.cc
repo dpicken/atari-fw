@@ -40,6 +40,10 @@ sd::SpiAccessor::SpiAccessor(
   , m_busyWait(busyWait) {
 }
 
+void sd::SpiAccessor::setBaudRate(unsigned int baudRate) const {
+  m_spi.setBaudRate(baudRate);
+}
+
 void sd::SpiAccessor::initialize() const {
   constexpr ::hal::duration_us vdd_settle_time = 1 * 1000;
   m_busyWait(vdd_settle_time);

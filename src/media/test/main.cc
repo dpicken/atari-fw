@@ -1,6 +1,8 @@
 #include "media/Atr.h"
+#include "media/BuiltinAtrFileLibrary.h"
 #include "media/DiskLibrary.h"
-#include "media/DiskLibraryAtr.h"
+
+#include "io/RomFile.h"
 
 #include <cstdlib>
 #include <list>
@@ -14,27 +16,30 @@ void testDisk(std::unique_ptr<media::Disk> disk) {
     if (!disk->hasSector(it)) {
       throw std::logic_error("unreadable sector");
     }
-    disk->readSector(it, [](const std::uint8_t* sector, std::size_t sectorSize) {
+    bool readOK = disk->readSector(it, [](const std::uint8_t* sector, std::size_t sectorSize) {
         (void) sector;
         if (sectorSize != 128) {
           throw std::logic_error("unexpected sector size");
         }
     });
+    if (!readOK) {
+      throw std::logic_error("sector read failed");
+    }
   }
 }
 
-void testDiskLibraryAtr() {
+void testBuiltinAtrFileLibrary() {
   std::list<const char*> badTitles;
-  for (std::size_t diskIndex = 0; diskIndex != media::DiskLibraryAtr::getAtrCount(); ++diskIndex) {
-    auto disk = media::makeAtr(media::DiskLibraryAtr::getAtrData(diskIndex), media::DiskLibraryAtr::getAtrSize(diskIndex));
+  for (unsigned int atrIndex = 0; atrIndex != media::BuiltinAtrFileLibrary::getAtrCount(); ++atrIndex) {
+    auto disk = media::makeAtr(media::BuiltinAtrFileLibrary::makeRomFile(atrIndex));
     if (disk != nullptr) {
       try {
         testDisk(std::move(disk));
       } catch (...) {
-        badTitles.push_back(media::DiskLibraryAtr::getAtrTitle(diskIndex));
+        badTitles.push_back(media::BuiltinAtrFileLibrary::getAtrTitle(atrIndex));
       }
     } else {
-      badTitles.push_back(media::DiskLibraryAtr::getAtrTitle(diskIndex));
+      badTitles.push_back(media::BuiltinAtrFileLibrary::getAtrTitle(atrIndex));
     }
   }
   if (!badTitles.empty()) {
@@ -61,7 +66,7 @@ void testDiskLibrary() {
 } // namespace
 
 int main(int, char**) {
-  testDiskLibraryAtr();
+  testBuiltinAtrFileLibrary();
   testDiskLibrary();
   return EXIT_SUCCESS;
 }

@@ -1,11 +1,16 @@
 #include "DiskLibrary.h"
 
+#include "BuiltinAtrFileLibrary.h"
+
 #include "Atr.h"
-#include "DiskLibraryAtr.h"
 
 media::DiskLibrary::DiskLibrary() {
-  for (std::size_t diskIndex = 0; diskIndex != DiskLibraryAtr::getAtrCount(); ++diskIndex) {
-    auto disk = makeAtr(DiskLibraryAtr::getAtrData(diskIndex), DiskLibraryAtr::getAtrSize(diskIndex));
+  addBuiltinAtrFileLibrary();
+}
+
+void media::DiskLibrary::addBuiltinAtrFileLibrary() {
+  for (unsigned int atrIndex = 0; atrIndex != BuiltinAtrFileLibrary::getAtrCount(); ++atrIndex) {
+    auto disk = makeAtr(BuiltinAtrFileLibrary::makeRomFile(atrIndex));
     if (disk != nullptr) {
       push(std::move(disk));
     }

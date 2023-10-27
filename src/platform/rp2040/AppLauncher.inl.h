@@ -173,7 +173,7 @@ hal::Spi makeSpi() {
   if constexpr(gpioSet.supported) {
     static_assert(gpioSet.spiInstance <= 1, "invalid spi instance");
     auto spi = toSpi(gpioSet.spiInstance);
-    spi_init(spi, sd::Traits::spi_baud_rate);
+    spi_init(spi, sd::Traits::spi_init_baud_rate);
     // The SD card SPI protocol isn't strictly SPI.
     //gpio_set_function(gpioSet.spiCs, GPIO_FUNC_SPI);
     gpio_set_function(gpioSet.spiRx, GPIO_FUNC_SPI);
@@ -181,13 +181,15 @@ hal::Spi makeSpi() {
     gpio_set_function(gpioSet.spiClock, GPIO_FUNC_SPI);
     return hal::Spi(
         [](std::uint8_t* buf, std::size_t byteCount) { spiRx(gpioSet.spiInstance, buf, byteCount); },
-        [](const std::uint8_t* buf, std::size_t byteCount) { spiTx(gpioSet.spiInstance, buf, byteCount); });
+        [](const std::uint8_t* buf, std::size_t byteCount) { spiTx(gpioSet.spiInstance, buf, byteCount); },
+        [](unsigned int baudRate) { spi_set_baudrate(toSpi(gpioSet.spiInstance), baudRate); });
   } else {
     (void) spiRx;
     (void) spiTx;
     return hal::Spi(
         [](std::uint8_t*, std::size_t) {},
-        [](const std::uint8_t*, std::size_t) {});
+        [](const std::uint8_t*, std::size_t) {},
+        [](unsigned int) {});
   }
 }
 

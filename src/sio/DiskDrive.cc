@@ -72,5 +72,6 @@ void sio::DiskDrive::handleRead(sector_address_type sectorAddress) {
 
   commandAck();
   commandComplete();
+  // TODO: Handle readSector failure.
   m_disk->readSector(sectorAddress, m_sink);
 }

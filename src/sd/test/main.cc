@@ -41,7 +41,8 @@ hal::Spi spi(
       if (txIt != txEnd) {
         throw std::logic_error("tx overrun");
       }
-    }
+    },
+    [](unsigned int) {}
 );
 
 static constexpr std::array<std::uint8_t, 1> r1ImmediatelyIdle = {

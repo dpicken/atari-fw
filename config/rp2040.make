@@ -24,7 +24,7 @@ CXXFLAGS += $(RP2040_CXXFLAGS)
 RP2040_MOUNT ?= /Volumes/RPI-RP2
 
 .PHONY: rp2040-src-list
-rp2040-src-list: media-disk-library
+rp2040-src-list: builtin-atr-file-library
 	$(echo_recipe)find src -type f -name '*.cc' -o -name '*.h' | sed 's@^src/platform/rp2040/\(.*\)/app.cc@src/platform/rp2040/$${RP2040_BOARD}/app.cc@' | sed 's@^src/@$${ATARI_FW_ROOT}/src/@' | grep -v '/test/' | sort | uniq
 
 $(RP2040_BOARD_BUILD_DIR)/Makefile: $(RP2040_SRC_DIR)/CMakeLists.txt
@@ -33,7 +33,7 @@ $(RP2040_BOARD_BUILD_DIR)/Makefile: $(RP2040_SRC_DIR)/CMakeLists.txt
 	$(echo_recipe)cmake -S $(RP2040_SRC_DIR) -B $(RP2040_BOARD_BUILD_DIR) -DRP2040_BOARD=$(RP2040_BOARD)
 
 .PHONY: rp2040
-rp2040: $(RP2040_BOARD_BUILD_DIR)/Makefile media-disk-library
+rp2040: $(RP2040_BOARD_BUILD_DIR)/Makefile builtin-atr-file-library
 	$(echo_build_message)
 	$(echo_recipe)VERBOSE= COLOR= make -C $(RP2040_BOARD_BUILD_DIR)
 

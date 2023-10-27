@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+
 #include <functional>
 
 namespace media {
@@ -11,7 +12,7 @@ class Disk {
 public:
   using sector_address_type = std::uint16_t;
   using sector_count_type = std::uint16_t;
-  using Sink = std::function<void(const std::uint8_t* sector, std::size_t sectorSize)>;
+  using sector_sink_type = std::function<void(const std::uint8_t* sector, std::size_t sectorSize)>;
 
   virtual ~Disk();
 
@@ -30,7 +31,7 @@ public:
 
   virtual bool hasSector(sector_address_type sectorAddress) const = 0;
 
-  virtual void readSector(sector_address_type sectorAddress, const Sink sink) = 0;
+  virtual bool readSector(sector_address_type sectorAddress, const sector_sink_type& sink) = 0;
 };
 
 } // namespace media

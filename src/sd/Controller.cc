@@ -1,6 +1,10 @@
 #include "Controller.h"
 
+#include "SdFile.h"
 #include "Traits.h"
+
+#include "media/Atr.h"
+#include "media/DiskLibrary.h"
 
 #include <algorithm>
 
@@ -38,7 +42,18 @@ void sd::Controller::pollCardInserted() {
   m_power.deactivate();
   m_busyWait(1000 * 1000);
 
+  m_accessor.setBaudRate(Traits::spi_init_baud_rate);
+
   m_initialized = initialize();
+  if (m_initialized) {
+    m_accessor.setBaudRate(Traits::spi_data_baud_rate);
+
+    auto sdDisk = ::media::makeAtr(std::make_unique<SdFile>(this, *m_currentOpenId, 0, 92176));
+    if (sdDisk == nullptr) {
+      return;
+    }
+    ::media::DiskLibrary::instance().push(std::move(sdDisk));
+  }
 }
 
 void sd::Controller::pollCardEjected() {
@@ -47,6 +62,7 @@ void sd::Controller::pollCardEjected() {
   }
 
   m_cachedBlockAddress = std::nullopt;
+  m_initialized = false;
   m_currentOpenId = std::nullopt;
 }
 
@@ -140,14 +156,15 @@ bool sd::Controller::read(open_id_type openId, std::uint64_t byteOffset, std::si
     }
 
     std::size_t skipByteCount = byteOffset - BlockSize::alignByteOffset(byteOffset);
-    std::size_t sinkByteCount = std::min(m_cachedBlock.size() - skipByteCount, byteCount);
+    std::size_t sinkByteCount = std::min(byteCount, m_cachedBlock.size() - skipByteCount);
+
     sink(m_cachedBlock.data() + skipByteCount, sinkByteCount);
 
     byteOffset += sinkByteCount;
     byteCount -= sinkByteCount;
   }
 
-  return true;;
+  return true;
 }
 
 bool sd::Controller::cacheBlock(std::uint64_t byteOffset) {
@@ -157,7 +174,7 @@ bool sd::Controller::cacheBlock(std::uint64_t byteOffset) {
     return true;
   }
 
-  std::uint32_t address = static_cast<std::uint32_t>(m_isSDSC ? BlockSize::alignByteOffset(blockAddress) : blockAddress);
+  std::uint32_t address = static_cast<std::uint32_t>(m_isSDSC ? BlockSize::blockToByteOffset(blockAddress) : blockAddress);
   if (!m_accessor.readSingleBlock(address).isSuccess()) {
     return false;
   }

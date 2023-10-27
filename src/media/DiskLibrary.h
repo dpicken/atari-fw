@@ -24,6 +24,8 @@ public:
 private:
   DiskLibrary();
 
+  void addBuiltinAtrFileLibrary();
+
   std::deque<disk_ptr> m_disks;
 };
 

@@ -19,14 +19,6 @@ struct AtrHeaderBlock {
   std::size_t getSectorSize() const {
     return sectorSize;
   }
-
-  const std::uint8_t* getSectorStreamBegin() const {
-    return reinterpret_cast<const uint8_t*>(this + 1);
-  }
-
-  const std::uint8_t* getSectorStreamEnd() const {
-    return getSectorStreamBegin() + getSectorStreamSize();
-  }
 } PACKED;
 
 template<std::size_t sectorSize>
@@ -42,52 +34,47 @@ constexpr Sector<sectorSize> makeZeroSector() {
 }
 
 template<typename Traits>
-struct AtrLayout {
-  using sector_address_type = media::Disk::sector_address_type;
+class Atr : public media::Disk {
+public:
+  static constexpr auto max_sector_stream_size =
+      (Traits::boot_sector_size * Traits::boot_sector_count) + (Traits::nonboot_sector_size * Traits::nonboot_sector_count);
 
-  static constexpr media::Disk::Density density = Traits::density;
-
-  static constexpr auto sector_count = Traits::sector_count;
-  static constexpr auto boot_sector_count = Traits::boot_sector_count;
-  static constexpr auto nonboot_sector_count = Traits::nonboot_sector_count;
-
-  static constexpr auto boot_sector_size = Traits::boot_sector_size;
-  static constexpr auto nonboot_sector_size = Traits::nonboot_sector_size;
-
-  static constexpr auto max_sector_stream_size = (boot_sector_size * boot_sector_count) + (nonboot_sector_size * nonboot_sector_count);
-
-  static constexpr std::array<std::uint8_t, boot_sector_size> SparseBootSector = makeZeroSector<boot_sector_size>();
-  static constexpr std::array<std::uint8_t, nonboot_sector_size> SparseNonBootSector = makeZeroSector<nonboot_sector_size>();
-
-  const std::uint8_t* getSector(sector_address_type sectorAddress) const {
-    if (sectorAddress == 0) {
-      return nullptr;
-    }
-
-    sectorAddress = toPhysicalSectorAddress(sectorAddress);
-    if (sectorAddress < boot_sector_count) {
-      auto sector = m_bootSectors[sectorAddress].data();
-      return (sector + boot_sector_size <= m_header.getSectorStreamEnd()) ? sector : SparseBootSector.data();
-    } else if (sectorAddress < sector_count) {
-      auto sector = m_nonbootSectors[sectorAddress - boot_sector_count].data();
-      return (sector + nonboot_sector_size <= m_header.getSectorStreamEnd()) ? sector : SparseNonBootSector.data();
-    } else {
-      return nullptr;
-    }
+  Atr(std::unique_ptr<io::File> atrFile)
+    : m_atrFile(std::move(atrFile)) {
   }
 
-  std::size_t getSectorSize(sector_address_type sectorAddress) const {
+  Density getDensity() const override {
+    return Traits::density;
+  }
+
+  sector_count_type getSectorCount() const override {
+    return Traits::sector_count;
+  }
+
+  bool hasSector(sector_address_type sectorAddress) const override {
     if (sectorAddress == 0) {
-      return 0;
+      return false;
     }
 
     sectorAddress = toPhysicalSectorAddress(sectorAddress);
-    if (sectorAddress < boot_sector_count) {
-      return boot_sector_size;
-    } else if (sectorAddress < sector_count) {
-      return nonboot_sector_size;
+    return sectorAddress < Traits::sector_count;
+  }
+
+  bool readSector(sector_address_type sectorAddress, const sector_sink_type& sink) override {
+    if (sectorAddress == 0) {
+      return false;
+    }
+
+    sectorAddress = toPhysicalSectorAddress(sectorAddress);
+    if (sectorAddress < Traits::boot_sector_count) {
+      auto sectorByteOffset = sectorAddress * Traits::boot_sector_size;
+      return readSector<Traits::boot_sector_size>(sectorByteOffset, sink);
+    } else if (sectorAddress < Traits::sector_count) {
+      sector_address_type nonbootSectorAddress = sectorAddress - Traits::boot_sector_count;
+      auto sectorByteOffset = (Traits::boot_sector_count * Traits::boot_sector_size) + (nonbootSectorAddress * Traits::nonboot_sector_size);
+      return readSector<Traits::nonboot_sector_size>(sectorByteOffset, sink);
     } else {
-      return 0;
+      return false;
     }
   }
 
@@ -96,66 +83,42 @@ private:
     return sectorAddress - 1;
   }
 
-  AtrHeaderBlock m_header;
-  Sector<boot_sector_size> m_bootSectors[boot_sector_count];
-  Sector<nonboot_sector_size> m_nonbootSectors[nonboot_sector_count];
-} PACKED;
-
-const AtrHeaderBlock* toHeader(const std::uint8_t* data, std::size_t size) {
-  if (size < sizeof(AtrHeaderBlock)) {
-    return nullptr;
+  template<std::size_t sectorSize>
+  bool readSector(std::uint64_t sectorByteOffset, const sector_sink_type& sink) {
+    auto fileOffset = sizeof(AtrHeaderBlock) + sectorByteOffset;
+    if (fileOffset + sectorSize <= m_atrFile->size()) {
+      Sector<sectorSize> sectorBuffer;
+      if (!bufferSector(sectorBuffer, fileOffset)) {
+          return false;
+      }
+      sink(sectorBuffer.data(), sectorBuffer.size());
+    } else {
+      Sector<sectorSize> sparseSector = makeZeroSector<sectorSize>();
+      sink(sparseSector.data(), sparseSector.size());
+    }
+    return true;
   }
 
-  const AtrHeaderBlock* header = reinterpret_cast<const AtrHeaderBlock*>(data);
-  if (header->magic != 662) {
-    return nullptr;
+  template<std::size_t sectorSize>
+  bool bufferSector(Sector<sectorSize>& sectorBuffer, std::uint64_t fileOffset) {
+    std::size_t sectorBufferOffset = 0;
+    return m_atrFile->read(fileOffset, sectorSize, [&sectorBuffer, &sectorBufferOffset](const std::uint8_t* data, std::size_t size) {
+      std::copy(data, data + size, sectorBuffer.data() + sectorBufferOffset);
+      sectorBufferOffset += size;
+    });
   }
 
-  if (sizeof(*header) + header->getSectorStreamSize() != size) {
-    return nullptr;
-  }
-
-  return header;
-}
-
-template<typename Traits>
-class Atr : public media::Disk {
-public:
-  using atr_layout = AtrLayout<Traits>;
-  static constexpr auto max_sector_stream_size = atr_layout::max_sector_stream_size;
-
-  Atr(const atr_layout* atrLayout)
-    : m_atrLayout(atrLayout) {
-  }
-
-  Density getDensity() const override {
-    return atr_layout::density;
-  }
-
-  sector_count_type getSectorCount() const override {
-    return atr_layout::sector_count;
-  }
-
-  bool hasSector(sector_address_type sectorAddress) const override {
-    return m_atrLayout->getSector(sectorAddress) != nullptr;
-  }
-
-  void readSector(sector_address_type sectorAddress, const Sink sink) override {
-    sink(m_atrLayout->getSector(sectorAddress), m_atrLayout->getSectorSize(sectorAddress));
-  }
-
-protected:
-  const atr_layout* const m_atrLayout;
+  const std::unique_ptr<io::File> m_atrFile;
 };
 
 template<
-  media::Disk::Density densityV,
+  media::Disk::Density densityValue,
   media::Disk::sector_count_type sectorCount,
   media::Disk::sector_count_type bootSectorCount,
   std::size_t bootSectorSize,
   std::size_t nonbootSectorSize>
 struct AtrTraits {
-  static constexpr auto density = densityV;
+  static constexpr auto density = densityValue;
 
   static constexpr auto sector_count = sectorCount;
   static constexpr auto boot_sector_count = bootSectorCount;
@@ -170,22 +133,27 @@ using EnhancedDensityAtr = Atr<AtrTraits<media::Disk::Density::Enhanced, 1040, 3
 
 } // namespace
 
-std::unique_ptr<media::Disk> media::makeAtr(const std::uint8_t* data, std::size_t size) {
-  auto header = toHeader(data, size);
-  if (header == nullptr) {
+std::unique_ptr<media::Disk> media::makeAtr(std::unique_ptr<::io::File> atrFile) {
+  AtrHeaderBlock header;
+  if (!atrFile->read(0, &header)) {
     return nullptr;
   }
 
-  if (header->getSectorStreamEnd() != (data + size)) {
+  if (header.magic != 662) {
     return nullptr;
   }
 
-  if (header->getSectorSize() == 128) {
-    if (header->getSectorStreamSize() <= SingleDensityAtr::max_sector_stream_size) {
-      return std::make_unique<SingleDensityAtr>(reinterpret_cast<const SingleDensityAtr::atr_layout*>(header));
-    } else if (header->getSectorStreamSize() <= EnhancedDensityAtr::max_sector_stream_size) {
-      return std::make_unique<EnhancedDensityAtr>(reinterpret_cast<const EnhancedDensityAtr::atr_layout*>(header));
+  if (sizeof(header) + header.getSectorStreamSize() != atrFile->size()) {
+    return nullptr;
+  }
+
+  if (header.getSectorSize() == 128) {
+    if (header.getSectorStreamSize() <= SingleDensityAtr::max_sector_stream_size) {
+      return std::make_unique<SingleDensityAtr>(std::move(atrFile));
+    } else if (header.getSectorStreamSize() <= EnhancedDensityAtr::max_sector_stream_size) {
+      return std::make_unique<EnhancedDensityAtr>(std::move(atrFile));
     }
   }
+
   return nullptr;
 }

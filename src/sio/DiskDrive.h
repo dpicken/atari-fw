@@ -34,7 +34,7 @@ private:
   void handleStatus();
   void handleRead(sector_address_type sectorAddress);
 
-  const disk_type::Sink m_sink;
+  const disk_type::sector_sink_type m_sink;
 
   disk_ptr m_disk;
 

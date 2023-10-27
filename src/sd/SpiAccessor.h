@@ -21,6 +21,8 @@ public:
       ::hal::Spi spi,
       ::hal::BusyWait busyWait);
 
+  void setBaudRate(unsigned int baudRate) const;
+
   void initialize() const;
 
   Response::R1 goIdleState() const;

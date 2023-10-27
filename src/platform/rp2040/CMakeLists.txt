@@ -30,6 +30,11 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/hal/Uart.h
   ${ATARI_FW_ROOT}/src/hal/duration_us.h
   ${ATARI_FW_ROOT}/src/hal/misc.h
+  ${ATARI_FW_ROOT}/src/io/File.cc
+  ${ATARI_FW_ROOT}/src/io/File.h
+  ${ATARI_FW_ROOT}/src/io/RomFile.cc
+  ${ATARI_FW_ROOT}/src/io/RomFile.h
+  ${ATARI_FW_ROOT}/src/io/Sink.h
   ${ATARI_FW_ROOT}/src/keyboard/App.cc
   ${ATARI_FW_ROOT}/src/keyboard/App.h
   ${ATARI_FW_ROOT}/src/keyboard/Controller.cc
@@ -53,14 +58,14 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/keyboard/usb/ModifierBit.h
   ${ATARI_FW_ROOT}/src/media/Atr.cc
   ${ATARI_FW_ROOT}/src/media/Atr.h
+  ${ATARI_FW_ROOT}/src/media/BuiltinAtrFileLibrary.gen.data.h
+  ${ATARI_FW_ROOT}/src/media/BuiltinAtrFileLibrary.gen.index.h
+  ${ATARI_FW_ROOT}/src/media/BuiltinAtrFileLibrary.gen.title.h
+  ${ATARI_FW_ROOT}/src/media/BuiltinAtrFileLibrary.h
   ${ATARI_FW_ROOT}/src/media/Disk.cc
   ${ATARI_FW_ROOT}/src/media/Disk.h
   ${ATARI_FW_ROOT}/src/media/DiskLibrary.cc
   ${ATARI_FW_ROOT}/src/media/DiskLibrary.h
-  ${ATARI_FW_ROOT}/src/media/DiskLibraryAtr.gen.data.h
-  ${ATARI_FW_ROOT}/src/media/DiskLibraryAtr.gen.index.h
-  ${ATARI_FW_ROOT}/src/media/DiskLibraryAtr.gen.title.h
-  ${ATARI_FW_ROOT}/src/media/DiskLibraryAtr.h
   ${ATARI_FW_ROOT}/src/platform/rp2040/${RP2040_BOARD}/app.cc
   ${ATARI_FW_ROOT}/src/platform/rp2040/App.cc
   ${ATARI_FW_ROOT}/src/platform/rp2040/App.h
@@ -76,6 +81,8 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/sd/Controller.h
   ${ATARI_FW_ROOT}/src/sd/Response.cc
   ${ATARI_FW_ROOT}/src/sd/Response.h
+  ${ATARI_FW_ROOT}/src/sd/SdFile.cc
+  ${ATARI_FW_ROOT}/src/sd/SdFile.h
   ${ATARI_FW_ROOT}/src/sd/SpiAccessor.cc
   ${ATARI_FW_ROOT}/src/sd/SpiAccessor.h
   ${ATARI_FW_ROOT}/src/sd/Traits.h
