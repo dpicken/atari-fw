@@ -7,7 +7,7 @@
 
 namespace {
 
-void spi_8_clocks(const hal::Spi& spi) {
+void spiTxNullByte(const hal::Spi& spi) {
   spi.tx(sd::Traits::spi_null_byte);
 }
 
@@ -15,13 +15,13 @@ struct ScopedChipSelect {
   ScopedChipSelect(const hal::OutputSignal& cs, const hal::Spi& spi)
     : m_cs(cs)
     , m_spi(spi) {
-    spi_8_clocks(m_spi);
+    spiTxNullByte(m_spi);
     m_cs.activate();
   }
 
   ~ScopedChipSelect() {
     m_cs.deactivate();
-    spi_8_clocks(m_spi);
+    spiTxNullByte(m_spi);
   }
 
 private:
@@ -45,12 +45,9 @@ void sd::SpiAccessor::setBaudRate(unsigned int baudRate) const {
 }
 
 void sd::SpiAccessor::initialize() const {
-  constexpr ::hal::duration_us vdd_settle_time = 1 * 1000;
-  m_busyWait(vdd_settle_time);
-
   constexpr unsigned int prepareClockTickCount = 74;
   for (unsigned int prepareClockTicks = 0; prepareClockTicks < prepareClockTickCount; prepareClockTicks += 8) {
-    spi_8_clocks(m_spi);
+    spiTxNullByte(m_spi);
   }
 }
 

@@ -40,6 +40,8 @@ public:
   bool read(open_id_type openId, std::uint64_t byteOffset, std::size_t byteCount, Sink sink);
 
 private:
+  static constexpr ::hal::duration_us sd_detect_debounce_time = 50 * 1000;
+
   void pollCardInserted();
   void pollCardEjected();
 

@@ -21,14 +21,11 @@ sd::Controller::Controller(
   , m_nextOpenId(0)
   , m_initialized(false)
   , m_isSDSC(false) {
-  // HACK: The v1.1 hardware pulls detect to switched 3.3V.
-  m_power.activate();
 }
 
 void sd::Controller::poll() {
   pollCardInserted();
-  // HACK: Current build of the v1.1 hardware has a broken detect signal.
-  //pollCardEjected();
+  pollCardEjected();
 }
 
 void sd::Controller::pollCardInserted() {
@@ -36,18 +33,16 @@ void sd::Controller::pollCardInserted() {
     return;
   }
 
+  m_busyWait(sd_detect_debounce_time);
+  if (!m_detect.isActive()) {
+    return;
+  }
+
+  m_power.activate();
   m_currentOpenId = m_nextOpenId++;
-
-  // HACK: The v1.1 hardware pulls detect to switched 3.3V.
-  m_power.deactivate();
-  m_busyWait(1000 * 1000);
-
-  m_accessor.setBaudRate(Traits::spi_init_baud_rate);
-
   m_initialized = initialize();
-  if (m_initialized) {
-    m_accessor.setBaudRate(Traits::spi_data_baud_rate);
 
+  if (m_initialized) {
     auto sdDisk = ::media::makeAtr(std::make_unique<SdFile>(this, *m_currentOpenId, 0, 92176));
     if (sdDisk == nullptr) {
       return;
@@ -61,15 +56,22 @@ void sd::Controller::pollCardEjected() {
     return;
   }
 
+  m_busyWait(sd_detect_debounce_time);
+  if (m_detect.isActive()) {
+    return;
+  }
+
   m_cachedBlockAddress = std::nullopt;
   m_initialized = false;
   m_currentOpenId = std::nullopt;
+  m_power.deactivate();
 }
 
 bool sd::Controller::initialize() {
-  // Part1_Physical_Layer_Simplified_Specification_Ver8.00.pdf, 6.4.1:
+  // Set initialization frequency.
+  m_accessor.setBaudRate(Traits::spi_init_baud_rate);
 
-  m_power.activate();
+  // Part1_Physical_Layer_Simplified_Specification_Ver8.00.pdf, 6.4.1:
 
   constexpr ::hal::duration_us power_up_delay = 2 * 1000;
   m_busyWait(power_up_delay);
@@ -137,6 +139,9 @@ bool sd::Controller::initialize() {
       return false;
     }
   }
+
+  // Set post-initialization frequency.
+  m_accessor.setBaudRate(Traits::spi_data_baud_rate);
 
   return true;
 }

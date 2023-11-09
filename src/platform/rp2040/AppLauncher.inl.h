@@ -176,6 +176,7 @@ hal::Spi makeSpi() {
     spi_init(spi, sd::Traits::spi_init_baud_rate);
     // The SD card SPI protocol isn't strictly SPI.
     //gpio_set_function(gpioSet.spiCs, GPIO_FUNC_SPI);
+    gpio_pull_up(gpioSet.spiRx);
     gpio_set_function(gpioSet.spiRx, GPIO_FUNC_SPI);
     gpio_set_function(gpioSet.spiTx, GPIO_FUNC_SPI);
     gpio_set_function(gpioSet.spiClock, GPIO_FUNC_SPI);
