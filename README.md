@@ -50,3 +50,18 @@ Connect the board to the build host, then boot it into it's bootloader (hold the
   ```
   RP2040_MOUNT=/Volumes/RPI-RP2 RP2040_BOARD=waveshare_rp2040_zero make rp2040-install
   ```
+
+## Default keymap
+
+From [src/keyboard/Controller.cc](/src/keyboard/Controller.cc):
+
+| USB Key   | Atari Key     |
+|-----------|---------------|
+| F1        | Help          |
+| F2        | Start         |
+| F3        | Select        |
+| F4        | Option        |
+| F10       | D1RotateDisk  |
+| F11       | Eject         |
+| F12       | Reset         |
+| Ctrl-F12  | Power         |
