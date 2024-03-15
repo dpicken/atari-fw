@@ -2,7 +2,7 @@ LOCAL_ATR_DIR := ./atr
 LOCAL_ATR_FILES := $(sort $(wildcard $(LOCAL_ATR_DIR)/*.atr))
 
 THIRD_PARTY_ATR_DIR := ./third-party/atr
-THIRD_PARTY_ATR_FILES := $(sort $(wildcard $(THIRD_PARTY_ATR_DIR)/*.atr))
+THIRD_PARTY_ATR_FILES := $(sort $(shell find $(THIRD_PARTY_ATR_DIR)/ -type f -name '*.atr' -print0 | xargs -0 -I% bash -c 'mv "%" $$(echo "%" | tr " " "-" | tr "[:upper:]" "[:lower:]")' && find $(THIRD_PARTY_ATR_DIR)/ -type f -name '*.atr'))
 
 ATR_FILES ?= $(if $(THIRD_PARTY_ATR_FILES),$(THIRD_PARTY_ATR_FILES),$(LOCAL_ATR_FILES))
 
@@ -13,13 +13,8 @@ SRC_MEDIA_BUILTIN_ATR_FILE_LIBRARY_FILES += $(SRC_MEDIA_BUILTIN_ATR_FILE_LIBRARY
 SRC_MEDIA_BUILTIN_ATR_FILE_LIBRARY_FILES += $(SRC_MEDIA_BUILTIN_ATR_FILE_LIBRARY).index.h
 SRC_MEDIA_BUILTIN_ATR_FILE_LIBRARY_FILES += $(SRC_MEDIA_BUILTIN_ATR_FILE_LIBRARY).title.h
 
-.PHONY: fix-third-party-atr-file-names
-fix-third-party-atr-file-names:
-	$(echo_build_message)
-	$(echo_recipe)find $(THIRD_PARTY_ATR_DIR)/ -type f -name '*.atr' -print0 | xargs -0 -I% bash -c 'mv "%" $$(echo "%" | tr " " "-" | tr "[:upper:]" "[:lower:]")'
-
 .PHONY: $(SRC_MEDIA_BUILTIN_ATR_FILE_LIBRARY).data.h
-$(SRC_MEDIA_BUILTIN_ATR_FILE_LIBRARY).data.h: | fix-third-party-atr-file-names
+$(SRC_MEDIA_BUILTIN_ATR_FILE_LIBRARY).data.h:
 	$(echo_build_message)
 	$(echo_recipe)[ -n "$(ATR_FILES)" ] || (echo Error: no atr files && false)
 	$(echo_recipe)hexdump -v -C $(ATR_FILES) | cut -s -d ' ' -f 2-19 | tr -s ' ' | sed 's/ /, 0x/g' | sed 's/^, / /' | tr '\n' ',' | sed 's/,$$/\n/' >$@
