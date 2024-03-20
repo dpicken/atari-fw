@@ -89,12 +89,16 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/sd/VHS.h
   ${ATARI_FW_ROOT}/src/sio/App.cc
   ${ATARI_FW_ROOT}/src/sio/App.h
+  ${ATARI_FW_ROOT}/src/sio/AtariControl.h
+  ${ATARI_FW_ROOT}/src/sio/AtariControl.cc
   ${ATARI_FW_ROOT}/src/sio/Controller.cc
   ${ATARI_FW_ROOT}/src/sio/Controller.h
   ${ATARI_FW_ROOT}/src/sio/Device.cc
   ${ATARI_FW_ROOT}/src/sio/Device.h
   ${ATARI_FW_ROOT}/src/sio/DiskDrive.cc
   ${ATARI_FW_ROOT}/src/sio/DiskDrive.h
+  ${ATARI_FW_ROOT}/src/sio/FileSystem.cc
+  ${ATARI_FW_ROOT}/src/sio/FileSystem.h
   ${ATARI_FW_ROOT}/src/sio/Frame.cc
   ${ATARI_FW_ROOT}/src/sio/Frame.h
   ${ATARI_FW_ROOT}/src/sio/Pipe.cc

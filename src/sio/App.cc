@@ -15,7 +15,9 @@ sio::App::App(
     ::hal::BusyWait busyWait,
     ::hal::BusyWaitEq busyWaitEq)
   : m_d1(uart, busyWait)
-  , m_controller(command, uart, busyWaitEq, &m_d1)
+  , m_atariControl(uart, busyWait)
+  , m_fileSystem(uart, busyWait)
+  , m_controller(command, uart, busyWaitEq, &m_d1, &m_atariControl, &m_fileSystem)
   , m_sdController(sdDetect, sdPower, sdCs, sdSpi, busyWait) {
 }
 

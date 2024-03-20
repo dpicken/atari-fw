@@ -4,6 +4,8 @@
 #include "hal/misc.h"
 #include "hal/Uart.h"
 
+#include <cstdint>
+
 namespace sio {
 
 class Device {
@@ -18,11 +20,12 @@ public:
     std::uint8_t aux1;
     std::uint8_t aux2;
 
-    std::uint16_t aux() const {
+    template<typename T = std::uint16_t>
+    T aux() const {
       std::uint16_t value = aux2;
       value <<= 8;
       value |= aux1;
-      return value;
+      return T(value);
     }
   } PACKED;
 
