@@ -1,2 +1,9 @@
 LIB_DIRS += io
+LIB_DIRS += keyboard
+LIB_DIRS += keyboard/console
+LIB_DIRS += keyboard/pokey
+LIB_DIRS += keyboard/usb
 LIB_DIRS += media
+LIB_DIRS += sd
+LIB_DIRS += sio
+LIB_DIRS += util

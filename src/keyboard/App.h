@@ -1,6 +1,8 @@
 #ifndef keyboard_app_h
 #define keyboard_app_h
 
+#include "Pipe.h"
+
 #include "hal/InputSignal.h"
 #include "hal/misc.h"
 #include "hal/OutputSignal.h"
@@ -35,6 +37,8 @@ public:
   void schedule();
 
 private:
+  void pollPipe();
+
   ::keyboard::console::Controller m_consoleController;
   ::keyboard::pokey::Controller m_pokeyController;
   ::keyboard::Controller m_keyboardController;

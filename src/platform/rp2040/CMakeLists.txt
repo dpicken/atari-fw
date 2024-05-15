@@ -39,6 +39,8 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/keyboard/App.h
   ${ATARI_FW_ROOT}/src/keyboard/Controller.cc
   ${ATARI_FW_ROOT}/src/keyboard/Controller.h
+  ${ATARI_FW_ROOT}/src/keyboard/Pipe.cc
+  ${ATARI_FW_ROOT}/src/keyboard/Pipe.h
   ${ATARI_FW_ROOT}/src/keyboard/console/Controller.cc
   ${ATARI_FW_ROOT}/src/keyboard/console/Controller.h
   ${ATARI_FW_ROOT}/src/keyboard/console/KeyBit.h
@@ -89,12 +91,16 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/sd/VHS.h
   ${ATARI_FW_ROOT}/src/sio/App.cc
   ${ATARI_FW_ROOT}/src/sio/App.h
+  ${ATARI_FW_ROOT}/src/sio/AtariControl.cc
+  ${ATARI_FW_ROOT}/src/sio/AtariControl.h
   ${ATARI_FW_ROOT}/src/sio/Controller.cc
   ${ATARI_FW_ROOT}/src/sio/Controller.h
   ${ATARI_FW_ROOT}/src/sio/Device.cc
   ${ATARI_FW_ROOT}/src/sio/Device.h
   ${ATARI_FW_ROOT}/src/sio/DiskDrive.cc
   ${ATARI_FW_ROOT}/src/sio/DiskDrive.h
+  ${ATARI_FW_ROOT}/src/sio/FileSystem.cc
+  ${ATARI_FW_ROOT}/src/sio/FileSystem.h
   ${ATARI_FW_ROOT}/src/sio/Frame.cc
   ${ATARI_FW_ROOT}/src/sio/Frame.h
   ${ATARI_FW_ROOT}/src/sio/Pipe.cc
@@ -102,6 +108,9 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/sio/Traits.h
   ${ATARI_FW_ROOT}/src/sio/checksum.cc
   ${ATARI_FW_ROOT}/src/sio/checksum.h
+  ${ATARI_FW_ROOT}/src/sio/sdr/DiskDrive.h
+  ${ATARI_FW_ROOT}/src/sio/sdr/FileSystem.h
+  ${ATARI_FW_ROOT}/src/sio/sdr/Types.h
   ${ATARI_FW_ROOT}/src/thread/Pipe.cc
   ${ATARI_FW_ROOT}/src/thread/Pipe.h
   ${ATARI_FW_ROOT}/src/util/PACKED.h
