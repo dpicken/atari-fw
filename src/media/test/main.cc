@@ -29,7 +29,7 @@ void testDisk(std::unique_ptr<media::Disk> disk) {
 }
 
 void testBuiltinAtrFileLibrary() {
-  std::list<const char*> badTitles;
+  std::list<std::string_view> badTitles;
   for (unsigned int atrIndex = 0; atrIndex != media::BuiltinAtrFileLibrary::getAtrCount(); ++atrIndex) {
     auto disk = media::makeAtr(media::BuiltinAtrFileLibrary::makeRomFile(atrIndex));
     if (disk != nullptr) {

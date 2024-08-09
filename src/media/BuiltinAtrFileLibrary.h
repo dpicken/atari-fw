@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <memory>
+#include <string_view>
 
 namespace media {
 
@@ -26,8 +27,8 @@ struct BuiltinAtrFileLibrary {
     return index[atrIndex];
   }
 
-  static constexpr const char* getAtrTitle(unsigned int atrIndex) {
-    return title[atrIndex];
+  static constexpr std::string_view getAtrTitle(unsigned int atrIndex) {
+    return std::string_view(title[atrIndex]);
   }
 
   static std::unique_ptr<::io::RomFile> makeRomFile(unsigned int atrIndex) {

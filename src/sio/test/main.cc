@@ -80,9 +80,11 @@ void testDiskDriveStatus() {
       break;
     case media::Disk::Density::Enhanced:
       expectedResult[2] |= 0x80;
+      expectedResult[6] = 0x61;
       break;
     case media::Disk::Density::Double:
       expectedResult[2] |= 0x20;
+      expectedResult[6] = 0x20;
       break;
   }
 

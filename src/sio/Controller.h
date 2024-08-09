@@ -1,8 +1,10 @@
 #ifndef sio_Controller_h
 #define sio_Controller_h
 
+#include "AtariControl.h"
 #include "Device.h"
 #include "DiskDrive.h"
+#include "FileSystem.h"
 
 #include "hal/InputSignal.h"
 #include "hal/misc.h"
@@ -18,7 +20,9 @@ public:
       ::hal::InputSignal command,
       ::hal::Uart uart,
       ::hal::BusyWaitEq busyWaitEq,
-      DiskDrive* m_d1);
+      DiskDrive* d1,
+      AtariControl* atariControl,
+      FileSystem* fileSystem);
 
   void poll();
 

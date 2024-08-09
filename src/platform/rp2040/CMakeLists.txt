@@ -7,7 +7,7 @@ set(FAMILY rp2040)
 set(BOARD ${RP2040_BOARD})
 
 set(ATARI_FW_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../..)
-set(PICO_SDK_DIR ${ATARI_FW_ROOT}/../pico-sdk)
+set(PICO_SDK_DIR ${ATARI_FW_ROOT}/../third-party/pico-sdk)
 
 add_definitions(-DBUILD_RP2040)
 
@@ -39,6 +39,8 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/keyboard/App.h
   ${ATARI_FW_ROOT}/src/keyboard/Controller.cc
   ${ATARI_FW_ROOT}/src/keyboard/Controller.h
+  ${ATARI_FW_ROOT}/src/keyboard/Pipe.cc
+  ${ATARI_FW_ROOT}/src/keyboard/Pipe.h
   ${ATARI_FW_ROOT}/src/keyboard/console/Controller.cc
   ${ATARI_FW_ROOT}/src/keyboard/console/Controller.h
   ${ATARI_FW_ROOT}/src/keyboard/console/KeyBit.h
@@ -89,12 +91,16 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/sd/VHS.h
   ${ATARI_FW_ROOT}/src/sio/App.cc
   ${ATARI_FW_ROOT}/src/sio/App.h
+  ${ATARI_FW_ROOT}/src/sio/AtariControl.cc
+  ${ATARI_FW_ROOT}/src/sio/AtariControl.h
   ${ATARI_FW_ROOT}/src/sio/Controller.cc
   ${ATARI_FW_ROOT}/src/sio/Controller.h
   ${ATARI_FW_ROOT}/src/sio/Device.cc
   ${ATARI_FW_ROOT}/src/sio/Device.h
   ${ATARI_FW_ROOT}/src/sio/DiskDrive.cc
   ${ATARI_FW_ROOT}/src/sio/DiskDrive.h
+  ${ATARI_FW_ROOT}/src/sio/FileSystem.cc
+  ${ATARI_FW_ROOT}/src/sio/FileSystem.h
   ${ATARI_FW_ROOT}/src/sio/Frame.cc
   ${ATARI_FW_ROOT}/src/sio/Frame.h
   ${ATARI_FW_ROOT}/src/sio/Pipe.cc
@@ -102,6 +108,9 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/sio/Traits.h
   ${ATARI_FW_ROOT}/src/sio/checksum.cc
   ${ATARI_FW_ROOT}/src/sio/checksum.h
+  ${ATARI_FW_ROOT}/src/sio/sdr/DiskDrive.h
+  ${ATARI_FW_ROOT}/src/sio/sdr/FileSystem.h
+  ${ATARI_FW_ROOT}/src/sio/sdr/Types.h
   ${ATARI_FW_ROOT}/src/thread/Pipe.cc
   ${ATARI_FW_ROOT}/src/thread/Pipe.h
   ${ATARI_FW_ROOT}/src/util/PACKED.h
@@ -110,7 +119,7 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/util/type_traits.h
 )
 
-pico_generate_pio_header(atari-fw_${RP2040_BOARD} ${ATARI_FW_ROOT}/../pico-examples/pio/ws2812/ws2812.pio)
+pico_generate_pio_header(atari-fw_${RP2040_BOARD} ${ATARI_FW_ROOT}/../third-party/pico-examples/pio/ws2812/ws2812.pio)
 
 target_include_directories(atari-fw_${RP2040_BOARD} PRIVATE
   ${ATARI_FW_ROOT}/src/platform/rp2040

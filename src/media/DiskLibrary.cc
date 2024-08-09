@@ -22,6 +22,11 @@ media::DiskLibrary& media::DiskLibrary::instance() {
   return instance;
 }
 
+void media::DiskLibrary::reset() {
+  m_disks.clear();
+  addBuiltinAtrFileLibrary();
+}
+
 void media::DiskLibrary::push(disk_ptr disk) {
   if (disk == nullptr) {
     return;
