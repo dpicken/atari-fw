@@ -1,10 +1,10 @@
 LOCAL_ATR_DIR := ./atr
 LOCAL_ATR_FILES := $(sort $(wildcard $(LOCAL_ATR_DIR)/*.atr))
 
-THIRD_PARTY_ATR_DIR := ./third-party/atr
-THIRD_PARTY_ATR_FILES := $(sort $(shell find $(THIRD_PARTY_ATR_DIR)/ -type f -name '*.atr' -print0 | xargs -0 -I% bash -c 'mv "%" $$(echo "%" | tr " " "-" | tr "[:upper:]" "[:lower:]")' && find $(THIRD_PARTY_ATR_DIR)/ -type f -name '*.atr'))
+EXTERNAL_ATR_DIR := ../atari-atr
+EXTERNAL_ATR_FILES := $(sort $(shell [ -d $(EXTERNAL_ATR_DIR) ] && find $(EXTERNAL_ATR_DIR)/ -type f -name '*.atr' -print0 | xargs -0 -I% bash -c 'mv "%" $$(echo "%" | tr " " "-" | tr "[:upper:]" "[:lower:]")' && find $(EXTERNAL_ATR_DIR)/ -type f -name '*.atr'))
 
-ATR_FILES ?= $(if $(THIRD_PARTY_ATR_FILES),$(THIRD_PARTY_ATR_FILES),$(LOCAL_ATR_FILES))
+ATR_FILES ?= $(LOCAL_ATR_FILES) $(EXTERNAL_ATR_FILES)
 
 SRC_MEDIA_BUILTIN_ATR_FILE_LIBRARY := $(SRC_DIR)/media/BuiltinAtrFileLibrary.gen
 

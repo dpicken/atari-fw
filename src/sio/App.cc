@@ -15,7 +15,9 @@ sio::App::App(
     ::hal::BusyWait busyWait,
     ::hal::BusyWaitEq busyWaitEq)
   : m_d1(uart, busyWait)
-  , m_controller(command, uart, busyWaitEq, &m_d1)
+  , m_atariControl(uart, busyWait)
+  , m_fileSystem(uart, busyWait, &m_d1)
+  , m_controller(command, uart, busyWaitEq, &m_d1, &m_atariControl, &m_fileSystem)
   , m_sdController(sdDetect, sdPower, sdCs, sdSpi, busyWait) {
 }
 
@@ -31,7 +33,8 @@ void sio::App::pollPipe() {
       break;
 
     case Pipe::Message::EjectAll:
-      ::media::DiskLibrary::instance().push(m_d1.eject());
+      m_d1.eject();
+      ::media::DiskLibrary::instance().reset();
       break;
 
     case Pipe::Message::D1_RotateDisk:

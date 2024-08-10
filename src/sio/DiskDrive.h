@@ -4,7 +4,7 @@
 #include "Device.h"
 
 #include "media/Disk.h"
-#include "util/PACKED.h"
+#include "sdr/DiskDrive.h"
 
 #include <memory>
 
@@ -23,13 +23,6 @@ public:
 
   void handle(const Command* command) override;
 
-  struct Status {
-    std::uint8_t driveStatus = 0x00;
-    std::uint8_t fdcStatus = 0xFF;
-    std::uint8_t formatTimeout = 0xE0;
-    std::uint8_t reserved = 0x00;
-  } PACKED;
-
 private:
   void handleStatus();
   void handleRead(sector_address_type sectorAddress);
@@ -38,7 +31,7 @@ private:
 
   disk_ptr m_disk;
 
-  Status m_status;
+  sdr::Status m_status;
 };
 
 } // namespace sio

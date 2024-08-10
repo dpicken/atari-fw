@@ -57,7 +57,7 @@ void sio::DiskDrive::handle(const Command* command) {
 }
 
 void sio::DiskDrive::handleStatus() {
-  Frame<Status> statusFrame(m_status);
+  Frame<sdr::Status> statusFrame(m_status);
 
   commandAck();
   commandComplete();

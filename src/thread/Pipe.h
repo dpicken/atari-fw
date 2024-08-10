@@ -10,7 +10,7 @@ class Pipe {
 public:
   static constexpr Message NullMessage = Message();
 
-  Pipe() {
+  Pipe() : m_message(NullMessage) {
   }
 
   Pipe(const Pipe&) = delete;

@@ -12,11 +12,16 @@ sio::Controller::Controller(
     ::hal::InputSignal command,
     ::hal::Uart uart,
     ::hal::BusyWaitEq busyWaitEq,
-    DiskDrive* d1)
+    DiskDrive* d1,
+    AtariControl* atariControl,
+    FileSystem* fileSystem)
   : m_command(command)
   , m_uart(uart)
   , m_busyWaitEq(busyWaitEq)
-  , m_devices({{0x31, d1}}) {
+  , m_devices({
+      {0x31, d1},
+      {0x80, atariControl},
+      {0x81, fileSystem}}) {
 }
 
 void sio::Controller::poll() {

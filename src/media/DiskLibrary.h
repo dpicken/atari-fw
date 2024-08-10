@@ -17,6 +17,8 @@ public:
 
   static DiskLibrary& instance();
 
+  void reset();
+
   void push(disk_ptr disk);
 
   disk_ptr pop();

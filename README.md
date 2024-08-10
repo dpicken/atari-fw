@@ -1,12 +1,8 @@
 # atari-fw
 
-USB keyboard controller firmware for 8-bit Atari systems.
+Firmware for Atari 8-bit hardware projects, see [atari-hw](https://github.com/dpicken/atari-hw).
 
-## Hardware
-
-See [atari-hw](https://github.com/dpicken/atari-hw).
-
-## Building firmware
+## Build firmware
 
 Install the build tools, e.g. on macOS via brew:
 
@@ -24,12 +20,12 @@ cp ~/Downloads/*.atr ./atari-atr/
 Clone and build:
 
 ```
-git clone https://github.com/raspberrypi/pico-sdk.git
-git clone https://github.com/raspberrypi/pico-examples.git
-git -C pico-sdk submodule update --init
-git -C pico-sdk checkout 1.5.1
-git -C pico-sdk submodule update
-git -C pico-examples git checkout sdk-1.5.1
+mkdir ./third-party
+git -C ./third-party clone https://github.com/raspberrypi/pico-sdk.git
+git -C ./third-party clone https://github.com/raspberrypi/pico-examples.git
+git -C ./third-party/pico-sdk checkout 1.5.1
+git -C ./third-party/pico-sdk submodule update --init
+git -C ./third-party/pico-examples checkout sdk-1.5.1
 git clone https://github.com/dpicken/fab.git
 git clone https://github.com/dpicken/atari-fw.git
 cd atari-fw

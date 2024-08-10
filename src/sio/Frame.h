@@ -21,6 +21,10 @@ struct Frame {
     return &m_data;
   }
 
+  Data* data() {
+    return &m_data;
+  }
+
   bool rx(const ::hal::Uart* uart) {
     if (!uart->rx(*this)) {
       return false;

@@ -36,4 +36,28 @@ void keyboard::App::schedule() {
   if (m_keyboardAttachedCount > 0) {
     m_keyboardController.receiveInputReport(m_currentInputReport);
   }
+  pollPipe();
+}
+
+void keyboard::App::pollPipe() {
+  switch (Pipe::instance().tryPop()) {
+    case Pipe::Message::Null:
+      break;
+
+    case Pipe::Message::PowerOff:
+      m_consoleController.receiveInputReport(console::KeyBitset(console::KeyBit::Power));
+
+      break;
+
+    case Pipe::Message::PowerCycle:
+      m_consoleController.receiveInputReport(console::KeyBitset(console::KeyBit::Power));
+      m_consoleController.receiveInputReport(console::KeyBitset(0));
+      m_consoleController.receiveInputReport(console::KeyBitset(console::KeyBit::Power));
+      m_consoleController.receiveInputReport(console::KeyBitset(0));
+      break;
+
+    case Pipe::Message::Reset:
+      m_consoleController.receiveInputReport(console::KeyBitset(console::KeyBit::Reset));
+      break;
+  }
 }

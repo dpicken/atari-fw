@@ -4,7 +4,7 @@ BUILD_DIR_RP2040 := ./build_rp2040
 RP2040_BOARD ?= waveshare_rp2040_zero
 RP2040_BOARD_BUILD_DIR := $(BUILD_DIR_RP2040)/$(RP2040_BOARD)
 
-PICO_SDK_DIR := ../pico-sdk
+PICO_SDK_DIR := ../third-party/pico-sdk
 
 PICO_SDK_INCLUDE_DIRS :=
 PICO_SDK_INCLUDE_DIRS += $(RP2040_BOARD_BUILD_DIR)/generated/pico_base

@@ -1,8 +1,10 @@
 #ifndef sio_App_h
 #define sio_App_h
 
+#include "AtariControl.h"
 #include "Controller.h"
 #include "DiskDrive.h"
+#include "FileSystem.h"
 
 #include "hal/InputSignal.h"
 #include "hal/misc.h"
@@ -29,6 +31,9 @@ private:
   void pollPipe();
 
   DiskDrive m_d1;
+  AtariControl m_atariControl;
+  FileSystem m_fileSystem;
+
   Controller m_controller;
 
   ::sd::Controller m_sdController;
