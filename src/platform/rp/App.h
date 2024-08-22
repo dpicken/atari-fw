@@ -1,24 +1,18 @@
-#ifndef platform_rp2040_App_h
-#define platform_rp2040_App_h
+#ifndef platform_rp_App_h
+#define platform_rp_App_h
 
 #include "NeoPixelSerializeColor.h"
 
 #include "keyboard/App.h"
 #include "sio/App.h"
 
-#ifdef CFG_TUSB_MCU
 #include <bsp/board.h>
-#else
-#define CFG_TUSB_MCU OPT_MCU_NONE
-#define TUP_DCD_ENDPOINT_MAX 8
-#define __force_inline
-#endif
 #include <tusb.h>
 
 #include <atomic>
 #include <cstdint>
 
-namespace platform { namespace rp2040 {
+namespace platform { namespace rp {
 
 class App {
 public:
@@ -60,6 +54,6 @@ private:
   ::sio::App* m_sioApp;
 };
 
-} } // namespace platform::rp2040
+} } // namespace platform::rp
 
-#endif // ifndef platform_rp2040_App_h
+#endif // ifndef platform_rp_App_h

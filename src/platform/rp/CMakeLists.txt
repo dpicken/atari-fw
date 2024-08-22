@@ -3,23 +3,20 @@ cmake_minimum_required(VERSION 3.13)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(FAMILY rp2040)
-set(BOARD ${RP2040_BOARD})
+set(BOARD ${RP_BOARD})
 
 set(ATARI_FW_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../..)
 set(PICO_SDK_DIR ${ATARI_FW_ROOT}/../third-party/pico-sdk)
 
-add_definitions(-DBUILD_RP2040)
-
 include(${PICO_SDK_DIR}/pico_sdk_init.cmake)
 
-project(atari-fw_${RP2040_BOARD})
+project(atari-fw_${RP_BOARD})
 
 pico_sdk_init()
 
 include_directories(${ATARI_FW_ROOT}/src)
 
-add_executable(atari-fw_${RP2040_BOARD}
+add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/hal/InputSignal.cc
   ${ATARI_FW_ROOT}/src/hal/InputSignal.h
   ${ATARI_FW_ROOT}/src/hal/OutputSignal.cc
@@ -68,14 +65,13 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/media/Disk.h
   ${ATARI_FW_ROOT}/src/media/DiskLibrary.cc
   ${ATARI_FW_ROOT}/src/media/DiskLibrary.h
-  ${ATARI_FW_ROOT}/src/platform/rp2040/${RP2040_BOARD}/app.cc
-  ${ATARI_FW_ROOT}/src/platform/rp2040/App.cc
-  ${ATARI_FW_ROOT}/src/platform/rp2040/App.h
-  ${ATARI_FW_ROOT}/src/platform/rp2040/AppLauncher.h
-  ${ATARI_FW_ROOT}/src/platform/rp2040/AppLauncher.inl.h
-  ${ATARI_FW_ROOT}/src/platform/rp2040/NeoPixelSerializeColor.h
-  ${ATARI_FW_ROOT}/src/platform/rp2040/std_atomic_support.cc
-  ${ATARI_FW_ROOT}/src/platform/rp2040/tusb_config.h
+  ${ATARI_FW_ROOT}/src/platform/rp/${RP_BOARD}/app.cc
+  ${ATARI_FW_ROOT}/src/platform/rp/App.cc
+  ${ATARI_FW_ROOT}/src/platform/rp/App.h
+  ${ATARI_FW_ROOT}/src/platform/rp/AppLauncher.h
+  ${ATARI_FW_ROOT}/src/platform/rp/AppLauncher.inl.h
+  ${ATARI_FW_ROOT}/src/platform/rp/NeoPixelSerializeColor.h
+  ${ATARI_FW_ROOT}/src/platform/rp/tusb_config.h
   ${ATARI_FW_ROOT}/src/sd/BlockSize.h
   ${ATARI_FW_ROOT}/src/sd/Command.cc
   ${ATARI_FW_ROOT}/src/sd/Command.h
@@ -119,15 +115,15 @@ add_executable(atari-fw_${RP2040_BOARD}
   ${ATARI_FW_ROOT}/src/util/type_traits.h
 )
 
-pico_generate_pio_header(atari-fw_${RP2040_BOARD} ${ATARI_FW_ROOT}/../third-party/pico-examples/pio/ws2812/ws2812.pio)
+pico_generate_pio_header(atari-fw_${RP_BOARD} ${ATARI_FW_ROOT}/../third-party/pico-examples/pio/ws2812/ws2812.pio)
 
-target_include_directories(atari-fw_${RP2040_BOARD} PRIVATE
-  ${ATARI_FW_ROOT}/src/platform/rp2040
-  ${ATARI_FW_ROOT}/build_${RP2040_BOARD}
+target_include_directories(atari-fw_${RP_BOARD} PRIVATE
+  ${ATARI_FW_ROOT}/src/platform/rp
+  ${ATARI_FW_ROOT}/build_${RP_BOARD}
 )
 
-target_link_libraries(atari-fw_${RP2040_BOARD} PRIVATE pico_stdlib pico_multicore tinyusb_host tinyusb_board hardware_pio hardware_spi hardware_uart)
+target_link_libraries(atari-fw_${RP_BOARD} PRIVATE pico_stdlib pico_multicore tinyusb_host tinyusb_board hardware_pio hardware_spi hardware_uart)
 
-pico_enable_stdio_uart(atari-fw_${RP2040_BOARD} 0)
+pico_enable_stdio_uart(atari-fw_${RP_BOARD} 0)
 
-pico_add_extra_outputs(atari-fw_${RP2040_BOARD})
+pico_add_extra_outputs(atari-fw_${RP_BOARD})

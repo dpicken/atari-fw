@@ -1,9 +1,9 @@
-#ifndef platform_rp2040_NeoPixelSerializeColor_h
-#define platform_rp2040_NeoPixelSerializeColor_h
+#ifndef platform_rp_NeoPixelSerializeColor_h
+#define platform_rp_NeoPixelSerializeColor_h
 
 #include <cstdint>
 
-namespace platform { namespace rp2040 {
+namespace platform { namespace rp {
 
 typedef std::uint32_t(*NeoPixelSerializeColor)(std::uint8_t r, std::uint8_t g, std::uint8_t b);
 
@@ -33,6 +33,6 @@ inline std::uint32_t neoPixelSerializeColorToGRB(std::uint8_t r, std::uint8_t g,
   return pixelValue;
 }
 
-} } // namespace platform::rp2040
+} } // namespace platform::rp
 
-#endif // ifndef platform_rp2040_NeoPixelSerializeColor_h
+#endif // ifndef platform_rp_NeoPixelSerializeColor_h

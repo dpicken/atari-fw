@@ -1,5 +1,5 @@
-#ifndef platform_rp2040_qtpy_tusb_config_h
-#define platform_rp2040_qtpy_tusb_config_h
+#ifndef platform_rp_qtpy_tusb_config_h
+#define platform_rp_qtpy_tusb_config_h
 
 #define CFG_TUSB_RHPORT0_MODE       OPT_MODE_HOST
 #define CFG_TUSB_OS                 OPT_OS_PICO
@@ -15,4 +15,4 @@
 #define CFG_TUH_HID_EPIN_BUFSIZE    64
 #define CFG_TUH_HID_EPOUT_BUFSIZE   64
 
-#endif // ifndef platform_rp2040_qtpy_tusb_config_h
+#endif // ifndef platform_rp_qtpy_tusb_config_h

@@ -64,8 +64,8 @@ hal::OutputSignal makePowerOutputSignal() {
   gpio_set_dir(gpio, GPIO_OUT);
   gpio_put(gpio, !activeValue);
   return hal::OutputSignal(
-      [](){ gpio_put(gpio, activeValue); platform::rp2040::App::instance().onSwitchedPowerChanged(true); },
-      [](){ gpio_put(gpio, !activeValue); platform::rp2040::App::instance().onSwitchedPowerChanged(false); });
+      [](){ gpio_put(gpio, activeValue); platform::rp::App::instance().onSwitchedPowerChanged(true); },
+      [](){ gpio_put(gpio, !activeValue); platform::rp::App::instance().onSwitchedPowerChanged(false); });
 }
 
 void powerOnSequence(const hal::OutputSignal& power, const hal::OutputSignal& reset) {
@@ -107,25 +107,25 @@ bool uartRx(unsigned int uartInstance, std::uint8_t* buf, std::size_t byteCount)
   auto uart = toUart(uartInstance);
   std::uint32_t timeoutDurationUs = getSioUartXferTimeoutDurationUs(byteCount);
   std::uint32_t beginTimePoint = time_us_32();
-  platform::rp2040::App::instance().onSioXfer(true);
+  platform::rp::App::instance().onSioXfer(true);
   for (auto it = buf, end = buf + byteCount; it != end; ++it) {
     while (!uart_is_readable(uart)) {
       if ((time_us_32() - beginTimePoint) >= timeoutDurationUs) {
-        platform::rp2040::App::instance().onSioXferTimeout();
+        platform::rp::App::instance().onSioXferTimeout();
         return false;
       }
     }
     uart_read_blocking(uart, it, 1);
   }
-  platform::rp2040::App::instance().onSioXfer(false);
+  platform::rp::App::instance().onSioXfer(false);
   return true;
 }
 
 void uartTx(unsigned int uartInstance, const std::uint8_t* buf, std::size_t byteCount) {
   auto uart = toUart(uartInstance);
-  platform::rp2040::App::instance().onSioXfer(true);
+  platform::rp::App::instance().onSioXfer(true);
   uart_write_blocking(uart, buf, byteCount);
-  platform::rp2040::App::instance().onSioXfer(false);
+  platform::rp::App::instance().onSioXfer(false);
 }
 
 template<auto gpioSet>
@@ -156,16 +156,16 @@ spi_inst_t* toSpi(unsigned int spiInstance) {
 
 void spiRx(unsigned int spiInstance, std::uint8_t* buf, std::size_t byteCount) {
   auto spi = toSpi(spiInstance);
-  platform::rp2040::App::instance().onSdXfer(true);
+  platform::rp::App::instance().onSdXfer(true);
   spi_read_blocking(spi, sd::Traits::spi_null_byte, buf, byteCount);
-  platform::rp2040::App::instance().onSdXfer(false);
+  platform::rp::App::instance().onSdXfer(false);
 }
 
 void spiTx(unsigned int spiInstance, const std::uint8_t* buf, std::size_t byteCount) {
   auto spi = toSpi(spiInstance);
-  platform::rp2040::App::instance().onSdXfer(true);
+  platform::rp::App::instance().onSdXfer(true);
   spi_write_blocking(spi, buf, byteCount);
-  platform::rp2040::App::instance().onSdXfer(false);
+  platform::rp::App::instance().onSdXfer(false);
 }
 
 template<auto gpioSet>
@@ -197,7 +197,7 @@ hal::Spi makeSpi() {
 } // namespace
 
 template<typename AppTraits>
-platform::rp2040::AppLauncher<AppTraits>::AppLauncher() {
+platform::rp::AppLauncher<AppTraits>::AppLauncher() {
   if constexpr (AppTraits::neoPixelGpio.switchedPower) {
     DEFINE_OUTPUT_SIGNAL(AppTraits::neoPixelGpio, power, true);
     power.activate();
@@ -215,7 +215,7 @@ platform::rp2040::AppLauncher<AppTraits>::AppLauncher() {
 }
 
 template<typename AppTraits>
-void platform::rp2040::AppLauncher<AppTraits>::runKeyboardApp() {
+void platform::rp::AppLauncher<AppTraits>::runKeyboardApp() {
 #if CFG_TUSB_MCU != OPT_MCU_NONE
   board_init();
 #endif
@@ -236,7 +236,7 @@ void platform::rp2040::AppLauncher<AppTraits>::runKeyboardApp() {
 }
 
 template<typename AppTraits>
-void platform::rp2040::AppLauncher<AppTraits>::runSioApp() {
+void platform::rp::AppLauncher<AppTraits>::runSioApp() {
   auto sioCommand = MAKE_OPTIONAL_INPUT_SIGNAL(AppTraits::sioGpio, command, false);
   auto sioUart = makeUart<AppTraits::sioGpio>();
 

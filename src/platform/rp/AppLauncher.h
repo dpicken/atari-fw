@@ -1,9 +1,9 @@
-#ifndef platform_rp2040_AppLauncher_h
-#define platform_rp2040_AppLauncher_h
+#ifndef platform_rp_AppLauncher_h
+#define platform_rp_AppLauncher_h
 
 #include "NeoPixelSerializeColor.h"
 
-namespace platform { namespace rp2040 {
+namespace platform { namespace rp {
 
 template<bool switchedPower, bool isGRB>
 struct NeoPixelGpio;
@@ -100,8 +100,8 @@ private:
   [[noreturn]] static void runSioApp();
 };
 
-} } // namespace platform::rp2040
+} } // namespace platform::rp
 
 #include "AppLauncher.inl.h"
 
-#endif // ifndef platform_rp2040_AppLauncher_h
+#endif // ifndef platform_rp_AppLauncher_h
