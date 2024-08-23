@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(BOARD ${RP_BOARD})
+set(PICO_BOARD ${RP_BOARD})
 
 set(ATARI_FW_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../..)
 set(PICO_SDK_DIR ${ATARI_FW_ROOT}/../third-party/pico-sdk)
@@ -17,6 +17,8 @@ pico_sdk_init()
 include_directories(${ATARI_FW_ROOT}/src)
 
 add_executable(atari-fw_${RP_BOARD}
+  ${ATARI_FW_ROOT}/src/hal/Indicator.cc
+  ${ATARI_FW_ROOT}/src/hal/Indicator.h
   ${ATARI_FW_ROOT}/src/hal/InputSignal.cc
   ${ATARI_FW_ROOT}/src/hal/InputSignal.h
   ${ATARI_FW_ROOT}/src/hal/OutputSignal.cc

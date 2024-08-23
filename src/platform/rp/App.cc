@@ -1,11 +1,10 @@
 #include "App.h"
 
 #include <class/hid/hid_host.h>
-#include <hardware/pio.h>
-#include <ws2812.pio.h>
 
 platform::rp::App::App()
-  : m_neoPixelRefreshTimePoint(time_us_32())
+  : m_indicatorRefreshTimePoint(time_us_32())
+  , m_indicator(nullptr)
   , m_switchedPowerActive(false)
   , m_sioXferActive(false)
   , m_sioXferTimeout(false)
@@ -20,17 +19,15 @@ platform::rp::App& platform::rp::App::instance() {
   return instance;
 }
 
-void platform::rp::App::initNeoPixel(unsigned int txGpio, NeoPixelSerializeColor neoPixelSerializeColor) {
-  uint offset = pio_add_program(pio0, &ws2812_program);
-  ws2812_program_init(pio0, 0, offset, txGpio, 800000, true);
-  m_neoPixelSerializeColor = neoPixelSerializeColor;
+void platform::rp::App::setIndicator(::hal::Indicator* indicator) {
+  m_indicator = indicator;
 }
 
 void platform::rp::App::run(::keyboard::App& app) {
   m_keyboardApp = &app;
   for(;;) {
     tuh_task();
-    reflectStateInNeoPixel();
+    reflectStateInIndicator();
     m_keyboardApp->schedule();
   }
 }
@@ -78,32 +75,30 @@ void platform::rp::App::onSdXferTimeout() {
   m_sdXferTimeout.store(true, std::memory_order_relaxed);
 }
 
-void platform::rp::App::reflectStateInNeoPixel() {
+void platform::rp::App::reflectStateInIndicator() {
   std::uint32_t currentTimePoint = time_us_32();
-  if (currentTimePoint - m_neoPixelRefreshTimePoint < 250 * 1000) {
+  if (currentTimePoint - m_indicatorRefreshTimePoint < 250 * 1000) {
     return;
   }
-  m_neoPixelRefreshTimePoint = currentTimePoint;
+  m_indicatorRefreshTimePoint = currentTimePoint;
 
-  if (!m_keyboardApp->isKeyboardAttached()) {
-    setNeoPixelRGB(0x00, 0x00, 0xFF); // Blue (bright)
+  if (m_indicator == nullptr) {
+    return;
+  } else if (!m_keyboardApp->isKeyboardAttached()) {
+    m_indicator->setRGB(0x00, 0x00, 0xFF); // Blue (bright)
   } else if (!m_switchedPowerActive) {
-    setNeoPixelRGB(0x04, 0x00, 0x00); // Red
+    m_indicator->setRGB(0x04, 0x00, 0x00); // Red
   } else if (m_sdXferTimeout.load(std::memory_order_relaxed)) {
-    setNeoPixelRGB(0xFF, 0x00, 0xFF); // Purple (bright)
+    m_indicator->setRGB(0xFF, 0x00, 0xFF); // Purple (bright)
   } else if (m_sioXferTimeout.load(std::memory_order_relaxed)) {
-    setNeoPixelRGB(0x04, 0x00, 0x04); // Purple
+    m_indicator->setRGB(0x04, 0x00, 0x04); // Purple
   } else if (m_sdXferActive.load(std::memory_order_relaxed)) {
-    setNeoPixelRGB(0xFF, 0xFF, 0xFF); // White (bright)
+    m_indicator->setRGB(0xFF, 0xFF, 0xFF); // White (bright)
   } else if (m_sioXferActive.load(std::memory_order_relaxed)) {
-    setNeoPixelRGB(0x04, 0x04, 0x04); // White
+    m_indicator->setRGB(0x04, 0x04, 0x04); // White
   } else {
-    setNeoPixelRGB(0x00, 0x04, 0x00); // Green
+    m_indicator->setRGB(0x00, 0x04, 0x00); // Green
   }
-}
-
-void platform::rp::App::setNeoPixelRGB(std::uint8_t r, std::uint8_t g, std::uint8_t b) {
-  pio_sm_put_blocking(pio0, 0, m_neoPixelSerializeColor(r, g, b));
 }
 
 extern "C" {

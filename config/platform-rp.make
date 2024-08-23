@@ -42,7 +42,10 @@ rp: $(RP_BOARD_BUILD_DIR)/Makefile builtin-atr-file-library
 rp-all:
 	$(echo_build_message)
 	$(echo_recipe)RP_BOARD=adafruit_qtpy_rp2040 make rp
+	$(echo_recipe)RP_BOARD=pimoroni_tiny2350 make rp
 	$(echo_recipe)RP_BOARD=waveshare_rp2040_zero make rp
+
+all: rp-all
 
 .PHONY: rp-install
 rp-install: rp
@@ -57,12 +60,12 @@ rp-distribute: rp test
 .PHONY: distribute
 distribute:
 	$(echo_build_message)
-	$(echo_recipe)ATR_FILES=$(LOCAL_ATR_FILES) RP_BOARD=adafruit_qtpy_rp2040 make rp-distribute
-	$(echo_recipe)ATR_FILES=$(LOCAL_ATR_FILES) RP_BOARD=waveshare_rp2040_zero make rp-distribute
+	$(echo_recipe)EXTERNAL_ATR_DIR= RP_BOARD=adafruit_qtpy_rp2040 make rp-distribute
+	$(echo_recipe)EXTERNAL_ATR_DIR= RP_BOARD=pimoroni_tiny2350 make rp-distribute
+	$(echo_recipe)EXTERNAL_ATR_DIR= RP_BOARD=waveshare_rp2040_zero make rp-distribute
 
 PHONY: rp-clean
 rp-clean:
 	$(echo_recipe)rm -rf $(BUILD_DIR_RP)
 
-init: | rp
 clean: rp-clean

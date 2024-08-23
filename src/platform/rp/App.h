@@ -1,8 +1,7 @@
 #ifndef platform_rp_App_h
 #define platform_rp_App_h
 
-#include "NeoPixelSerializeColor.h"
-
+#include "hal/Indicator.h"
 #include "keyboard/App.h"
 #include "sio/App.h"
 
@@ -18,7 +17,7 @@ class App {
 public:
   static App& instance();
 
-  void initNeoPixel(unsigned int txGpio, NeoPixelSerializeColor neoPixelSerializeColor);
+  void setIndicator(::hal::Indicator* indicator);
 
   [[noreturn]] void run(::keyboard::App& keyboardApp);
   [[noreturn]] void run(::sio::App& app);
@@ -37,11 +36,10 @@ public:
 private:
   App();
 
-  void reflectStateInNeoPixel();
-  void setNeoPixelRGB(std::uint8_t r, std::uint8_t g, std::uint8_t b);
+  void reflectStateInIndicator();
 
-  NeoPixelSerializeColor m_neoPixelSerializeColor;
-  std::uint32_t m_neoPixelRefreshTimePoint;
+  std::uint32_t m_indicatorRefreshTimePoint;
+  ::hal::Indicator* m_indicator;
 
   bool m_switchedPowerActive;
 

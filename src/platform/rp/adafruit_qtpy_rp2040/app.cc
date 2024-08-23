@@ -20,6 +20,13 @@ constexpr platform::rp::KeyboardGpio keyboardGpio = {
   .kr2 = 3
 };
 
+constexpr platform::rp::SioGpio<true> sioGpio = {
+  .command = 23,
+  .uartInstance = 0,
+  .uartRx = 29,
+  .uartTx = 28
+};
+
 int main() {
-  platform::rp::AppLauncher<platform::rp::AppTraits<neoPixelGpio, systemGpio, keyboardGpio>> appLauncher;
+  platform::rp::AppLauncher<platform::rp::AppTraits<neoPixelGpio, systemGpio, keyboardGpio, sioGpio>> appLauncher;
 }

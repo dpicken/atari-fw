@@ -130,6 +130,7 @@ struct AtrTraits {
 
 using SingleDensityAtr = Atr<AtrTraits<media::Disk::Density::Single, 720, 3, 128, 128>>;
 using EnhancedDensityAtr = Atr<AtrTraits<media::Disk::Density::Enhanced, 1040, 3, 128, 128>>;
+using DoubleDensityAtr = Atr<AtrTraits<media::Disk::Density::Double, 720, 3, 128, 256>>;
 
 } // namespace
 
@@ -152,6 +153,10 @@ std::unique_ptr<media::Disk> media::makeAtr(std::unique_ptr<::io::File> atrFile)
       return std::make_unique<SingleDensityAtr>(std::move(atrFile));
     } else if (header.getSectorStreamSize() <= EnhancedDensityAtr::max_sector_stream_size) {
       return std::make_unique<EnhancedDensityAtr>(std::move(atrFile));
+    }
+  } else if (header.getSectorSize() == 256) {
+    if (header.getSectorStreamSize() <= DoubleDensityAtr::max_sector_stream_size) {
+      return std::make_unique<DoubleDensityAtr>(std::move(atrFile));
     }
   }
 

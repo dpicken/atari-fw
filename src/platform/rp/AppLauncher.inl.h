@@ -1,5 +1,7 @@
 #include "App.h"
 
+#include "NeoPixelSerializeColor.h"
+
 #include "hal/InputSignal.h"
 #include "hal/OutputSignal.h"
 #include "hal/Spi.h"
@@ -8,9 +10,11 @@
 #include "sio/App.h"
 #include "sio/Traits.h"
 
+#include <hardware/pio.h>
 #include <hardware/spi.h>
 #include <pico/multicore.h>
 #include <pico/stdlib.h>
+#include <ws2812.pio.h>
 
 #include <algorithm>
 #include <type_traits>
@@ -66,6 +70,41 @@ hal::OutputSignal makePowerOutputSignal() {
   return hal::OutputSignal(
       [](){ gpio_put(gpio, activeValue); platform::rp::App::instance().onSwitchedPowerChanged(true); },
       [](){ gpio_put(gpio, !activeValue); platform::rp::App::instance().onSwitchedPowerChanged(false); });
+}
+
+template<auto neoPixelGpio>
+hal::Indicator makeNeoPixelIndicator() {
+  if constexpr (neoPixelGpio.switchedPower) {
+    DEFINE_OUTPUT_SIGNAL(neoPixelGpio, power, true);
+    power.activate();
+  }
+
+  uint offset = pio_add_program(pio0, &ws2812_program);
+  ws2812_program_init(pio0, 0, offset, neoPixelGpio.tx, 800000, true);
+  return hal::Indicator(
+      [](std::uint8_t r, std::uint8_t g, std::uint8_t b) { pio_sm_put_blocking(pio0, 0, neoPixelGpio.serializeColor(r, g, b)); });
+}
+
+template<auto rgbLedGpio>
+hal::Indicator makeRGBLedIndicator() {
+  DEFINE_OUTPUT_SIGNAL(rgbLedGpio, red, rgbLedGpio.active_value);
+  DEFINE_OUTPUT_SIGNAL(rgbLedGpio, green, rgbLedGpio.active_value);
+  DEFINE_OUTPUT_SIGNAL(rgbLedGpio, blue, rgbLedGpio.active_value);
+  return hal::Indicator(
+      [](std::uint8_t r, std::uint8_t g, std::uint8_t b) {
+        gpio_put(rgbLedGpio.red,   r ? rgbLedGpio.active_value : !rgbLedGpio.active_value);
+        gpio_put(rgbLedGpio.blue,  b ? rgbLedGpio.active_value : !rgbLedGpio.active_value);
+        gpio_put(rgbLedGpio.green, g ? rgbLedGpio.active_value : !rgbLedGpio.active_value);
+      });
+}
+
+template<auto indicatorGpio>
+hal::Indicator makeIndicator() {
+  if constexpr (indicatorGpio.type == platform::rp::IndicatorType::NeoPixel) {
+    return makeNeoPixelIndicator<indicatorGpio>();
+  } else if constexpr(indicatorGpio.type == platform::rp::IndicatorType::RGBLed) {
+    return makeRGBLedIndicator<indicatorGpio>();
+  }
 }
 
 void powerOnSequence(const hal::OutputSignal& power, const hal::OutputSignal& reset) {
@@ -198,20 +237,14 @@ hal::Spi makeSpi() {
 
 template<typename AppTraits>
 platform::rp::AppLauncher<AppTraits>::AppLauncher() {
-  if constexpr (AppTraits::neoPixelGpio.switchedPower) {
-    DEFINE_OUTPUT_SIGNAL(AppTraits::neoPixelGpio, power, true);
-    power.activate();
-  }
-
-  App::instance().initNeoPixel(AppTraits::neoPixelGpio.tx, AppTraits::neoPixelGpio.serializeColor);
+  auto indicator = makeIndicator<AppTraits::indicatorGpio>();
+  App::instance().setIndicator(&indicator);
 
   if (AppTraits::sioGpio.supported) {
-    multicore_launch_core1(runKeyboardApp);
-    // Note: Run the sio app on core0 because the uart doesn't appear functional via core1.
-    runSioApp();
-  } else {
-    runKeyboardApp();
+    multicore_launch_core1(runSioApp);
   }
+
+  runKeyboardApp();
 }
 
 template<typename AppTraits>

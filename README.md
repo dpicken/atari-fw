@@ -38,13 +38,17 @@ Note: Do not flash a board whilst it's installed (in a powered-on) Atari.
 
 Connect the board to the build host, then boot it into it's bootloader (hold the boot button then press and release the reset button).  Next, copy the appropriate image to the `RPI-RP2` drive/mount (adjust the `RP_MOUNT` option as necessary):
 
-  - [adafruit qtpy](https://www.adafruit.com/product/4900):
+  - [adafruit qtpy rp2040](https://www.adafruit.com/product/4900):
   ```
   RP_MOUNT=/Volumes/RPI-RP2 RP_BOARD=adafruit_qtpy_rp2040 make rp-install
   ```
   - [waveshare rp2040 zero](https://www.waveshare.com/rp2040-zero.htm):
   ```
   RP_MOUNT=/Volumes/RPI-RP2 RP_BOARD=waveshare_rp2040_zero make rp-install
+  ```
+  - [pimoroni tiny2350](https://shop.pimoroni.com/products/tiny-2350?variant=42092638699603):
+  ```
+  RP_MOUNT=/Volumes/RP2350 RP_BOARD=pimoroni_tiny2350 make rp-install
   ```
 
 ## Default keymap

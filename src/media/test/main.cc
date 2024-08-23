@@ -16,11 +16,28 @@ void testDisk(std::unique_ptr<media::Disk> disk) {
     if (!disk->hasSector(it)) {
       throw std::logic_error("unreadable sector");
     }
-    bool readOK = disk->readSector(it, [](const std::uint8_t* sector, std::size_t sectorSize) {
-        (void) sector;
-        if (sectorSize != 128) {
-          throw std::logic_error("unexpected sector size");
-        }
+    bool readOK = disk->readSector(it, [&disk, it](const std::uint8_t* sector, std::size_t sectorSize) {
+      (void)sector;
+      switch (disk->getDensity()) {
+        case media::Disk::Density::Single:
+        case media::Disk::Density::Enhanced:
+          if (sectorSize != 128) {
+            throw std::logic_error("unexpected sector size");
+          }
+          break;
+
+        case media::Disk::Density::Double:
+          if (it >= 1 && it <= 3) {
+            if (sectorSize != 128) {
+              throw std::logic_error("unexpected sector size");
+            }
+          } else {
+            if (sectorSize != 256) {
+              throw std::logic_error("unexpected sector size");
+            }
+          }
+          break;
+      }
     });
     if (!readOK) {
       throw std::logic_error("sector read failed");

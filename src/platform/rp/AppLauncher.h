@@ -5,11 +5,14 @@
 
 namespace platform { namespace rp {
 
+enum class IndicatorType { NeoPixel, RGBLed };
+
 template<bool switchedPower, bool isGRB>
 struct NeoPixelGpio;
 
 template<bool isGRB>
 struct NeoPixelGpio<false, isGRB> {
+  static constexpr auto type = IndicatorType::NeoPixel;
   static constexpr bool switchedPower = false;
   static constexpr NeoPixelSerializeColor serializeColor = isGRB ? neoPixelSerializeColorToGRB : neoPixelSerializeColorToRGB;
   const unsigned int tx;
@@ -17,10 +20,20 @@ struct NeoPixelGpio<false, isGRB> {
 
 template<bool isGRB>
 struct NeoPixelGpio<true, isGRB> {
+  static constexpr auto type = IndicatorType::NeoPixel;
   static constexpr bool switchedPower = true;
   static constexpr NeoPixelSerializeColor serializeColor = isGRB ? neoPixelSerializeColorToGRB : neoPixelSerializeColorToRGB;
   const unsigned int power;
   const unsigned int tx;
+};
+
+template<bool activeValue>
+struct RGBLedGpio {
+  static constexpr auto type = IndicatorType::RGBLed;
+  static constexpr auto active_value = activeValue;
+  const unsigned int red;
+  const unsigned int green;
+  const unsigned int blue;
 };
 
 struct SystemGpio {
@@ -53,7 +66,7 @@ struct SioGpio<true> {
   const unsigned int uartInstance;
   const unsigned int uartRx;
   const unsigned int uartTx;
-  const unsigned int motor;
+  //const unsigned int motor;
 };
 
 template<bool supported>
@@ -77,13 +90,13 @@ struct SDGpio<true> {
 };
 
 template<
-    auto neoPixelGpioValue,
+    auto indicatorGpioValue,
     SystemGpio systemGpioValue,
     KeyboardGpio keyboardGpioValue,
     auto sioGpioValue = SioGpio<false>(),
     auto sdGpioValue = SDGpio<false>()>
 struct AppTraits {
-  static constexpr auto neoPixelGpio = neoPixelGpioValue;
+  static constexpr auto indicatorGpio = indicatorGpioValue;
   static constexpr SystemGpio systemGpio = systemGpioValue;
   static constexpr KeyboardGpio keyboardGpio = keyboardGpioValue;
   static constexpr auto sioGpio = sioGpioValue;

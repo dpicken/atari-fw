@@ -25,7 +25,7 @@ constexpr platform::rp::SioGpio<true> sioGpio = {
   .uartInstance = 1,
   .uartRx = 9,
   .uartTx = 8,
-  .motor = 7
+  //.motor = 7
 };
 
 constexpr platform::rp::SDGpio<true> sdGpio = {
