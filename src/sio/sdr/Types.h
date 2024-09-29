@@ -33,8 +33,16 @@ struct Vector {
   }
 #endif
 
+  bool empty() const {
+    return m_size == 0;
+  }
+
   bool full() const {
     return m_size == capacity_v;
+  }
+
+  const size_type size() const {
+    return m_size;
   }
 
   template<typename... Args>
@@ -50,8 +58,8 @@ struct Vector {
     return m_buffer + m_size;
   }
 
-  const size_type size() const {
-    return m_size;
+  const value_type& operator[](size_type index) const {
+    return *(begin() + index);
   }
 
 private:

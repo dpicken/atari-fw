@@ -5,7 +5,10 @@
 #include "DiskDrive.h"
 #include "sdr/FileSystem.h"
 
+#include "fs/DirectoryEnumerator.h"
+
 #include <cstdint>
+#include <filesystem>
 
 namespace sio {
 
@@ -17,8 +20,12 @@ public:
 
 private:
   void handleGetCurrentDir();
+  void handleSelectParentDir();
   void handleReadDir(sdr::DirEntry::index_type index);
   void handleSelectDirEntry(sdr::DirEntry::index_type index);
+
+  std::filesystem::path m_cwdPath;
+  ::fs::DirectoryEnumerator m_cwdEnumerator;
 
   DiskDrive* const m_d1;
 };

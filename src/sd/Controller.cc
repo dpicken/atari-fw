@@ -1,10 +1,9 @@
 #include "Controller.h"
 
-#include "SdFile.h"
 #include "Traits.h"
+#include "CSD.h"
 
-#include "media/Atr.h"
-#include "media/DiskLibrary.h"
+#include "fs/automount/Manager.h"
 
 #include <algorithm>
 
@@ -18,8 +17,6 @@ sd::Controller::Controller(
   , m_power(power)
   , m_busyWait(busyWait)
   , m_accessor(cs, spi, busyWait)
-  , m_nextOpenId(0)
-  , m_initialized(false)
   , m_isSDSC(false) {
 }
 
@@ -29,41 +26,54 @@ void sd::Controller::poll() {
 }
 
 void sd::Controller::pollCardInserted() {
-  if (!m_detect.isActive() || m_currentOpenId) {
+  if (m_currentCard) {
+    return;
+  }
+
+  if (!m_detect.isActive()) {
     return;
   }
 
   m_busyWait(sd_detect_debounce_time);
+
   if (!m_detect.isActive()) {
     return;
   }
 
   m_power.activate();
-  m_currentOpenId = m_nextOpenId++;
-  m_initialized = initialize();
 
-  if (m_initialized) {
-    auto sdDisk = ::media::makeAtr(std::make_unique<SdFile>(this, *m_currentOpenId, 0, 92176));
-    if (sdDisk == nullptr) {
-      return;
-    }
-    ::media::DiskLibrary::instance().push(std::move(sdDisk));
-  }
-}
-
-void sd::Controller::pollCardEjected() {
-  if (m_detect.isActive() || !m_currentOpenId) {
+  if (!initialize()) {
     return;
   }
 
-  m_busyWait(sd_detect_debounce_time);
+  // Get card size.
+  if (!m_accessor.sendCsd().isSuccess()) {
+    return;
+  }
+  CSD csd;
+  if (!m_accessor.rx(&csd)) {
+    return;
+  }
+
+  m_currentCard = Card::make(this, csd.getSize());
+  ::fs::automount::Manager::instance()->onBlockDeviceAvailable(m_currentCard, m_currentCard->name());
+}
+
+void sd::Controller::pollCardEjected() {
   if (m_detect.isActive()) {
     return;
   }
 
+  m_busyWait(sd_detect_debounce_time);
+
+  if (m_detect.isActive()) {
+    return;
+  }
+
+  ::fs::automount::Manager::instance()->onBlockDeviceUnavailable(m_currentCard);
+  m_currentCard = nullptr;
+
   m_cachedBlockAddress = std::nullopt;
-  m_initialized = false;
-  m_currentOpenId = std::nullopt;
   m_power.deactivate();
 }
 
@@ -146,12 +156,8 @@ bool sd::Controller::initialize() {
   return true;
 }
 
-bool sd::Controller::read(open_id_type openId, std::uint64_t byteOffset, std::size_t byteCount, Sink sink) {
-  if (openId != m_currentOpenId) {
-    return false;
-  }
-
-  if (!m_initialized) {
+bool sd::Controller::read(Card* card, std::uint64_t byteOffset, std::size_t byteCount, sink_type sink) {
+  if (card != m_currentCard.get()) {
     return false;
   }
 

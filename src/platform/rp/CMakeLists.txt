@@ -17,6 +17,28 @@ pico_sdk_init()
 include_directories(${ATARI_FW_ROOT}/src)
 
 add_executable(atari-fw_${RP_BOARD}
+  ${ATARI_FW_ROOT}/src/fs/Directory.cc
+  ${ATARI_FW_ROOT}/src/fs/Directory.h
+  ${ATARI_FW_ROOT}/src/fs/DirectoryEntry.cc
+  ${ATARI_FW_ROOT}/src/fs/DirectoryEntry.h
+  ${ATARI_FW_ROOT}/src/fs/DirectoryEnumerator.cc
+  ${ATARI_FW_ROOT}/src/fs/DirectoryEnumerator.h
+  ${ATARI_FW_ROOT}/src/fs/File.cc
+  ${ATARI_FW_ROOT}/src/fs/File.h
+  ${ATARI_FW_ROOT}/src/fs/FileSystem.cc
+  ${ATARI_FW_ROOT}/src/fs/FileSystem.h
+  ${ATARI_FW_ROOT}/src/fs/ResolvePath.cc
+  ${ATARI_FW_ROOT}/src/fs/ResolvePath.h
+  ${ATARI_FW_ROOT}/src/fs/automount/Manager.cc
+  ${ATARI_FW_ROOT}/src/fs/automount/Manager.h
+  ${ATARI_FW_ROOT}/src/fs/builtin/File.cc
+  ${ATARI_FW_ROOT}/src/fs/builtin/File.h
+  ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.cc
+  ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.h
+  ${ATARI_FW_ROOT}/src/fs/ram/Directory.cc
+  ${ATARI_FW_ROOT}/src/fs/ram/Directory.h
+  ${ATARI_FW_ROOT}/src/fs/root/FileSystem.cc
+  ${ATARI_FW_ROOT}/src/fs/root/FileSystem.h
   ${ATARI_FW_ROOT}/src/hal/Indicator.cc
   ${ATARI_FW_ROOT}/src/hal/Indicator.h
   ${ATARI_FW_ROOT}/src/hal/InputSignal.cc
@@ -29,11 +51,6 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/hal/Uart.h
   ${ATARI_FW_ROOT}/src/hal/duration_us.h
   ${ATARI_FW_ROOT}/src/hal/misc.h
-  ${ATARI_FW_ROOT}/src/io/File.cc
-  ${ATARI_FW_ROOT}/src/io/File.h
-  ${ATARI_FW_ROOT}/src/io/RomFile.cc
-  ${ATARI_FW_ROOT}/src/io/RomFile.h
-  ${ATARI_FW_ROOT}/src/io/Sink.h
   ${ATARI_FW_ROOT}/src/keyboard/App.cc
   ${ATARI_FW_ROOT}/src/keyboard/App.h
   ${ATARI_FW_ROOT}/src/keyboard/Controller.cc
@@ -59,14 +76,12 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/keyboard/usb/ModifierBit.h
   ${ATARI_FW_ROOT}/src/media/Atr.cc
   ${ATARI_FW_ROOT}/src/media/Atr.h
-  ${ATARI_FW_ROOT}/src/media/BuiltinAtrFileLibrary.gen.data.h
-  ${ATARI_FW_ROOT}/src/media/BuiltinAtrFileLibrary.gen.index.h
-  ${ATARI_FW_ROOT}/src/media/BuiltinAtrFileLibrary.gen.title.h
-  ${ATARI_FW_ROOT}/src/media/BuiltinAtrFileLibrary.h
+  ${ATARI_FW_ROOT}/src/media/BuiltinAtrLibrary.gen.data.h
+  ${ATARI_FW_ROOT}/src/media/BuiltinAtrLibrary.gen.index.h
+  ${ATARI_FW_ROOT}/src/media/BuiltinAtrLibrary.gen.title.h
+  ${ATARI_FW_ROOT}/src/media/BuiltinAtrLibrary.h
   ${ATARI_FW_ROOT}/src/media/Disk.cc
   ${ATARI_FW_ROOT}/src/media/Disk.h
-  ${ATARI_FW_ROOT}/src/media/DiskLibrary.cc
-  ${ATARI_FW_ROOT}/src/media/DiskLibrary.h
   ${ATARI_FW_ROOT}/src/platform/rp/${RP_BOARD}/app.cc
   ${ATARI_FW_ROOT}/src/platform/rp/App.cc
   ${ATARI_FW_ROOT}/src/platform/rp/App.h
@@ -75,14 +90,16 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/platform/rp/NeoPixelSerializeColor.h
   ${ATARI_FW_ROOT}/src/platform/rp/tusb_config.h
   ${ATARI_FW_ROOT}/src/sd/BlockSize.h
+  ${ATARI_FW_ROOT}/src/sd/CSD.h
+  ${ATARI_FW_ROOT}/src/sd/Card.cc
+  ${ATARI_FW_ROOT}/src/sd/Card.h
   ${ATARI_FW_ROOT}/src/sd/Command.cc
   ${ATARI_FW_ROOT}/src/sd/Command.h
   ${ATARI_FW_ROOT}/src/sd/Controller.cc
+  ${ATARI_FW_ROOT}/src/sd/Controller.fwd.h
   ${ATARI_FW_ROOT}/src/sd/Controller.h
   ${ATARI_FW_ROOT}/src/sd/Response.cc
   ${ATARI_FW_ROOT}/src/sd/Response.h
-  ${ATARI_FW_ROOT}/src/sd/SdFile.cc
-  ${ATARI_FW_ROOT}/src/sd/SdFile.h
   ${ATARI_FW_ROOT}/src/sd/SpiAccessor.cc
   ${ATARI_FW_ROOT}/src/sd/SpiAccessor.h
   ${ATARI_FW_ROOT}/src/sd/Traits.h

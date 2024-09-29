@@ -11,7 +11,7 @@ sio::DiskDrive::DiskDrive(::hal::Uart uart, ::hal::BusyWait busyWait)
     }) {
 }
 
-void sio::DiskDrive::insert(disk_ptr&& disk) {
+void sio::DiskDrive::insert(disk_ptr disk) {
   m_status.driveStatus = 0x00;
 
   m_disk = std::move(disk);
@@ -31,10 +31,8 @@ void sio::DiskDrive::insert(disk_ptr&& disk) {
   }
 }
 
-sio::DiskDrive::disk_ptr sio::DiskDrive::eject() {
-  disk_ptr disk;
-  m_disk.swap(disk);
-  return disk;
+void sio::DiskDrive::eject() {
+  insert(nullptr);
 }
 
 void sio::DiskDrive::handle(const Command* command) {

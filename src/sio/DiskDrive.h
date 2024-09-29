@@ -18,8 +18,8 @@ public:
 
   DiskDrive(::hal::Uart uart, ::hal::BusyWait busyWait);
 
-  void insert(disk_ptr&& disk);
-  disk_ptr eject();
+  void insert(disk_ptr disk);
+  void eject();
 
   void handle(const Command* command) override;
 

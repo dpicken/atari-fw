@@ -3,13 +3,13 @@
 
 #include "Disk.h"
 
-#include "io/File.h"
+#include "fs/File.h"
 
 #include <memory>
 
 namespace media {
 
-  std::unique_ptr<Disk> makeAtr(std::unique_ptr<::io::File> atrFile);
+  std::unique_ptr<Disk> makeAtr(::fs::File::ptr_type atrFile);
 
 } // namespace media
 

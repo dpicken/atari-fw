@@ -1,8 +1,7 @@
 #include "media/Atr.h"
-#include "media/BuiltinAtrFileLibrary.h"
-#include "media/DiskLibrary.h"
+#include "media/BuiltinAtrLibrary.h"
 
-#include "io/RomFile.h"
+#include "fs/builtin/File.h"
 
 #include <cstdlib>
 #include <list>
@@ -45,18 +44,18 @@ void testDisk(std::unique_ptr<media::Disk> disk) {
   }
 }
 
-void testBuiltinAtrFileLibrary() {
+void testBuiltinAtrLibrary() {
   std::list<std::string_view> badTitles;
-  for (unsigned int atrIndex = 0; atrIndex != media::BuiltinAtrFileLibrary::getAtrCount(); ++atrIndex) {
-    auto disk = media::makeAtr(media::BuiltinAtrFileLibrary::makeRomFile(atrIndex));
+  for (unsigned int atrIndex = 0; atrIndex != media::BuiltinAtrLibrary::getAtrCount(); ++atrIndex) {
+    auto disk = media::makeAtr(fs::builtin::File::make(media::BuiltinAtrLibrary::getAtrData(atrIndex), media::BuiltinAtrLibrary::getAtrSize(atrIndex)));
     if (disk != nullptr) {
       try {
         testDisk(std::move(disk));
       } catch (...) {
-        badTitles.push_back(media::BuiltinAtrFileLibrary::getAtrTitle(atrIndex));
+        badTitles.push_back(media::BuiltinAtrLibrary::getAtrTitle(atrIndex));
       }
     } else {
-      badTitles.push_back(media::BuiltinAtrFileLibrary::getAtrTitle(atrIndex));
+      badTitles.push_back(media::BuiltinAtrLibrary::getAtrTitle(atrIndex));
     }
   }
   if (!badTitles.empty()) {
@@ -69,21 +68,9 @@ void testBuiltinAtrFileLibrary() {
   }
 }
 
-void testDiskLibrary() {
-  unsigned int diskCount = 0;
-  for (auto disk = media::DiskLibrary::instance().pop(); disk != nullptr; disk = media::DiskLibrary::instance().pop()) {
-    testDisk(std::move(disk));
-    ++diskCount;
-  }
-  if (diskCount == 0) {
-    throw std::logic_error("empty disk library");
-  }
-}
-
 } // namespace
 
 int main(int, char**) {
-  testBuiltinAtrFileLibrary();
-  testDiskLibrary();
+  testBuiltinAtrLibrary();
   return EXIT_SUCCESS;
 }

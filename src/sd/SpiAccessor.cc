@@ -60,6 +60,10 @@ sd::Response::R7 sd::SpiAccessor::sendIfCond(VHS vhs, std::uint8_t checkPattern)
   return execute<sd::Response::R7>(Command::Cmd::SendIfCond, argument);
 }
 
+sd::Response::R1 sd::SpiAccessor::sendCsd() const {
+  return execute(Command::Cmd::SendCsd, 0);
+}
+
 sd::Response::R1 sd::SpiAccessor::setBlocklen(argument_type byteCount) const {
   return execute(Command::Cmd::SetBlocklen, byteCount);
 }
