@@ -2,9 +2,9 @@
 #include "sio/DiskDrive.h"
 #include "sio/Frame.h"
 
-#include "io/RomFile.h"
+#include "fs/builtin/File.h"
 #include "media/Atr.h"
-#include "media/BuiltinAtrFileLibrary.h"
+#include "media/BuiltinAtrLibrary.h"
 
 #include <cstdlib>
 #include <cstdint>
@@ -74,7 +74,7 @@ void testDiskDriveStatus() {
     0xE0 // Checksum
   };
 
-  auto disk = media::makeAtr(media::BuiltinAtrFileLibrary::makeRomFile(0));
+  auto disk = media::makeAtr(fs::builtin::File::make(media::BuiltinAtrLibrary::getAtrData(0), media::BuiltinAtrLibrary::getAtrSize(0)));
   switch (disk->getDensity()) {
     case media::Disk::Density::Single:
       break;
@@ -108,7 +108,7 @@ void testDiskDriveRead() {
 
   std::uint8_t expectedResult[131];
 
-  auto atrData = media::BuiltinAtrFileLibrary::getAtrData(0);
+  auto atrData = media::BuiltinAtrLibrary::getAtrData(0);
 
   expectedResult[0] = 'A'; // Ack
   expectedResult[1] = 'C'; // Complete
@@ -119,7 +119,7 @@ void testDiskDriveRead() {
   txEnd = txIt + sizeof(expectedResult);
 
   sio::DiskDrive diskDrive(uart, busyWait);
-  auto disk = media::makeAtr(media::BuiltinAtrFileLibrary::makeRomFile(0));
+  auto disk = media::makeAtr(fs::builtin::File::make(media::BuiltinAtrLibrary::getAtrData(0), media::BuiltinAtrLibrary::getAtrSize(0)));
   diskDrive.insert(std::move(disk));
 
   testDiskDriveCommand(&diskDrive);

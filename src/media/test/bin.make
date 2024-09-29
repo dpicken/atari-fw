@@ -1,4 +1,8 @@
-LIB_DIRS += io
+LIB_DIRS += fs
+LIB_DIRS += fs/automount
+LIB_DIRS += fs/builtin
+LIB_DIRS += fs/ram
+LIB_DIRS += fs/root
 LIB_DIRS += keyboard
 LIB_DIRS += keyboard/console
 LIB_DIRS += keyboard/pokey

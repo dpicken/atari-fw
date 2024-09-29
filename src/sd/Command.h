@@ -11,6 +11,7 @@ struct Command {
   enum class Cmd : std::uint8_t {
     GoIdleState = 0,
     SendIfCond = 8,
+    SendCsd = 9,
     SetBlocklen = 16,
     ReadSingleBlock = 17,
     AppCmd = 55,

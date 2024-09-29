@@ -17,8 +17,9 @@ struct DirEntry {
   }
 
 #ifndef BUILD_MOS
-  DirEntry(const std::string_view& name, unsigned int index)
+  DirEntry(const std::string_view& name, bool isDirectory, unsigned int index)
     : m_name(name)
+    , m_isDirectory(isDirectory)
     , m_index(static_cast<index_type>(index)) {
   }
 #endif
@@ -27,12 +28,17 @@ struct DirEntry {
     return m_name;
   }
 
+  bool isDirectory() const {
+    return m_isDirectory;
+  }
+
   index_type index() const {
     return m_index;
   }
 
 private:
   name_type m_name;
+  bool_type m_isDirectory;
   index_type m_index;
 } PACKED;
 
@@ -44,6 +50,10 @@ struct DirEntryPage {
 
   DirEntryPage()
     : m_eos(true) {
+  }
+
+  bool empty() const {
+    return m_entries.empty();
   }
 
   bool full() const {
@@ -65,6 +75,10 @@ struct DirEntryPage {
 
   const dir_entry_type* end() const {
     return m_entries.end();
+  }
+
+  const dir_entry_type& operator[](vector_type::size_type index) const {
+    return m_entries[index];
   }
 
   bool eos() const {

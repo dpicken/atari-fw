@@ -39,7 +39,7 @@ public:
   static constexpr auto max_sector_stream_size =
       (Traits::boot_sector_size * Traits::boot_sector_count) + (Traits::nonboot_sector_size * Traits::nonboot_sector_count);
 
-  Atr(std::unique_ptr<io::File> atrFile)
+  Atr(fs::File::ptr_type atrFile)
     : m_atrFile(std::move(atrFile)) {
   }
 
@@ -108,7 +108,7 @@ private:
     });
   }
 
-  const std::unique_ptr<io::File> m_atrFile;
+  const fs::File::ptr_type m_atrFile;
 };
 
 template<
@@ -134,7 +134,11 @@ using DoubleDensityAtr = Atr<AtrTraits<media::Disk::Density::Double, 720, 3, 128
 
 } // namespace
 
-std::unique_ptr<media::Disk> media::makeAtr(std::unique_ptr<::io::File> atrFile) {
+std::unique_ptr<media::Disk> media::makeAtr(::fs::File::ptr_type atrFile) {
+  if (atrFile == nullptr) {
+    return nullptr;
+  }
+
   AtrHeaderBlock header;
   if (!atrFile->read(0, &header)) {
     return nullptr;

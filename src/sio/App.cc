@@ -2,7 +2,8 @@
 
 #include "Pipe.h"
 
-#include "media/DiskLibrary.h"
+#include "fs/builtin/FileSystem.h"
+#include "media/Atr.h"
 #include "sd/Controller.h"
 
 sio::App::App(
@@ -14,7 +15,8 @@ sio::App::App(
     ::hal::Spi sdSpi,
     ::hal::BusyWait busyWait,
     ::hal::BusyWaitEq busyWaitEq)
-  : m_d1(uart, busyWait)
+  : m_d1LibraryEnumerator(::fs::builtin::FileSystem::instance()->getRootDirectory())
+  , m_d1(uart, busyWait)
   , m_atariControl(uart, busyWait)
   , m_fileSystem(uart, busyWait, &m_d1)
   , m_controller(command, uart, busyWaitEq, &m_d1, &m_atariControl, &m_fileSystem)
@@ -34,12 +36,18 @@ void sio::App::pollPipe() {
 
     case Pipe::Message::EjectAll:
       m_d1.eject();
-      ::media::DiskLibrary::instance().reset();
+      m_d1LibraryEnumerator.reset();
       break;
 
     case Pipe::Message::D1_RotateDisk:
-      ::media::DiskLibrary::instance().push(m_d1.eject());
-      m_d1.insert(::media::DiskLibrary::instance().pop());
+      m_d1.eject();
+      if (!m_d1LibraryEnumerator.isValid()) {
+        m_d1LibraryEnumerator.reset();
+      }
+      if (m_d1LibraryEnumerator.isValid()) {
+        m_d1.insert(::media::makeAtr(m_d1LibraryEnumerator.openFile()));
+        m_d1LibraryEnumerator.next();
+      }
       break;
   }
 }

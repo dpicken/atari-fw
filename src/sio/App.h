@@ -6,6 +6,7 @@
 #include "DiskDrive.h"
 #include "FileSystem.h"
 
+#include "fs/DirectoryEnumerator.h"
 #include "hal/InputSignal.h"
 #include "hal/misc.h"
 #include "hal/Spi.h"
@@ -29,6 +30,8 @@ public:
 
 private:
   void pollPipe();
+
+  ::fs::DirectoryEnumerator m_d1LibraryEnumerator;
 
   DiskDrive m_d1;
   AtariControl m_atariControl;

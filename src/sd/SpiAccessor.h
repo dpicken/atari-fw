@@ -29,6 +29,8 @@ public:
 
   Response::R7 sendIfCond(VHS vhs, std::uint8_t checkPattern) const;
 
+  Response::R1 sendCsd() const;
+
   Response::R1 setBlocklen(argument_type byteCount) const;
 
   Response::R1 readSingleBlock(argument_type address) const;
@@ -38,6 +40,11 @@ public:
   Response::R1 sdSendOpCond(bool sdscSupportOnly) const;
 
   bool rx(std::uint8_t* data, std::size_t byteCount) const;
+
+  template<typename PackedType>
+  bool rx(PackedType* value) const {
+    return rx(reinterpret_cast<std::uint8_t*>(value), sizeof(*value));
+  }
 
 private:
   template<typename ResponseType = Response::R1>
