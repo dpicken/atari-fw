@@ -60,6 +60,10 @@ void sd::Controller::pollCardInserted() {
 }
 
 void sd::Controller::pollCardEjected() {
+  if (!m_currentCard) {
+    return;
+  }
+
   if (m_detect.isActive()) {
     return;
   }
