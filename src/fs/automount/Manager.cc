@@ -1,5 +1,6 @@
 #include "Manager.h"
 
+#include "fs/mbr/MBR.h"
 #include "fs/root/FileSystem.h"
 
 fs::automount::Manager::Manager() = default;
@@ -15,7 +16,12 @@ void fs::automount::Manager::onBlockDeviceAvailable(file_ptr_type device, name_t
     return;
   }
 
-  ::fs::root::FileSystem::instance()->getRootDirectoryImpl()->put(it->second, it->first);
+  auto mbrDirectory = ::fs::mbr::tryMakeDirectory(it->first);
+  if (mbrDirectory) {
+    ::fs::root::FileSystem::instance()->getRootDirectoryImpl()->put(it->second, std::move(mbrDirectory));
+  } else {
+    ::fs::root::FileSystem::instance()->getRootDirectoryImpl()->put(it->second, it->first);
+  }
 }
 
 void fs::automount::Manager::onBlockDeviceUnavailable(const file_ptr_type& device) {
