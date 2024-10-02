@@ -25,6 +25,8 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/fs/DirectoryEnumerator.h
   ${ATARI_FW_ROOT}/src/fs/File.cc
   ${ATARI_FW_ROOT}/src/fs/File.h
+  ${ATARI_FW_ROOT}/src/fs/FileSlice.cc
+  ${ATARI_FW_ROOT}/src/fs/FileSlice.h
   ${ATARI_FW_ROOT}/src/fs/FileSystem.cc
   ${ATARI_FW_ROOT}/src/fs/FileSystem.h
   ${ATARI_FW_ROOT}/src/fs/ResolvePath.cc
@@ -35,6 +37,8 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/fs/builtin/File.h
   ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.cc
   ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.h
+  ${ATARI_FW_ROOT}/src/fs/mbr/MBR.cc
+  ${ATARI_FW_ROOT}/src/fs/mbr/MBR.h
   ${ATARI_FW_ROOT}/src/fs/ram/Directory.cc
   ${ATARI_FW_ROOT}/src/fs/ram/Directory.h
   ${ATARI_FW_ROOT}/src/fs/root/FileSystem.cc

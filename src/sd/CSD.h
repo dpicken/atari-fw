@@ -23,7 +23,7 @@ struct CSD {
 
 private:
   static constexpr auto bit_count_v = 128;
-  static constexpr auto size_v = bit_count_v / bit_count_v;
+  static constexpr auto size_v = bit_count_v / 8;
 
   using data_array_type = std::array<std::uint8_t, size_v>;
 
@@ -73,6 +73,7 @@ private:
 
   data_array_type m_data;
 } PACKED;
+static_assert (sizeof(CSD) == 16);
 
 } // namespace sd
 
