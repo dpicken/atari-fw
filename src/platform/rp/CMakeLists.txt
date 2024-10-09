@@ -145,7 +145,7 @@ target_include_directories(atari-fw_${RP_BOARD} PRIVATE
   ${ATARI_FW_ROOT}/build_${RP_BOARD}
 )
 
-target_link_libraries(atari-fw_${RP_BOARD} PRIVATE pico_stdlib pico_multicore tinyusb_host tinyusb_board hardware_pio hardware_spi hardware_uart)
+target_link_libraries(atari-fw_${RP_BOARD} PRIVATE pico_bootrom pico_stdlib pico_multicore tinyusb_host tinyusb_board hardware_pio hardware_spi hardware_uart)
 
 pico_enable_stdio_uart(atari-fw_${RP_BOARD} 0)
 
