@@ -21,8 +21,8 @@ struct Spi {
 
 
   template<typename PackedType>
-  void rx(PackedType& value) const {
-    m_rx(reinterpret_cast<std::uint8_t*>(&value), sizeof(value));
+  void rx(PackedType* value) const {
+    m_rx(reinterpret_cast<std::uint8_t*>(value), sizeof(*value));
   }
 
   void rx(std::uint8_t* data, std::size_t size) const {
@@ -30,8 +30,8 @@ struct Spi {
   }
 
   template<typename PackedType>
-  void tx(const PackedType& value) const {
-    m_tx(reinterpret_cast<const std::uint8_t*>(&value), sizeof(value));
+  void tx(const PackedType* value) const {
+    m_tx(reinterpret_cast<const std::uint8_t*>(value), sizeof(*value));
   }
 
 private:

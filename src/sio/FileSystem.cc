@@ -60,7 +60,6 @@ void sio::FileSystem::handleReadDir(sdr::DirEntry::index_type index) {
   m_cwdEnumerator.reposition(index);
 
   Frame<sdr::DirEntryPage> pageFrame;
-
   sdr::DirEntryPage* page = pageFrame.data();
   for (; m_cwdEnumerator.isValid() && !page->full(); m_cwdEnumerator.next()) {
     page->emplace_back(m_cwdEnumerator.entry().name(), m_cwdEnumerator.entry().isDirectory(), m_cwdEnumerator.entry().index());

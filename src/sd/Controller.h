@@ -3,7 +3,7 @@
 
 #include "Controller.fwd.h"
 
-#include "BlockSize.h"
+#include "Block.h"
 #include "Card.h"
 #include "SpiAccessor.h"
 
@@ -14,6 +14,7 @@
 
 #include <array>
 #include <optional>
+#include <string_view>
 
 namespace sd {
 
@@ -50,12 +51,13 @@ private:
   const ::hal::BusyWait m_busyWait;
   const SpiAccessor m_accessor;
 
+  std::string_view m_initializationFailureReason;
   bool m_isSDSC;
 
   Card::ptr_type m_currentCard;
 
   std::optional<uint32_t> m_cachedBlockAddress;
-  std::array<std::uint8_t, BlockSize::byte_count> m_cachedBlock;
+  Block m_cachedBlock;
 };
 
 } // namespace sd
