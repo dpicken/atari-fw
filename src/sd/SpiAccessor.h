@@ -1,7 +1,9 @@
 #ifndef sd_SpiAccessor_h
 #define sd_SpiAccessor_h
 
+#include "Block.h"
 #include "Command.h"
+#include "CSD.h"
 #include "VHS.h"
 #include "Response.h"
 
@@ -29,24 +31,26 @@ public:
 
   Response::R7 sendIfCond(VHS vhs, std::uint8_t checkPattern) const;
 
-  Response::R1 sendCsd() const;
-
   Response::R1 setBlocklen(argument_type byteCount) const;
-
-  Response::R1 readSingleBlock(argument_type address) const;
 
   Response::R3 readOcr() const;
 
   Response::R1 sdSendOpCond(bool sdscSupportOnly) const;
 
-  bool rx(std::uint8_t* data, std::size_t byteCount) const;
-
-  template<typename PackedType>
-  bool rx(PackedType* value) const {
-    return rx(reinterpret_cast<std::uint8_t*>(value), sizeof(*value));
-  }
+  bool readCsd(CSD* csd) const;
+  bool readBlock(Block* block, argument_type address) const;
 
 private:
+  Response::R1 sendCsd() const;
+  Response::R1 readSingleBlock(argument_type address) const;
+
+  bool rxBlock(std::uint8_t* data, std::size_t byteCount, unsigned int maxCycleCount) const;
+
+  template<typename PackedType>
+  bool rxBlock(PackedType* value, unsigned int maxCycleCount) const {
+    return rxBlock(reinterpret_cast<std::uint8_t*>(value), sizeof(*value), maxCycleCount);
+  }
+
   template<typename ResponseType = Response::R1>
   ResponseType execute(Command::Cmd cmd, Command::argument_type argument) const;
 

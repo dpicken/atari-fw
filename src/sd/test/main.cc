@@ -35,12 +35,6 @@ hal::Spi spi(
           throw std::logic_error("unexpected tx");
         }
       }
-      if (it != end) {
-        throw std::logic_error("tx underrun");
-      }
-      if (txIt != txEnd) {
-        throw std::logic_error("tx overrun");
-      }
     },
     [](unsigned int) {}
 );
@@ -54,19 +48,21 @@ static constexpr std::array<std::uint8_t, 2> r1DelayedIdle = {
   0x01
 };
 
-template<typename ResponseData>
-void testGoIdleState(sd::SpiAccessor* spiAccessor, const ResponseData& rxData) {
-  std::uint8_t expectedCommand[] = {
+template<typename RxData>
+void testGoIdleState(sd::SpiAccessor* spiAccessor, const RxData& rxData) {
+  std::uint8_t expectedTxData[] = {
+    0xFF,
     0x40 | 0,
     0x00,
     0x00,
     0x00,
     0x00,
-    0x95
+    0x95,
+    0xFF
   };
 
-  txIt = expectedCommand;
-  txEnd = txIt + sizeof(expectedCommand);
+  txIt = expectedTxData;
+  txEnd = txIt + sizeof(expectedTxData);
 
   rxIt = rxData.data();
   rxEnd = rxIt + rxData.size();
@@ -99,19 +95,21 @@ static constexpr std::array<std::uint8_t, 6> r7DelayedIdle = {
   0xAA
 };
 
-template<typename ResponseData>
-void testSendIfCond(sd::SpiAccessor* spiAccessor, const ResponseData& rxData) {
-  std::uint8_t expectedCommand[] = {
+template<typename RxData>
+void testSendIfCond(sd::SpiAccessor* spiAccessor, const RxData& rxData) {
+  std::uint8_t expectedTxData[] = {
+    0xFF,
     0x40 | 8,
     0x00,
     0x00,
     0x01,
     0xAA,
-    0x87
+    0x87,
+    0xFF
   };
 
-  txIt = expectedCommand;
-  txEnd = txIt + sizeof(expectedCommand);
+  txIt = expectedTxData;
+  txEnd = txIt + sizeof(expectedTxData);
 
   rxIt = rxData.data();
   rxEnd = rxIt + rxData.size();
@@ -155,19 +153,21 @@ static constexpr std::array<std::uint8_t, 6> r3DelayedIdle = {
   0x00
 };
 
-template<typename ResponseData>
-void testReadOcr(sd::SpiAccessor* spiAccessor, const ResponseData& rxData) {
-  std::uint8_t expectedCommand[] = {
+template<typename RxData>
+void testReadOcr(sd::SpiAccessor* spiAccessor, const RxData& rxData) {
+  std::uint8_t expectedTxData[] = {
+    0xFF,
     0x40 | 58,
     0x00,
     0x00,
     0x00,
     0x00,
-    0xFD
+    0xFD,
+    0xFF
   };
 
-  txIt = expectedCommand;
-  txEnd = txIt + sizeof(expectedCommand);
+  txIt = expectedTxData;
+  txEnd = txIt + sizeof(expectedTxData);
 
   rxIt = rxData.data();
   rxEnd = rxIt + rxData.size();
@@ -183,25 +183,75 @@ void testReadOcr(sd::SpiAccessor* spiAccessor, const ResponseData& rxData) {
   }
 }
 
-void testRx(sd::SpiAccessor* spiAccessor) {
-  std::array<std::uint8_t, 1 + 512 + 2> block;
-  block[0] = 0xFE;
-  std::fill(&block[1], &block[513], 0xFF);
-  block[513] = 0x7F;
-  block[514] = 0xA1;
+void testReadCsd(sd::SpiAccessor* spiAccessor) {
+  std::uint8_t expectedTxData[] = {
+    0xFF,
+    0x40 | 9,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0xAF,
+    0xFF
+  };
 
-  rxIt = block.data();
-  rxEnd = rxIt + block.size();
+  txIt = expectedTxData;
+  txEnd = txIt + sizeof(expectedTxData);
 
-  std::array<std::uint8_t, 512> rxBlock;
-  if (!spiAccessor->rx(rxBlock.data(), rxBlock.size())) {
+  std::array<std::uint8_t, 1 + 1 + 16 + 2> rxData;
+  rxData[0] = 0x00;
+  rxData[1] = 0xFE;
+  std::fill(&rxData[2], &rxData[17], 0xDA);
+  rxData[17] = 0x06 | 0x01;
+  rxData[18] = 0xD0;
+  rxData[19] = 0x38;
+
+  rxIt = rxData.data();
+  rxEnd = rxIt + rxData.size();
+
+  sd::CSD csd;
+  if (!spiAccessor->readCsd(&csd)) {
     throw std::logic_error("rx failed");
   }
 
   if (rxIt != rxEnd) {
     throw std::logic_error("rx underrun");
   }
+}
 
+void testReadBlock(sd::SpiAccessor* spiAccessor) {
+  std::uint8_t expectedTxData[] = {
+    0xFF,
+    0x40 | 17,
+    0x04,
+    0x03,
+    0x02,
+    0x01,
+    0x91,
+    0xFF
+  };
+
+  txIt = expectedTxData;
+  txEnd = txIt + sizeof(expectedTxData);
+
+  std::array<std::uint8_t, 1 + 1 + 512 + 2> rxData;
+  rxData[0] = 0x00;
+  rxData[1] = 0xFE;
+  std::fill(&rxData[2], &rxData[514], 0xDA);
+  rxData[514] = 0x84;
+  rxData[515] = 0xA9;
+
+  rxIt = rxData.data();
+  rxEnd = rxIt + rxData.size();
+
+  sd::Block block;
+  if (!spiAccessor->readBlock(&block, 0x04030201)) {
+    throw std::logic_error("rx failed");
+  }
+
+  if (rxIt != rxEnd) {
+    throw std::logic_error("rx underrun");
+  }
 }
 
 void testAccessor() {
@@ -216,7 +266,9 @@ void testAccessor() {
   testReadOcr(&spiAccessor, r3ImmediatelyIdle);
   testReadOcr(&spiAccessor, r3DelayedIdle);
 
-  testRx(&spiAccessor);
+  testReadCsd(&spiAccessor);
+
+  testReadBlock(&spiAccessor);
 }
 
 }

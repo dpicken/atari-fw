@@ -11,9 +11,10 @@ class Card : public ::fs::File {
 public:
   using ptr_type = ptr<Card>;
 
-  Card(Controller* controller, size_type size);
+  Card(Controller* controller, size_type, const std::string_view& nameStem = "");
 
   static ptr_type make(Controller* controller, size_type size);
+  static ptr_type makeInvalid(Controller* controller, const std::string_view& reason);
 
   size_type size() override;
 
@@ -25,6 +26,7 @@ protected:
 private:
   Controller* const m_controller;
   const size_type m_size;
+  const std::string m_name;
 };
 
 } // namespace sd
