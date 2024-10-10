@@ -1,8 +1,7 @@
 #ifndef sd_CSD_h
 #define sd_CSD_h
 
-#include "BlockSize.h"
-
+#include "util/crc.h"
 #include "util/PACKED.h"
 
 #include <array>
@@ -11,6 +10,10 @@
 namespace sd {
 
 struct CSD {
+  unsigned int getVersion() const {
+    return extract<unsigned int>(m_data, 127, 126);
+  }
+
   std::uint64_t getSize() const {
     switch (getVersion()) {
       case 0:
@@ -21,57 +24,77 @@ struct CSD {
     return 0;
   }
 
+  std::uint8_t crc() const {
+    return extract<std::uint8_t>(m_data, 7, 1);
+  }
+
+  bool verifyCRC() const {
+    return crc() == ::util::crc7(reinterpret_cast<const std::uint8_t*>(this), sizeof(*this) - sizeof(std::uint8_t));
+  }
+
 private:
-  static constexpr auto bit_count_v = 128;
-  static constexpr auto size_v = bit_count_v / 8;
+  static constexpr auto bit_count_v = 128U;
 
-  using data_array_type = std::array<std::uint8_t, size_v>;
+  using word_type = std::uint8_t;
 
-  unsigned int getVersion() const {
-    return m_data[0] & 0x03;
+  static constexpr auto word_bit_count_v = sizeof(word_type) * 8;
+  static constexpr auto word_top_bit_v = 1U << (word_bit_count_v - 1);
+
+  using word_type_array = std::array<word_type, bit_count_v / word_bit_count_v>;
+
+  template<typename value_type = std::uint64_t>
+  static value_type extract(const word_type_array& data, unsigned int lastBit, unsigned int firstBit) {
+    value_type result = 0;
+
+    auto bitIndex = bit_count_v - 1;
+    for (auto word : data) {
+      for (auto rit = word_bit_count_v; rit != 0; --rit) {
+        if (bitIndex <= lastBit && bitIndex >= firstBit) {
+          bool bit = (word & word_top_bit_v) == word_top_bit_v;
+          result <<= 1;
+          result |= bit;
+        }
+
+        word <<= 1;
+        --bitIndex;
+      }
+    }
+
+    return result;
   }
 
   struct V1Accessor {
-    static unsigned int readBlLen(const data_array_type& data) {
-      return
-        ((static_cast<unsigned int>(data[10]) & 0x0F) << 0);
+    static std::uint64_t readBlLen(const word_type_array& data) {
+      return extract(data, 83, 80);
     }
 
-    static std::uint32_t cSize(const data_array_type& data) {
-      return
-        ((static_cast<std::uint32_t>(data[9]) & 0x03) << 10) |
-        ((static_cast<std::uint32_t>(data[8]) & 0xFF) << 2) |
-        ((static_cast<std::uint32_t>(data[7]) & 0xC0) >> 6);
+    static std::uint64_t cSize(const word_type_array& data) {
+      return extract(data, 73, 62);
     }
 
-    static unsigned int cSizeMult(const data_array_type& data) {
-      return
-        ((static_cast<unsigned int>(data[6]) & 0x03) << 1);
-        ((static_cast<unsigned int>(data[5]) & 0x80) >> 7);
+    static std::uint64_t cSizeMult(const word_type_array& data) {
+      return extract(data, 49, 47);
     }
 
-    static std::uint64_t getSize(const data_array_type& data) {
-      auto mult = static_cast<std::uint64_t>(1) << (cSizeMult(data) + 2);
-      auto blockNr = static_cast<std::uint64_t>(cSize(data) + 1) * mult;
-      auto blockLen = static_cast<std::uint64_t>(1) << readBlLen(data);
+    static std::uint64_t getSize(const word_type_array& data) {
+      auto mult = 1ULL << (cSizeMult(data) + 2);
+      auto blockNr = (cSize(data) + 1) * mult;
+      auto blockLen = 1ULL << readBlLen(data);
       return blockNr * blockLen;
     }
   };
 
   struct V2Accessor {
-    static std::uint32_t cSize(const data_array_type& data) {
-      return
-        ((static_cast<std::uint32_t>(data[8]) & 0x3F) << 16) |
-        ((static_cast<std::uint32_t>(data[7]) & 0xFF) << 8) |
-        ((static_cast<std::uint32_t>(data[6]) & 0xFF) << 0);
+    static std::uint64_t cSize(const word_type_array& data) {
+      return extract(data, 69, 48);
     }
 
-    static std::uint64_t getSize(const data_array_type& data) {
-      return static_cast<std::uint64_t>(cSize(data) + 1) * BlockSize::byte_count;
+    static std::uint64_t getSize(const word_type_array& data) {
+      return (cSize(data) + 1) * (512 << 10);
     }
   };
 
-  data_array_type m_data;
+  word_type_array m_data;
 } PACKED;
 static_assert (sizeof(CSD) == 16);
 
