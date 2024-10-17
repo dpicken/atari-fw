@@ -1,10 +1,10 @@
 #ifndef fs_automount_Manager_h
 #define fs_automount_Manager_h
 
-#include "fs/Directory.h"
-#include "fs/File.h"
+#include "fs/FileSystem.h"
 
 #include <map>
+#include <vector>
 
 namespace fs { namespace automount {
 
@@ -21,9 +21,14 @@ public:
   void onBlockDeviceUnavailable(const file_ptr_type& device);
 
 private:
+  using file_system_container = std::vector<FileSystem::ptr_type>;
+  using device_map = std::map<file_ptr_type, std::pair<name_type, file_system_container>>;
+
   Manager();
 
-  using device_map = std::map<file_ptr_type, name_type>;
+  static file_system_container tryMakeFileSystems(const file_ptr_type& device);
+  static void tryMakeFileSystem(const file_ptr_type& device, file_system_container& fileSystems);
+  static ::fs::Directory::ptr_type makeDirectory(const file_system_container& fileSystems);
 
   device_map m_devices;
 };

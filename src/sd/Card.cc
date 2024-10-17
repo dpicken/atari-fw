@@ -1,5 +1,6 @@
 #include "Card.h"
 
+#include "BlockSize.h"
 #include "Controller.h"
 
 #include <sstream>
@@ -31,7 +32,11 @@ sd::Card::ptr_type sd::Card::makeInvalid(Controller* controller, const std::stri
   return std::make_shared<Card>(controller, 0, reason);
 }
 
-sd::Card::size_type sd::Card::size() {
+fs::File::block_size_type sd::Card::blockSize() const {
+  return BlockSize;
+}
+
+fs::File::size_type sd::Card::size() {
   return m_size;
 }
 

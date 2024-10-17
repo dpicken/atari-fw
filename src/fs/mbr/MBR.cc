@@ -21,11 +21,11 @@ struct MBR {
     bool isExFat() const {
       return partitionType == 0x07;
     }
-    std::uint64_t offset() const {
-      return firstSectorLBA * sizeof(MBR);
+    std::uint64_t offset(const ::fs::File::ptr_type& device) const {
+      return device->blockSize().blockAddressToByteOffset(firstSectorLBA);
     }
-    std::uint64_t size() const {
-      return sectorCount * sizeof(MBR);
+    std::uint64_t size(const ::fs::File::ptr_type& device) const {
+      return device->blockSize().blockCountToByteCount(sectorCount);
     }
   };
   static constexpr unsigned int partition_entry_count_v = 4;
@@ -48,9 +48,9 @@ static_assert (sizeof(MBR) == 512);
 
 } // namespace
 
-fs::Directory::ptr_type fs::mbr::tryMakeDirectory(const ::fs::File::ptr_type& disk) {
+fs::Directory::ptr_type fs::mbr::tryMakeDirectory(const ::fs::File::ptr_type& device) {
   MBR mbr;
-  if (!disk->read(0, &mbr)) {
+  if (!device->read(0, &mbr)) {
     return nullptr;
   }
 
@@ -66,7 +66,7 @@ fs::Directory::ptr_type fs::mbr::tryMakeDirectory(const ::fs::File::ptr_type& di
       continue;
     }
 
-    auto partition = FileSlice::make(disk, partitionEntry.offset(), partitionEntry.size());
+    auto partition = FileSlice::tryMake(device, partitionEntry.offset(device), partitionEntry.size(device));
     if (partition == nullptr) {
       continue;
     }
