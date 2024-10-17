@@ -17,6 +17,7 @@ pico_sdk_init()
 include_directories(${ATARI_FW_ROOT}/src)
 
 add_executable(atari-fw_${RP_BOARD}
+  ${ATARI_FW_ROOT}/src/fs/BlockSize.h
   ${ATARI_FW_ROOT}/src/fs/Directory.cc
   ${ATARI_FW_ROOT}/src/fs/Directory.h
   ${ATARI_FW_ROOT}/src/fs/DirectoryEntry.cc
@@ -37,6 +38,14 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/fs/builtin/File.h
   ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.cc
   ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/BootSector.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/BootSector.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/Directory.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/Directory.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/FileSystem.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/FileSystem.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/Volume.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/Volume.h
   ${ATARI_FW_ROOT}/src/fs/mbr/MBR.cc
   ${ATARI_FW_ROOT}/src/fs/mbr/MBR.h
   ${ATARI_FW_ROOT}/src/fs/ram/Directory.cc
@@ -93,6 +102,7 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/platform/rp/AppLauncher.inl.h
   ${ATARI_FW_ROOT}/src/platform/rp/NeoPixelSerializeColor.h
   ${ATARI_FW_ROOT}/src/platform/rp/tusb_config.h
+  ${ATARI_FW_ROOT}/src/sd/Block.h
   ${ATARI_FW_ROOT}/src/sd/BlockSize.h
   ${ATARI_FW_ROOT}/src/sd/CSD.h
   ${ATARI_FW_ROOT}/src/sd/Card.cc

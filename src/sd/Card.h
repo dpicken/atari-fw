@@ -16,6 +16,8 @@ public:
   static ptr_type make(Controller* controller, size_type size);
   static ptr_type makeInvalid(Controller* controller, const std::string_view& reason);
 
+  block_size_type blockSize() const override;
+
   size_type size() override;
 
   std::string name() const;

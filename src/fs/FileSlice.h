@@ -7,11 +7,13 @@ namespace fs {
 
 class FileSlice : public File {
 public:
-  using impl_ptr_type = ptr<File>;
+  using impl_ptr_type = ptr<FileSlice>;
 
   FileSlice(ptr_type file, size_type offset, size_type size);
 
-  static impl_ptr_type make(ptr_type file, size_type offset, size_type size);
+  static impl_ptr_type tryMake(ptr_type file, size_type offset, size_type size);
+
+  block_size_type blockSize() const override;
 
   size_type size() override;
 
