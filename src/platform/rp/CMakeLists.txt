@@ -24,6 +24,8 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/fs/DirectoryEntry.h
   ${ATARI_FW_ROOT}/src/fs/DirectoryEnumerator.cc
   ${ATARI_FW_ROOT}/src/fs/DirectoryEnumerator.h
+  ${ATARI_FW_ROOT}/src/fs/Enumerator.cc
+  ${ATARI_FW_ROOT}/src/fs/Enumerator.h
   ${ATARI_FW_ROOT}/src/fs/File.cc
   ${ATARI_FW_ROOT}/src/fs/File.h
   ${ATARI_FW_ROOT}/src/fs/FileSlice.cc
@@ -38,10 +40,19 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/fs/builtin/File.h
   ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.cc
   ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/AddressTypes.h
   ${ATARI_FW_ROOT}/src/fs/exfat/BootSector.cc
   ${ATARI_FW_ROOT}/src/fs/exfat/BootSector.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChain.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChain.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChainEntry.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChainEntry.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChainEnumerator.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChainEnumerator.h
   ${ATARI_FW_ROOT}/src/fs/exfat/Directory.cc
   ${ATARI_FW_ROOT}/src/fs/exfat/Directory.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/File.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/File.h
   ${ATARI_FW_ROOT}/src/fs/exfat/FileSystem.cc
   ${ATARI_FW_ROOT}/src/fs/exfat/FileSystem.h
   ${ATARI_FW_ROOT}/src/fs/exfat/Volume.cc

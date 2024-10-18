@@ -27,3 +27,7 @@ fs::exfat::ClusterChain::entry_enumeration_type fs::exfat::ClusterChain::next(co
 
   return ClusterChainEntry(entry.index() + 1, next);
 }
+
+const ::fs::File::ptr_type& fs::exfat::ClusterChain::fat() const {
+  return m_fat;
+}

@@ -19,6 +19,8 @@ public:
   entry_enumeration_type begin();
   entry_enumeration_type next(const entry_type& entry);
 
+  const ::fs::File::ptr_type& fat() const;
+
 private:
   const ::fs::File::ptr_type m_fat;
   const entry_enumeration_type m_begin;
