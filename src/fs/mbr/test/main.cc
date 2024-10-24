@@ -3,16 +3,20 @@
 #include "fs/DirectoryEnumerator.h"
 #include "fs/FileSlice.h"
 #include "fs/test/common/File.h"
-#include "fs/test/common/images.h"
 
 #include <cstdlib>
 #include <stdexcept>
 
 namespace {
 
+static constexpr std::uint8_t image[] = {
+#include "fs/test/data/sd-card-3921920-512B-sectors-mbr_exfat_boot_and_fat_region_and_three_clusters-macos.data"
+};
+static constexpr auto blockSize = fs::BlockSize::fromSizeLog2(9);
+static constexpr auto imageSize = blockSize.blockCountToByteCount(3'921'920);
+
 void testMBR() {
-  auto blockSize = fs::BlockSize::fromSizeLog2(9);
-  auto device = fs::test::common::File::make(fs::test::common::sd_card_3921920_512B_sectors_mbr_exfat_boot_region_macos, blockSize.blockCountToByteCount(3'921'920), blockSize);
+  auto device = fs::test::common::File::make(image, imageSize, blockSize);
 
   auto directory = fs::mbr::tryMakeDirectory(device);
   if (directory == nullptr) {

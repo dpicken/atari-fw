@@ -1,7 +1,7 @@
 #include "Manager.h"
 
 #include "fs/DirectoryEnumerator.h"
-#include "fs/exfat/FileSystem.h"
+#include "fs/exfat/Volume.h"
 #include "fs/mbr/MBR.h"
 #include "fs/ram/Directory.h"
 #include "fs/root/FileSystem.h"
@@ -29,7 +29,8 @@ fs::automount::Manager::file_system_container fs::automount::Manager::tryMakeFil
 }
 
 void fs::automount::Manager::tryMakeFileSystem(const file_ptr_type& device, file_system_container& fileSystems) {
-  auto fs = ::fs::exfat::FileSystem::tryMake(device);
+  ::fs::exfat::Volume volume(device);
+  auto fs = volume.tryMakeFileSystem();
   if (!fs) {
     return;
   }
@@ -53,6 +54,11 @@ void fs::automount::Manager::onBlockDeviceAvailable(file_ptr_type device, name_t
   auto fileSystems = tryMakeFileSystems(device);
   if (fileSystems.empty()) {
     return;
+  }
+
+  if (fileSystems.size() == 1) {
+    name += ":";
+    name += fileSystems.front()->name();
   }
 
   auto [it, inserted] = m_devices.emplace(std::move(device), std::make_pair(std::move(name), std::move(fileSystems)));

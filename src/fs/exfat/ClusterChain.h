@@ -4,7 +4,7 @@
 #include "AddressTypes.h"
 #include "ClusterChainEntry.h"
 
-#include "fs/File.h"
+#include "fs/FileSlice.h"
 
 namespace fs { namespace exfat {
 
@@ -14,13 +14,17 @@ public:
   using entry_enumeration_type = std::optional<entry_type>;
 
   ClusterChain();
-  ClusterChain(const ::fs::File::ptr_type& fat, logical_cluster_number begin);
+  ClusterChain(const ::fs::FileSlice::ptr_type& fat, logical_cluster_number begin);
 
   entry_enumeration_type begin();
   entry_enumeration_type next(const entry_type& entry);
 
+  const ::fs::FileSlice::ptr_type& fat() const {
+    return m_fat;
+  }
+
 private:
-  const ::fs::File::ptr_type m_fat;
+  const ::fs::FileSlice::ptr_type m_fat;
   const entry_enumeration_type m_begin;
 };
 

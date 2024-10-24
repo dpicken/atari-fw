@@ -1,7 +1,11 @@
 #include "Directory.h"
 
-fs::exfat::Directory::impl_ptr_type fs::exfat::Directory::make() {
-  return std::make_shared<Directory>();
+fs::exfat::Directory::Directory(InternalDirectory&& directory)
+  : m_directory(std::move(directory)) {
+}
+
+fs::exfat::Directory::impl_ptr_type fs::exfat::Directory::make(InternalDirectory&& directory) {
+  return std::make_shared<Directory>(std::move(directory));
 }
 
 fs::Directory::entry_enumeration_type fs::exfat::Directory::begin() {
