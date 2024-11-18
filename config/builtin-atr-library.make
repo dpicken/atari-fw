@@ -35,7 +35,5 @@ builtin-atr-library: $(SRC_MEDIA_BUILTIN_ATR_LIBRARY_FILES)
 builtin-atr-library-clean:
 	$(echo_recipe)rm -f $(SRC_MEDIA_BUILTIN_ATR_LIBRARY_FILES)
 
-libs: builtin-atr-library
-bins: builtin-atr-library
-test: builtin-atr-library
+init: builtin-atr-library
 clean: builtin-atr-library-clean

@@ -1,6 +1,7 @@
 #include "sio/checksum.h"
 #include "sio/DiskDrive.h"
 #include "sio/Frame.h"
+#include "sio/sdr/FileSystem.h"
 
 #include "fs/builtin/File.h"
 #include "media/Atr.h"
@@ -130,9 +131,26 @@ void testDiskDrive() {
   testDiskDriveRead();
 }
 
+void testFileSystemStringTruncation() {
+  using path_type = sio::sdr::CurrentDirPath;
+
+  const std::string testString(path_type::capacity_v + 1, 'A');
+
+  auto rightTruncated = path_type(testString);
+  if (std::string(rightTruncated.data(), rightTruncated.size()) != (std::string(path_type::capacity_v - 3, 'A') + std::string(3, '.')) ){
+    throw std::logic_error("unexpected right-truncated string");
+  }
+
+  auto leftTruncated = path_type(testString, path_type::left_truncate);
+  if (std::string(leftTruncated.data(), leftTruncated.size()) != (std::string(3, '.') + std::string(path_type::capacity_v - 3, 'A'))) {
+    throw std::logic_error("unexpected left-truncated string");
+  }
+}
+
 } // namespace
 
 int main(int, char**) {
   testDiskDrive();
+  testFileSystemStringTruncation();
   return EXIT_SUCCESS;
 }

@@ -7,7 +7,7 @@
 
 #ifndef BUILD_MOS
 #include <algorithm>
-#include <string_view>
+#include <string>
 #endif
 
 namespace sio { namespace sdr {
@@ -25,7 +25,9 @@ struct Vector {
 
   static constexpr auto capacity_v = CapacityV;
 
-  Vector() : m_size(0) {}
+  Vector()
+    : m_size(0) {
+  }
 
 #ifndef BUILD_MOS
   Vector(const value_type* data, size_type size) : m_size(size) {
@@ -48,6 +50,14 @@ struct Vector {
   template<typename... Args>
   value_type& emplace_back(Args... args) {
     return m_buffer[m_size++] = value_type(args...);
+  }
+
+  value_type* begin() {
+    return m_buffer;
+  }
+
+  value_type* end() {
+    return m_buffer + m_size;
   }
 
   const value_type* begin() const {
@@ -77,11 +87,32 @@ struct String : Vector<char, CapacityV> {
   String() {}
 
 #ifndef BUILD_MOS
-  explicit String(const std::string_view& value) : base_type(value.data(), std::min(size_type(value.size()), capacity_v)) {}
+  explicit String(const std::string& value)
+    : base_type(value.data(), std::min(size_type(value.size()), capacity_v)) {
+    if (value.size() > capacity_v) {
+      addEllipsis(this->end() - 3);
+    }
+  }
+
+  static constexpr struct left_truncate_type {} left_truncate{};
+  String(const std::string& value, left_truncate_type)
+    : base_type(value.data() + (value.size() - std::min(size_type(value.size()), capacity_v)), std::min(size_type(value.size()), capacity_v)) {
+    if (value.size() > capacity_v) {
+      addEllipsis(this->begin());
+    }
+  }
 #endif
 
   const value_type* data() const {
     return this->begin();
+  }
+
+private:
+  void addEllipsis(value_type* it) {
+    static_assert(capacity_v >= 3);
+    for (auto end = it + 3; it != end; ++it) {
+      *it = '.';
+    }
   }
 } PACKED;
 

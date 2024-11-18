@@ -7,11 +7,15 @@ fs::FileSlice::FileSlice(ptr_type file, size_type offset, size_type size)
   , m_size(size) {
 }
 
-fs::FileSlice::impl_ptr_type fs::FileSlice::make(ptr_type file, size_type offset, size_type size) {
+fs::FileSlice::impl_ptr_type fs::FileSlice::tryMake(ptr_type file, size_type offset, size_type size) {
   if (offset + size > file->size()) {
     return nullptr;
   }
   return std::make_shared<FileSlice>(file, offset, size);
+}
+
+fs::File::block_size_type fs::FileSlice::blockSize() const {
+  return m_file->blockSize();
 }
 
 fs::File::size_type fs::FileSlice::size() {

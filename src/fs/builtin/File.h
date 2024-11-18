@@ -13,6 +13,8 @@ public:
 
   static impl_ptr_type make(const buffer_value_type* data, buffer_size_type size);
 
+  block_size_type blockSize() const override;
+
   size_type size() override;
 
 protected:

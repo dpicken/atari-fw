@@ -8,7 +8,7 @@
 
 namespace sd {
 
-using Block = std::array<std::uint8_t, BlockSize::byte_count>;
+using Block = std::array<std::uint8_t, BlockSize.byteCount()>;
 
 } // namespace sd
 

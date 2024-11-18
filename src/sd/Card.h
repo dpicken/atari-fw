@@ -5,16 +5,21 @@
 
 #include "fs/File.h"
 
+#include <string>
+#include <string_view>
+
 namespace sd {
 
 class Card : public ::fs::File {
 public:
   using ptr_type = ptr<Card>;
 
-  Card(Controller* controller, size_type, const std::string_view& nameStem = "");
+  Card(Controller* controller, size_type, std::string name);
 
   static ptr_type make(Controller* controller, size_type size);
   static ptr_type makeInvalid(Controller* controller, const std::string_view& reason);
+
+  block_size_type blockSize() const override;
 
   size_type size() override;
 

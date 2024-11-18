@@ -34,7 +34,7 @@ $(RP_BOARD_BUILD_DIR)/Makefile: $(RP_SRC_DIR)/CMakeLists.txt
 	$(echo_recipe)cmake -S $(RP_SRC_DIR) -B $(RP_BOARD_BUILD_DIR) -DRP_BOARD=$(RP_BOARD) -DPICOTOOL_FETCH_FROM_GIT_PATH=$(PICOTOOL_DIR)
 
 .PHONY: rp
-rp: $(RP_BOARD_BUILD_DIR)/Makefile builtin-atr-library
+rp: $(RP_BOARD_BUILD_DIR)/Makefile
 	$(echo_build_message)
 	$(echo_recipe)VERBOSE= COLOR= make -C $(RP_BOARD_BUILD_DIR)
 
@@ -60,6 +60,7 @@ rp-distribute: rp test
 .PHONY: distribute
 distribute:
 	$(echo_build_message)
+	$(echo_recipe)make clean
 	$(echo_recipe)EXTERNAL_ATR_DIR= RP_BOARD=adafruit_qtpy_rp2040 make rp-distribute
 	$(echo_recipe)EXTERNAL_ATR_DIR= RP_BOARD=pimoroni_tiny2350 make rp-distribute
 	$(echo_recipe)EXTERNAL_ATR_DIR= RP_BOARD=waveshare_rp2040_zero make rp-distribute
