@@ -6,12 +6,14 @@
 #include "hal/OutputSignal.h"
 #include "hal/Spi.h"
 #include "hal/Uart.h"
+#include "keyboard/App.h"
 #include "sd/Traits.h"
 #include "sio/App.h"
 #include "sio/Traits.h"
 
 #include <hardware/pio.h>
 #include <hardware/spi.h>
+#include <pico/bootrom.h>
 #include <pico/multicore.h>
 #include <pico/stdlib.h>
 #include <ws2812.pio.h>
@@ -130,6 +132,10 @@ void busyWait(hal::duration_us timeoutDurationUs) {
   std::uint32_t beginTimePoint = time_us_32();
   while ((time_us_32() - beginTimePoint) < timeoutDurationUs) {
   }
+}
+
+void firmwareUpdate() {
+  reset_usb_boot(0, 0);
 }
 
 uart_inst_t* toUart(unsigned int uartInstance) {
@@ -264,7 +270,7 @@ void platform::rp::AppLauncher<AppTraits>::runKeyboardApp() {
   DEFINE_OUTPUT_SIGNAL(AppTraits::keyboardGpio, kr1, false);
   DEFINE_OUTPUT_SIGNAL(AppTraits::keyboardGpio, kr2, false);
 
-  ::keyboard::App keyboardApp(start, select, option, reset, power, powerOnSequence, k0, k5, kr1, kr2, busyWaitEq);
+  ::keyboard::App keyboardApp(start, select, option, reset, power, powerOnSequence, firmwareUpdate, k0, k5, kr1, kr2, busyWaitEq);
   App::instance().run(keyboardApp);
 }
 

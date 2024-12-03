@@ -13,7 +13,8 @@ enum class KeyBit : std::uint8_t {
   Reset   = 1 << 3,
   Power   = 1 << 4,
   Eject   = 1 << 5,
-  D1RotateDisk = 1 << 6
+  D1RotateDisk = 1 << 6,
+  FirmwareUpdate = 1 << 7
 };
 
 using KeyBitset = std::underlying_type<KeyBit>::type;

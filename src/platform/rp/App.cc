@@ -1,12 +1,9 @@
 #include "App.h"
 
 #include <class/hid/hid_host.h>
-#include <pico/bootrom.h>
 
 platform::rp::App::App()
-  : m_bootSelEndTimePoint(time_us_32() + (5 * 1000 * 1000))
-  , m_bootSelDisabled(false)
-  , m_indicatorRefreshTimePoint(time_us_32())
+  : m_indicatorRefreshTimePoint(time_us_32())
   , m_indicator(nullptr)
   , m_switchedPowerActive(false)
   , m_sioXferActive(false)
@@ -33,7 +30,6 @@ void platform::rp::App::run(::keyboard::App& app) {
     tuh_task();
     reflectStateInIndicator();
     m_keyboardApp->schedule();
-    tryBootSel();
   }
 }
 
@@ -42,22 +38,6 @@ void platform::rp::App::run(::sio::App& app) {
   for (;;) {
     m_sioApp->schedule();
   }
-}
-
-void platform::rp::App::tryBootSel() {
-  if (m_bootSelDisabled) {
-    return;
-  }
-
-  if (m_bootSelEndTimePoint > time_us_32()) {
-    return;
-  }
-
-  if (!m_keyboardApp->isKeyboardAttached()) {
-    reset_usb_boot(0, 0);
-  }
-
-  m_bootSelDisabled = true;
 }
 
 void platform::rp::App::onSwitchedPowerChanged(bool active) {

@@ -60,7 +60,8 @@ keyboard::Controller::Controller(console::Controller* consoleController, pokey::
       {usb::KeyCode::F10, console::KeyBit::D1RotateDisk},
       {usb::KeyCode::F11, console::KeyBit::Eject},
       {usb::KeyCode::F12, console::KeyBit::Reset},
-      {{usbTiedCtrl, usb::KeyCode::F12}, console::KeyBit::Power}
+      {{usbTiedCtrl, usb::KeyCode::F12}, console::KeyBit::Power},
+      {{usbTiedShiftCtrl, usb::KeyCode::F12}, console::KeyBit::FirmwareUpdate}
     }
   , m_pokeyController(pokeyController)
   , m_usbToPokeyKeyMap{

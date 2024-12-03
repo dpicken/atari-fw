@@ -19,7 +19,8 @@ public:
       ::hal::OutputSignal option,
       ::hal::OutputSignal reset,
       ::hal::OutputSignal power,
-      ::hal::PowerOnSequence powerOnSequence);
+      ::hal::PowerOnSequence powerOnSequence,
+      ::hal::FirmwareUpdate firmwareUpdate);
 
   /** Receive a keyboard report. */
   void receiveInputReport(const KeyBitset keyBitset);
@@ -32,6 +33,7 @@ private:
   void processKeyReleaseObserver(const KeyBitset keyBitset, KeyReleaseObserver* observer, std::function<void()> action);
 
   void togglePower();
+  void powerOff();
 
   const ::hal::OutputSignal m_start;
   const ::hal::OutputSignal m_select;
@@ -39,10 +41,12 @@ private:
   const ::hal::OutputSignal m_reset;
   const ::hal::OutputSignal m_power;
   const ::hal::PowerOnSequence m_powerOnSequence;
+  const ::hal::FirmwareUpdate m_firmwareUpdate;
 
   KeyReleaseObserver m_powerKeyObserver;
   KeyReleaseObserver m_ejectKeyObserver;
   KeyReleaseObserver m_d1RotateDiskKeyObserver;
+  KeyReleaseObserver m_firmwareUpdateObserver;
 
   bool m_powerActive;
 };

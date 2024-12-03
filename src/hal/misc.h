@@ -15,6 +15,8 @@ namespace hal {
 
   typedef void(*BusyWait)(duration_us timeoutDurationUS);
 
+  typedef void(*FirmwareUpdate)();
+
 } // namespace hal
 
 #endif // ifndef hal_misc_h

@@ -7,12 +7,13 @@ keyboard::App::App(
     ::hal::OutputSignal reset,
     ::hal::OutputSignal power,
     ::hal::PowerOnSequence powerOnSequence,
+    ::hal::FirmwareUpdate firmwareUpdate,
     ::hal::InputSignal k0,
     ::hal::InputSignal k5,
     ::hal::OutputSignal kr1,
     ::hal::OutputSignal kr2,
     ::hal::BusyWaitEq busyWaitEq)
-  : m_consoleController(start, select, option, reset, power, powerOnSequence)
+  : m_consoleController(start, select, option, reset, power, powerOnSequence, firmwareUpdate)
   , m_pokeyController(k0, k5, kr1, kr2, busyWaitEq)
   , m_keyboardController(&m_consoleController, &m_pokeyController)
   , m_keyboardAttachedCount(0) {

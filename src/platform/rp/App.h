@@ -38,11 +38,6 @@ private:
 
   void reflectStateInIndicator();
 
-  void tryBootSel();
-
-  const std::uint32_t m_bootSelEndTimePoint;
-  bool m_bootSelDisabled;
-
   std::uint32_t m_indicatorRefreshTimePoint;
   ::hal::Indicator* m_indicator;
 

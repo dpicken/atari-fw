@@ -8,13 +8,15 @@ keyboard::console::Controller::Controller(
     ::hal::OutputSignal option,
     ::hal::OutputSignal reset,
     ::hal::OutputSignal power,
-    ::hal::PowerOnSequence powerOnSequence)
+    ::hal::PowerOnSequence powerOnSequence,
+    ::hal::FirmwareUpdate firmwareUpdate)
   : m_start(start)
   , m_select(select)
   , m_option(option)
   , m_reset(reset)
   , m_power(power)
   , m_powerOnSequence(powerOnSequence)
+  , m_firmwareUpdate(firmwareUpdate)
   , m_powerActive(false) {
 }
 
@@ -32,6 +34,10 @@ void keyboard::console::Controller::receiveInputReport(const KeyBitset keyBitset
   });
   processKeyReleaseObserver<KeyBit::D1RotateDisk>(keyBitset, &m_d1RotateDiskKeyObserver, []() {
     sio::Pipe::instance().tryPush(sio::Pipe::Message::D1_RotateDisk);
+  });
+  processKeyReleaseObserver<KeyBit::FirmwareUpdate>(keyBitset, &m_firmwareUpdateObserver, [this]() {
+    powerOff();
+    m_firmwareUpdate();
   });
 }
 
@@ -65,4 +71,9 @@ void keyboard::console::Controller::togglePower() {
   } else {
     m_power.deactivate();
   }
+}
+
+void keyboard::console::Controller::powerOff() {
+  m_powerActive = false;
+  m_power.deactivate();
 }

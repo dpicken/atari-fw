@@ -20,6 +20,7 @@ public:
       ::hal::OutputSignal reset,
       ::hal::OutputSignal power,
       ::hal::PowerOnSequence powerOnSequence,
+      ::hal::FirmwareUpdate firmwareUpdate,
       ::hal::InputSignal k0,
       ::hal::InputSignal k5,
       ::hal::OutputSignal kr1,
