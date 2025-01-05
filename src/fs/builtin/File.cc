@@ -9,6 +9,11 @@ fs::builtin::File::impl_ptr_type fs::builtin::File::make(const buffer_value_type
   return std::make_shared<File>(data, size);
 }
 
+fs::File::block_size_type fs::builtin::File::blockSize() const {
+  constexpr auto blockSize = BlockSize::fromSizeLog2(0);
+  return blockSize;
+}
+
 fs::File::size_type fs::builtin::File::size() {
   return m_size;
 }

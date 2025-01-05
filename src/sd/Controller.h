@@ -44,7 +44,7 @@ private:
   void pollCardEjected();
 
   bool initialize();
-  bool cacheBlock(std::uint64_t byteOffset);
+  bool cacheBlock(std::uint32_t blockAddress);
 
   const ::hal::InputSignal m_detect;
   const ::hal::OutputSignal m_power;

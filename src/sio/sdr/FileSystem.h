@@ -7,7 +7,7 @@
 
 namespace sio { namespace sdr {
 
-using Path = String<256>;
+using CurrentDirPath = String<36>;
 
 struct DirEntry {
   using name_type = String<36>;
@@ -17,7 +17,7 @@ struct DirEntry {
   }
 
 #ifndef BUILD_MOS
-  DirEntry(const std::string_view& name, bool isDirectory, unsigned int index)
+  DirEntry(const std::string& name, bool isDirectory, unsigned int index)
     : m_name(name)
     , m_isDirectory(isDirectory)
     , m_index(static_cast<index_type>(index)) {

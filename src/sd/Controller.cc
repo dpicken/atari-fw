@@ -159,7 +159,7 @@ bool sd::Controller::initialize() {
   // Part1_Physical_Layer_Simplified_Specification_Ver8.00.pdf, 7.2.3:
 
   if (m_isSDSC) {
-    if (!m_accessor.setBlocklen(BlockSize::byte_count).isSuccess()) {
+    if (!m_accessor.setBlocklen(BlockSize.byteCount()).isSuccess()) {
       m_initializationFailureReason = "set-blocklen";
       return false;
     }
@@ -177,11 +177,11 @@ bool sd::Controller::read(Card* card, std::uint64_t byteOffset, std::size_t byte
   }
 
   while (byteCount != 0) {
-    if (!cacheBlock(byteOffset)) {
+    if (!cacheBlock(static_cast<std::uint32_t>(BlockSize.byteOffsetToBlockAddress(byteOffset)))) {
       return false;
     }
 
-    std::size_t skipByteCount = byteOffset - BlockSize::alignByteOffset(byteOffset);
+    std::size_t skipByteCount = byteOffset - BlockSize.alignByteOffset(byteOffset);
     std::size_t sinkByteCount = std::min(byteCount, m_cachedBlock.size() - skipByteCount);
 
     sink(m_cachedBlock.data() + skipByteCount, sinkByteCount);
@@ -193,15 +193,13 @@ bool sd::Controller::read(Card* card, std::uint64_t byteOffset, std::size_t byte
   return true;
 }
 
-bool sd::Controller::cacheBlock(std::uint64_t byteOffset) {
-  auto blockAddress = static_cast<std::uint32_t>(BlockSize::byteOffsetToBlock(byteOffset));
-
+bool sd::Controller::cacheBlock(std::uint32_t blockAddress) {
   if (m_cachedBlockAddress == blockAddress) {
     return true;
   }
 
   m_cachedBlockAddress = std::nullopt;
-  std::uint32_t address = static_cast<std::uint32_t>(m_isSDSC ? BlockSize::blockToByteOffset(blockAddress) : blockAddress);
+  std::uint32_t address = static_cast<std::uint32_t>(m_isSDSC ? BlockSize.blockAddressToByteOffset(blockAddress) : blockAddress);
   if (!m_accessor.readBlock(&m_cachedBlock, address)) {
     return false;
   }

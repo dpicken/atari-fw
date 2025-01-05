@@ -17,12 +17,15 @@ pico_sdk_init()
 include_directories(${ATARI_FW_ROOT}/src)
 
 add_executable(atari-fw_${RP_BOARD}
+  ${ATARI_FW_ROOT}/src/fs/BlockSize.h
   ${ATARI_FW_ROOT}/src/fs/Directory.cc
   ${ATARI_FW_ROOT}/src/fs/Directory.h
   ${ATARI_FW_ROOT}/src/fs/DirectoryEntry.cc
   ${ATARI_FW_ROOT}/src/fs/DirectoryEntry.h
   ${ATARI_FW_ROOT}/src/fs/DirectoryEnumerator.cc
   ${ATARI_FW_ROOT}/src/fs/DirectoryEnumerator.h
+  ${ATARI_FW_ROOT}/src/fs/Enumerator.cc
+  ${ATARI_FW_ROOT}/src/fs/Enumerator.h
   ${ATARI_FW_ROOT}/src/fs/File.cc
   ${ATARI_FW_ROOT}/src/fs/File.h
   ${ATARI_FW_ROOT}/src/fs/FileSlice.cc
@@ -37,6 +40,51 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/fs/builtin/File.h
   ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.cc
   ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/AddressTypes.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/BootSector.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/BootSector.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterAllocation.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChain.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChain.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChainEntry.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChainEntry.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChainEnumerator.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterHeap.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterHeap.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterRun.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterRun.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterRunEntry.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterRunEnumerator.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/Configuration.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/Configuration.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/Directory.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/Directory.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/DirectoryEntryCustomDefinedTypes.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/DirectoryEntryTypes.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/File.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/File.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/FileAttributes.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/FileSystem.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/FileSystem.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/GenericDirectoryEntry.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/GenericDirectoryEntryCustomDefinedTypes.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/GenericDirectoryEntryTypes.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/LogicalDirectory.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/LogicalDirectory.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/LogicalDirectoryEntry.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/LogicalDirectoryEntry.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/LogicalDirectoryEnumerator.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/PhysicalDirectory.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/PhysicalDirectory.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/PhysicalDirectoryEntry.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/PhysicalDirectoryEntry.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/PhysicalDirectoryEnumerator.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/SortingDirectory.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/SortingDirectory.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/Unicode.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/Unicode.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/Volume.cc
+  ${ATARI_FW_ROOT}/src/fs/exfat/Volume.h
   ${ATARI_FW_ROOT}/src/fs/mbr/MBR.cc
   ${ATARI_FW_ROOT}/src/fs/mbr/MBR.h
   ${ATARI_FW_ROOT}/src/fs/ram/Directory.cc
@@ -93,6 +141,7 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/platform/rp/AppLauncher.inl.h
   ${ATARI_FW_ROOT}/src/platform/rp/NeoPixelSerializeColor.h
   ${ATARI_FW_ROOT}/src/platform/rp/tusb_config.h
+  ${ATARI_FW_ROOT}/src/sd/Block.h
   ${ATARI_FW_ROOT}/src/sd/BlockSize.h
   ${ATARI_FW_ROOT}/src/sd/CSD.h
   ${ATARI_FW_ROOT}/src/sd/Card.cc
@@ -132,6 +181,8 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/sio/sdr/Types.h
   ${ATARI_FW_ROOT}/src/thread/Pipe.cc
   ${ATARI_FW_ROOT}/src/thread/Pipe.h
+  ${ATARI_FW_ROOT}/src/util/Ascii.cc
+  ${ATARI_FW_ROOT}/src/util/Ascii.h
   ${ATARI_FW_ROOT}/src/util/PACKED.h
   ${ATARI_FW_ROOT}/src/util/crc.cc
   ${ATARI_FW_ROOT}/src/util/crc.h

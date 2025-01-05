@@ -6,7 +6,7 @@
 
 namespace fs { namespace mbr {
 
-::fs::Directory::ptr_type tryMakeDirectory(const ::fs::File::ptr_type& disk);
+::fs::Directory::ptr_type tryMakeDirectory(const ::fs::File::ptr_type& device);
 
 } } // namespace fs::mbr
 

@@ -3,6 +3,7 @@
 #include "Frame.h"
 
 #include "fs/ResolvePath.h"
+#include "fs/exfat/Configuration.h"
 #include "media/Atr.h"
 
 sio::FileSystem::FileSystem(::hal::Uart uart, ::hal::BusyWait busyWait, DiskDrive* d1)
@@ -10,6 +11,10 @@ sio::FileSystem::FileSystem(::hal::Uart uart, ::hal::BusyWait busyWait, DiskDriv
   , m_cwdPath("/")
   , m_cwdEnumerator(::fs::resolveDirectory(m_cwdPath))
   , m_d1(d1) {
+  ::fs::exfat::Configuration::instance()->nonAsciiReplacementCharacter(0xBF);
+  ::fs::exfat::Configuration::instance()->excludeHiddenDirectoryEntries(true);
+  ::fs::exfat::Configuration::instance()->excludeSystemDirectoryEntries(true);
+  ::fs::exfat::Configuration::instance()->excludeUnixHiddenDirectoryEntries(true);
 }
 
 void sio::FileSystem::handle(const Command* command) {
@@ -36,14 +41,18 @@ void sio::FileSystem::handle(const Command* command) {
 }
 
 void sio::FileSystem::handleGetCurrentDir() {
-  Frame<sdr::Path> pathFrame(sdr::Path(m_cwdPath.string()));
-
   commandAck();
+
+  using sdr_path_type = sdr::CurrentDirPath;
+  Frame<sdr_path_type> pathFrame(sdr_path_type(m_cwdPath.string(), sdr_path_type::left_truncate));
+
   commandComplete();
   pathFrame.tx(uart());
 }
 
 void sio::FileSystem::handleSelectParentDir() {
+  commandAck();
+
   do {
     m_cwdPath = m_cwdPath.parent_path();
     auto directory = ::fs::resolveDirectory(m_cwdPath);
@@ -51,12 +60,12 @@ void sio::FileSystem::handleSelectParentDir() {
       m_cwdEnumerator = ::fs::DirectoryEnumerator(std::move(directory));
     }
   } while (m_cwdPath.has_relative_path() && !m_cwdEnumerator.isValid());
-
-  commandAck();
   commandComplete();
 }
 
 void sio::FileSystem::handleReadDir(sdr::DirEntry::index_type index) {
+  commandAck();
+
   m_cwdEnumerator.reposition(index);
 
   Frame<sdr::DirEntryPage> pageFrame;
@@ -66,23 +75,23 @@ void sio::FileSystem::handleReadDir(sdr::DirEntry::index_type index) {
   }
   page->setEOS(!m_cwdEnumerator.isValid());
 
-  commandAck();
   commandComplete();
   pageFrame.tx(uart());
 }
 
 void sio::FileSystem::handleSelectDirEntry(sdr::DirEntry::index_type index) {
-  m_cwdEnumerator.reposition(index);
+  commandAck();
 
+  m_cwdEnumerator.reposition(index);
   if (!m_cwdEnumerator.isValid()) {
-    commandNack();
+    commandError();
     return;
   }
 
   if (m_cwdEnumerator.entry().isDirectory()) {
     auto directory = m_cwdEnumerator.openDirectory();
     if (directory == nullptr) {
-      commandNack();
+      commandError();
       return;
     }
     m_cwdPath /= m_cwdEnumerator.entry().name();
@@ -90,12 +99,11 @@ void sio::FileSystem::handleSelectDirEntry(sdr::DirEntry::index_type index) {
   } else {
     auto disk = ::media::makeAtr(m_cwdEnumerator.openFile());
     if (disk == nullptr) {
-      commandNack();
+      commandError();
       return;
     }
     m_d1->insert(std::move(disk));
   }
 
-  commandAck();
   commandComplete();
 }

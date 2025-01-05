@@ -1,5 +1,6 @@
 LIB_DIRS += fs
 LIB_DIRS += fs/automount
+LIB_DIRS += fs/exfat
 LIB_DIRS += fs/mbr
 LIB_DIRS += fs/builtin
 LIB_DIRS += fs/ram

@@ -26,8 +26,20 @@ public:
     return type() == Type::Directory;
   }
 
+  bool isFile() const {
+    return type() == Type::File;
+  }
+
   index_type index() const {
     return m_index;
+  }
+
+  void setIndex(index_type index) {
+    m_index = index;
+  }
+
+  std::size_t size() const {
+    return sizeof(*this) + m_name.size();
   }
 
 private:
@@ -35,6 +47,9 @@ private:
   Type m_type;
   index_type m_index;
 };
+
+bool operator==(const DirectoryEntry& lhs, const DirectoryEntry& rhs);
+bool operator!=(const DirectoryEntry& lhs, const DirectoryEntry& rhs);
 
 } // namespace fs
 

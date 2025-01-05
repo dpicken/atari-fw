@@ -1,6 +1,8 @@
 #ifndef fs_File_h
 #define fs_File_h
 
+#include "BlockSize.h"
+
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -16,6 +18,7 @@ public:
 
   using ptr_type = ptr<File>;
 
+  using block_size_type = BlockSize;
   using size_type = std::uint64_t;
 
   using buffer_value_type = std::uint8_t;
@@ -23,6 +26,8 @@ public:
   using sink_type = std::function<void(const buffer_value_type* data, buffer_size_type size)>;
 
   virtual ~File();
+
+  virtual block_size_type blockSize() const = 0;
 
   virtual size_type size() = 0;
 
