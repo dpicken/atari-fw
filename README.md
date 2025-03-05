@@ -46,6 +46,10 @@ Connect the board to the build host, then boot it into it's bootloader (hold the
   ```
   RP_MOUNT=/Volumes/RPI-RP2 RP_BOARD=waveshare_rp2040_zero make rp-install
   ```
+  - [pimoroni pga2350](https://shop.pimoroni.com/products/pga2350?variant=42092629229651)
+  ```
+  RP_MOUNT=/Volumes/RP2350 RP_BOARD=pimoroni_pga2350 make rp-install
+  ```
   - [pimoroni tiny2350](https://shop.pimoroni.com/products/tiny-2350?variant=42092638699603):
   ```
   RP_MOUNT=/Volumes/RP2350 RP_BOARD=pimoroni_tiny2350 make rp-install

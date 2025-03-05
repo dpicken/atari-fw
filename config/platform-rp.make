@@ -42,6 +42,7 @@ rp: $(RP_BOARD_BUILD_DIR)/Makefile
 rp-all:
 	$(echo_build_message)
 	$(echo_recipe)RP_BOARD=adafruit_qtpy_rp2040 make rp
+	$(echo_recipe)RP_BOARD=pimoroni_pga2350 make rp
 	$(echo_recipe)RP_BOARD=pimoroni_tiny2350 make rp
 	$(echo_recipe)RP_BOARD=waveshare_rp2040_zero make rp
 
@@ -62,6 +63,7 @@ distribute:
 	$(echo_build_message)
 	$(echo_recipe)make clean
 	$(echo_recipe)EXTERNAL_ATR_DIR= RP_BOARD=adafruit_qtpy_rp2040 make rp-distribute
+	$(echo_recipe)EXTERNAL_ATR_DIR= RP_BOARD=pimoroni_pga2350 make rp-distribute
 	$(echo_recipe)EXTERNAL_ATR_DIR= RP_BOARD=pimoroni_tiny2350 make rp-distribute
 	$(echo_recipe)EXTERNAL_ATR_DIR= RP_BOARD=waveshare_rp2040_zero make rp-distribute
 
