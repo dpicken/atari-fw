@@ -90,6 +90,42 @@ private:
   vector_type m_entries;
 } PACKED;
 
+struct XexEntry {
+  using index_type = unsigned_int_type;
+
+  XexEntry() {
+  }
+
+#ifndef BUILD_MOS
+  XexEntry(std::uint16_t segmentAddressBegin, std::uint16_t segmentAddressLast, unsigned int index)
+    : m_segmentAddressBegin(segmentAddressBegin)
+    , m_segmentAddressLast(segmentAddressLast)
+    , m_index(static_cast<index_type>(index)) {
+  }
+#endif
+
+  std::uint16_t segmentAddressBegin() const {
+    return m_segmentAddressBegin;
+  }
+
+  std::uint16_t segmentAddressLast() const {
+    return m_segmentAddressLast;
+  }
+
+  std::uint16_t segmentDataSize() const {
+    return (m_segmentAddressLast + 1) - m_segmentAddressBegin;
+  }
+
+  index_type index() const {
+    return m_index;
+  }
+
+private:
+  std::uint16_t m_segmentAddressBegin;
+  std::uint16_t m_segmentAddressLast;
+  index_type m_index;
+} PACKED;
+
 } } // namespace sio::sdr
 
 #endif // ifndef sio_sdr_FileSystem_h

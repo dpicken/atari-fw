@@ -6,6 +6,7 @@
 #include "sdr/FileSystem.h"
 
 #include "fs/DirectoryEnumerator.h"
+#include "media/XexEnumerator.h"
 
 #include <cstdint>
 #include <filesystem>
@@ -24,10 +25,15 @@ private:
   void handleReadDir(sdr::DirEntry::index_type index);
   void handleSelectDirEntry(sdr::DirEntry::index_type index);
 
+  void handleReadXexSegmentEntry(sdr::XexEntry::index_type index);
+  void handleReadXexSegmentData(sdr::XexEntry::index_type index);
+
   std::filesystem::path m_cwdPath;
   ::fs::DirectoryEnumerator m_cwdEnumerator;
 
   DiskDrive* const m_d1;
+
+  ::media::XexEnumerator m_xexEnumerator;
 };
 
 } // namespace sio
