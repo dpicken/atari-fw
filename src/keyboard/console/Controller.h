@@ -43,10 +43,13 @@ private:
   const ::hal::PowerOnSequence m_powerOnSequence;
   const ::hal::FirmwareUpdate m_firmwareUpdate;
 
-  KeyReleaseObserver m_powerKeyObserver;
-  KeyReleaseObserver m_ejectKeyObserver;
+  KeyReleaseObserver m_powerOffKeyObserver;
+  KeyReleaseObserver m_powerToggleKeyObserver;
+  KeyReleaseObserver m_powerCycleKeyObserver;
+  KeyReleaseObserver m_sbcBootObserver;
+  KeyReleaseObserver m_sbcFirmwareUpdateObserver;
+  KeyReleaseObserver m_d1EjectKeyObserver;
   KeyReleaseObserver m_d1RotateDiskKeyObserver;
-  KeyReleaseObserver m_firmwareUpdateObserver;
 
   bool m_powerActive;
 };

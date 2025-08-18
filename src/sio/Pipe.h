@@ -11,8 +11,9 @@ public:
 
   enum class Message : unsigned int {
     Null,
-    EjectAll,
-    D1_RotateDisk
+    SbcBoot,
+    D1Eject,
+    D1RotateDisk
   };
 
   bool tryPush(Message message) {
