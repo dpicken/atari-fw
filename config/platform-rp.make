@@ -25,10 +25,10 @@ CXXFLAGS += $(RP_CXXFLAGS)
 RP_MOUNT ?= /Volumes/RPI-RP2
 
 .PHONY: rp-src-list
-rp-src-list: builtin-atr-library
+rp-src-list: fs-builtin-library
 	$(echo_recipe)find src -type f -name '*.cc' -o -name '*.h' | sed 's@^src/platform/rp/\(.*\)/app.cc@src/platform/rp/$${RP_BOARD}/app.cc@' | sed 's@^src/@$${ATARI_FW_ROOT}/src/@' | grep -v '/test/' | sort | uniq
 
-$(RP_BOARD_BUILD_DIR)/Makefile: $(RP_SRC_DIR)/CMakeLists.txt
+$(RP_BOARD_BUILD_DIR)/Makefile: $(RP_SRC_DIR)/CMakeLists.txt init
 	$(echo_build_message)
 	$(echo_recipe)rm -rf $(RP_BOARD_BUILD_DIR)
 	$(echo_recipe)cmake -S $(RP_SRC_DIR) -B $(RP_BOARD_BUILD_DIR) -DRP_BOARD=$(RP_BOARD) -DPICOTOOL_FETCH_FROM_GIT_PATH=$(PICOTOOL_DIR)

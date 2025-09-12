@@ -1,11 +1,11 @@
 #include "sio/checksum.h"
 #include "sio/DiskDrive.h"
+#include "sio/FileSystem.h"
 #include "sio/Frame.h"
 #include "sio/sdr/FileSystem.h"
 
-#include "fs/builtin/File.h"
+#include "fs/builtin/FileSystem.h"
 #include "media/Atr.h"
-#include "media/BuiltinAtrLibrary.h"
 
 #include <cstdlib>
 #include <cstdint>
@@ -46,13 +46,13 @@ hal::BusyWait busyWait = [](hal::duration_us timeoutDurationUS) {
   (void) timeoutDurationUS;
 };
 
-void testDiskDriveCommand(sio::DiskDrive* diskDrive) {
+void testDeviceCommand(sio::Device* device) {
   sio::Frame<sio::Device::Command> commandFrame;
   if (!commandFrame.rx(&uart)) {
     throw std::logic_error("rx failed");
   }
 
-  diskDrive->handle(commandFrame.data());
+  device->handle(commandFrame.data());
 
   if (txIt != txEnd) {
     throw std::logic_error("tx overrun");
@@ -60,7 +60,7 @@ void testDiskDriveCommand(sio::DiskDrive* diskDrive) {
 }
 
 void testDiskDriveStatus() {
-  static constexpr std::uint8_t command[] = {
+  constexpr std::uint8_t command[] = {
     0x31, 'S', 0x00, 0x00, // Status command
     0x84 // CRC
   };
@@ -75,7 +75,7 @@ void testDiskDriveStatus() {
     0xE0 // Checksum
   };
 
-  auto disk = media::makeAtr(fs::builtin::File::make(media::BuiltinAtrLibrary::getAtrData(0), media::BuiltinAtrLibrary::getAtrSize(0)));
+  auto disk = media::makeAtr(fs::builtin::FileSystem::instance()->getRootDirectory()->openFile("!sbc-boot.atr"));
   switch (disk->getDensity()) {
     case media::Disk::Density::Single:
       break;
@@ -93,13 +93,13 @@ void testDiskDriveStatus() {
   txEnd = txIt + sizeof(expectedResult);
 
   sio::DiskDrive diskDrive(uart, busyWait);;
-  diskDrive.insert(std::move(disk));
+  diskDrive.insert(disk);
 
-  testDiskDriveCommand(&diskDrive);
+  testDeviceCommand(&diskDrive);
 }
 
-void testDiskDriveRead() {
-  static constexpr std::uint8_t command[] = {
+void testDiskDriveRead(sio::DiskDrive* diskDrive, const media::Disk::ptr_type& expectedDisk) {
+  constexpr std::uint8_t command[] = {
     0x31, 'R', 0x01, 0x00, // Read command
     0x84 // CRC
   };
@@ -109,21 +109,27 @@ void testDiskDriveRead() {
 
   std::uint8_t expectedResult[131];
 
-  auto atrData = media::BuiltinAtrLibrary::getAtrData(0);
+  expectedDisk->readSector(1, [&expectedResult](const std::uint8_t* sector, std::size_t sectorSize) {
+    std::copy_n(sector, sectorSize, expectedResult + 2);
+  });
 
   expectedResult[0] = 'A'; // Ack
   expectedResult[1] = 'C'; // Complete
-  std::copy(atrData + 16, atrData + 16 + 128, expectedResult + 2); // Sector 1
   expectedResult[130] = sio::checksum(expectedResult + 2, 128); // Checksum
 
   txIt = expectedResult;
   txEnd = txIt + sizeof(expectedResult);
 
-  sio::DiskDrive diskDrive(uart, busyWait);
-  auto disk = media::makeAtr(fs::builtin::File::make(media::BuiltinAtrLibrary::getAtrData(0), media::BuiltinAtrLibrary::getAtrSize(0)));
-  diskDrive.insert(std::move(disk));
+  testDeviceCommand(diskDrive);
+}
 
-  testDiskDriveCommand(&diskDrive);
+void testDiskDriveRead() {
+  sio::DiskDrive diskDrive(uart, busyWait);
+
+  auto disk = media::makeAtr(fs::builtin::FileSystem::instance()->getRootDirectory()->openFile("!xex-loader.atr"));
+  diskDrive.insert(disk);
+
+  testDiskDriveRead(&diskDrive, disk);
 }
 
 void testDiskDrive() {
@@ -147,10 +153,75 @@ void testFileSystemStringTruncation() {
   }
 }
 
+void testFileSystemGetCurrentDir() {
+  constexpr std::uint8_t command[] = {
+    0x81, 0x00, 0x00, 0x00, // GetCurrentDir command
+    0x81 // CRC
+  };
+
+  rxIt = command;
+  rxEnd = rxIt + sizeof(command);
+
+  std::uint8_t expectedResult[] = {
+    'A', // Ack
+    'C', // Complete
+    0x01, 0x00, '/', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // Path
+    0x30 // Checksum
+  };
+
+  txIt = expectedResult;
+  txEnd = txIt + sizeof(expectedResult);
+
+  sio::DiskDrive diskDrive(uart, busyWait);
+  sio::FileSystem fileSystem(uart, busyWait, &diskDrive);
+
+  testDeviceCommand(&fileSystem);
+}
+
+void testSelectDirEntry(sio::FileSystem* fileSystem, std::uint16_t index) {
+  std::uint8_t command[] = {
+    0x81, 0x03, static_cast<std::uint8_t>(index), static_cast<std::uint8_t>(index >> 8), // SelectDirEntry command
+    0x00 // CRC
+  };
+  command[4] = sio::checksum(command, 4); // CRC
+
+  rxIt = command;
+  rxEnd = rxIt + sizeof(command);
+
+  std::uint8_t expectedResult[] = {
+    'A', // Ack
+    'C'  // Complete
+  };
+
+  txIt = expectedResult;
+  txEnd = txIt + sizeof(expectedResult);
+
+  testDeviceCommand(fileSystem);
+}
+
+void testFileSystemXexLoader() {
+  sio::DiskDrive diskDrive(uart, busyWait);
+  sio::FileSystem fileSystem(uart, busyWait, &diskDrive);
+
+  testSelectDirEntry(&fileSystem, 0); // /builtin
+  testSelectDirEntry(&fileSystem, 1); // /builtin/!sbc-boot.xex
+
+  auto disk = media::makeAtr(fs::builtin::FileSystem::instance()->getRootDirectory()->openFile("!xex-loader.atr"));
+  testDiskDriveRead(&diskDrive, disk);
+
+  // TODO: Check /builtin/!sbc-boot.xex is served.
+}
+
+void testFileSystem() {
+  testFileSystemGetCurrentDir();
+  testFileSystemXexLoader();
+}
+
 } // namespace
 
 int main(int, char**) {
   testDiskDrive();
+  testFileSystem();
   testFileSystemStringTruncation();
   return EXIT_SUCCESS;
 }
