@@ -1,5 +1,4 @@
 #include "media/Atr.h"
-#include "media/BuiltinAtrLibrary.h"
 
 #include "fs/test/common/File.h"
 
@@ -34,7 +33,7 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-  const auto atrPath = (argc > 1) ? argv[1] : "atr/!sbc-boot.atr";
+  const auto atrPath = (argc > 1) ? argv[1] : "builtin/!sbc-boot.atr";
 
   testLoadAtr(atrPath);
 

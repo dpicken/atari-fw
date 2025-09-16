@@ -1,8 +1,9 @@
 #include "FileSystem.h"
 
 #include "File.h"
+#include "LibraryEnumerator.h"
 
-#include "media/BuiltinAtrLibrary.h"
+#include <filesystem>
 
 fs::builtin::FileSystem::FileSystem()
   : m_rootDirectory(impl_directory_type::make()) {
@@ -15,11 +16,13 @@ fs::builtin::FileSystem* fs::builtin::FileSystem::instance() {
 }
 
 void fs::builtin::FileSystem::populate() {
-  using builtin_atr_library = ::media::BuiltinAtrLibrary;
-  for (builtin_atr_library::size_type index = 0; index != builtin_atr_library::getAtrCount(); ++index) {
+  for (LibraryEnumerator enumerator(Library::instance()); enumerator.isValid(); enumerator.next()) {
+    const auto& entry = enumerator.entry();
+    std::filesystem::path path = entry.path;
+    // TODO: ensure path.parent_path and place file there.
     m_rootDirectory->put(
-        std::string(builtin_atr_library::getAtrTitle(index)),
-        File::make(builtin_atr_library::getAtrData(index), builtin_atr_library::getAtrSize(index)));
+        path.filename().string(),
+        File::make(entry.data, entry.size));
   }
 }
 

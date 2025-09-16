@@ -25,13 +25,14 @@ struct Vector {
 
   static constexpr auto capacity_v = CapacityV;
 
-  Vector()
+  constexpr Vector()
     : m_size(0) {
   }
 
 #ifndef BUILD_MOS
   Vector(const value_type* data, size_type size) : m_size(size) {
     std::copy_n(data, m_size, m_buffer);
+    std::fill_n(reinterpret_cast<std::uint8_t*>(m_buffer + m_size), (capacity_v - m_size) * sizeof(value_type), 0U);
   }
 #endif
 
@@ -84,7 +85,7 @@ struct String : Vector<char, CapacityV> {
 
   static constexpr auto capacity_v = base_type::capacity_v;
 
-  String() {}
+  constexpr String() {}
 
 #ifndef BUILD_MOS
   explicit String(const std::string& value)

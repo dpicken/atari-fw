@@ -66,8 +66,8 @@ From [src/keyboard/Controller.cc](/src/keyboard/Controller.cc):
 | F3                | Select                               |
 | F4                | Option                               |
 | F7                | Fimrware update                      |
+| F10               | D1: insert builtin/!sbc-boot.atr     |
 | F11               | D1: eject                            |
 | Ctrl-F11          | D1: insert/rotate builtin ATR        |
 | F12               | Reset                                |
 | Ctrl-F12          | Toggle power on/off                  |
-| Ctrl-Shift-F12    | Reset and boot builtin/!sbc-boot.atr |
