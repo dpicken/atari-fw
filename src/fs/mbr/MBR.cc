@@ -11,36 +11,42 @@ namespace {
 
 struct MBR {
   struct partition_entry_type {
+    bool isPartitionTypeMicrosoft() const {
+      return partitionType == 0x07;
+    }
+
+    std::uint64_t offset(const ::fs::File::ptr_type& device) const {
+      return device->blockSize().blockAddressToByteOffset(firstSectorLBA);
+    }
+
+    std::uint64_t size(const ::fs::File::ptr_type& device) const {
+      return device->blockSize().blockCountToByteCount(sectorCount);
+    }
+
+  private:
     using chs_address_type = std::array<std::uint8_t, 3>;
+
     std::uint8_t status;
     chs_address_type firstSector;
     std::uint8_t partitionType;
     chs_address_type lastSector;
     std::uint32_t firstSectorLBA;
     std::uint32_t sectorCount;
-    bool isExFat() const {
-      return partitionType == 0x07;
-    }
-    std::uint64_t offset(const ::fs::File::ptr_type& device) const {
-      return device->blockSize().blockAddressToByteOffset(firstSectorLBA);
-    }
-    std::uint64_t size(const ::fs::File::ptr_type& device) const {
-      return device->blockSize().blockCountToByteCount(sectorCount);
-    }
-  };
-  static constexpr unsigned int partition_entry_count_v = 4;
+  } PACKED;
+
+  using partition_table_type = std::array<partition_entry_type, 4>;
 
   bool isValid() const {
     return bootSignature0 == 0x55 && bootSignature1 == 0xAA;
   }
 
-  partition_entry_type partitionEntry(unsigned int index) const {
-    return partitionEntries[index];
+  const partition_table_type& partitionTable() const {
+    return partitionEntries;
   }
 
 private:
   std::array<std::uint8_t, 446> bootstrapCode;
-  partition_entry_type partitionEntries[partition_entry_count_v];
+  partition_table_type partitionEntries;
   std::uint8_t bootSignature0;
   std::uint8_t bootSignature1;
 } PACKED;
@@ -59,10 +65,10 @@ fs::Directory::ptr_type fs::mbr::tryMakeDirectory(const ::fs::File::ptr_type& de
   }
 
   auto directory = ::fs::ram::Directory::make();
-  for (auto index = 0U; index != MBR::partition_entry_count_v; ++index) {
-    auto partitionEntry = mbr.partitionEntry(index);
 
-    if (!partitionEntry.isExFat()) {
+  for (auto index = 0U; index != mbr.partitionTable().size(); ++index) {
+    const auto& partitionEntry = mbr.partitionTable()[index];
+    if (!partitionEntry.isPartitionTypeMicrosoft()) {
       continue;
     }
 
