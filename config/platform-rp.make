@@ -38,12 +38,13 @@ rp: $(RP_BOARD_BUILD_DIR)/Makefile
 	$(echo_build_message)
 	$(echo_recipe)VERBOSE= COLOR= make -C $(RP_BOARD_BUILD_DIR)
 
-.PHONY: rp-all
-rp-all:
+.PHONY: rp-board-%
+rp-board-%:
 	$(echo_build_message)
-	$(echo_recipe)RP_BOARD=adafruit_qtpy_rp2040 make rp
-	$(echo_recipe)RP_BOARD=pimoroni_tiny2350 make rp
-	$(echo_recipe)RP_BOARD=waveshare_rp2040_zero make rp
+	$(echo_recipe)RP_BOARD=$(patsubst rp-board-%,%,$@) make rp
+
+.PHONY: rp-all
+rp-all: rp-board-adafruit_qtpy_rp2040 rp-board-pimoroni_tiny2350 rp-board-waveshare_rp2040_zero
 
 all: rp-all
 

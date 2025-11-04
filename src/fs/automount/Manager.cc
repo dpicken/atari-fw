@@ -2,6 +2,7 @@
 
 #include "fs/DirectoryEnumerator.h"
 #include "fs/exfat/Volume.h"
+#include "fs/gpt/GPT.h"
 #include "fs/mbr/MBR.h"
 #include "fs/ram/Directory.h"
 #include "fs/root/FileSystem.h"
@@ -16,15 +17,21 @@ fs::automount::Manager* fs::automount::Manager::instance() {
 fs::automount::Manager::file_system_container fs::automount::Manager::tryMakeFileSystems(const file_ptr_type& device) {
   file_system_container fileSystems;
 
-  auto mbrDirectory = ::fs::mbr::tryMakeDirectory(device);
-  if (mbrDirectory) {
-    for (DirectoryEnumerator dirEnumerator(mbrDirectory); dirEnumerator.isValid(); dirEnumerator.next()) {
-      tryMakeFileSystem(dirEnumerator.openFile(), fileSystems);
-    }
-  } else {
-    tryMakeFileSystem(device, fileSystems);
+  for (DirectoryEnumerator dirEnumerator(::fs::mbr::tryMakeDirectory(device)); dirEnumerator.isValid(); dirEnumerator.next()) {
+    tryMakeFileSystem(dirEnumerator.openFile(), fileSystems);
+  }
+  if (!fileSystems.empty()) {
+    return fileSystems;
   }
 
+  for (DirectoryEnumerator dirEnumerator(::fs::gpt::tryMakeDirectory(device)); dirEnumerator.isValid(); dirEnumerator.next()) {
+    tryMakeFileSystem(dirEnumerator.openFile(), fileSystems);
+  }
+  if (!fileSystems.empty()) {
+    return fileSystems;
+  }
+
+  tryMakeFileSystem(device, fileSystems);
   return fileSystems;
 }
 

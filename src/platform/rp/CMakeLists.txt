@@ -17,7 +17,13 @@ pico_sdk_init()
 include_directories(${ATARI_FW_ROOT}/src)
 
 add_executable(atari-fw_${RP_BOARD}
+  ${ATARI_FW_ROOT}/src/fs/automount/Manager.cc
+  ${ATARI_FW_ROOT}/src/fs/automount/Manager.h
   ${ATARI_FW_ROOT}/src/fs/BlockSize.h
+  ${ATARI_FW_ROOT}/src/fs/builtin/File.cc
+  ${ATARI_FW_ROOT}/src/fs/builtin/File.h
+  ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.cc
+  ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.h
   ${ATARI_FW_ROOT}/src/fs/Directory.cc
   ${ATARI_FW_ROOT}/src/fs/Directory.h
   ${ATARI_FW_ROOT}/src/fs/DirectoryEntry.cc
@@ -26,20 +32,6 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/fs/DirectoryEnumerator.h
   ${ATARI_FW_ROOT}/src/fs/Enumerator.cc
   ${ATARI_FW_ROOT}/src/fs/Enumerator.h
-  ${ATARI_FW_ROOT}/src/fs/File.cc
-  ${ATARI_FW_ROOT}/src/fs/File.h
-  ${ATARI_FW_ROOT}/src/fs/FileSlice.cc
-  ${ATARI_FW_ROOT}/src/fs/FileSlice.h
-  ${ATARI_FW_ROOT}/src/fs/FileSystem.cc
-  ${ATARI_FW_ROOT}/src/fs/FileSystem.h
-  ${ATARI_FW_ROOT}/src/fs/ResolvePath.cc
-  ${ATARI_FW_ROOT}/src/fs/ResolvePath.h
-  ${ATARI_FW_ROOT}/src/fs/automount/Manager.cc
-  ${ATARI_FW_ROOT}/src/fs/automount/Manager.h
-  ${ATARI_FW_ROOT}/src/fs/builtin/File.cc
-  ${ATARI_FW_ROOT}/src/fs/builtin/File.h
-  ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.cc
-  ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.h
   ${ATARI_FW_ROOT}/src/fs/exfat/AddressTypes.h
   ${ATARI_FW_ROOT}/src/fs/exfat/BootSector.cc
   ${ATARI_FW_ROOT}/src/fs/exfat/BootSector.h
@@ -85,35 +77,45 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/fs/exfat/Unicode.h
   ${ATARI_FW_ROOT}/src/fs/exfat/Volume.cc
   ${ATARI_FW_ROOT}/src/fs/exfat/Volume.h
+  ${ATARI_FW_ROOT}/src/fs/File.cc
+  ${ATARI_FW_ROOT}/src/fs/File.h
+  ${ATARI_FW_ROOT}/src/fs/FileSlice.cc
+  ${ATARI_FW_ROOT}/src/fs/FileSlice.h
+  ${ATARI_FW_ROOT}/src/fs/FileSystem.cc
+  ${ATARI_FW_ROOT}/src/fs/FileSystem.h
+  ${ATARI_FW_ROOT}/src/fs/gpt/GPT.cc
+  ${ATARI_FW_ROOT}/src/fs/gpt/GPT.h
   ${ATARI_FW_ROOT}/src/fs/mbr/MBR.cc
   ${ATARI_FW_ROOT}/src/fs/mbr/MBR.h
   ${ATARI_FW_ROOT}/src/fs/ram/Directory.cc
   ${ATARI_FW_ROOT}/src/fs/ram/Directory.h
+  ${ATARI_FW_ROOT}/src/fs/ResolvePath.cc
+  ${ATARI_FW_ROOT}/src/fs/ResolvePath.h
   ${ATARI_FW_ROOT}/src/fs/root/FileSystem.cc
   ${ATARI_FW_ROOT}/src/fs/root/FileSystem.h
+  ${ATARI_FW_ROOT}/src/hal/duration_us.h
   ${ATARI_FW_ROOT}/src/hal/Indicator.cc
   ${ATARI_FW_ROOT}/src/hal/Indicator.h
   ${ATARI_FW_ROOT}/src/hal/InputSignal.cc
   ${ATARI_FW_ROOT}/src/hal/InputSignal.h
+  ${ATARI_FW_ROOT}/src/hal/misc.h
   ${ATARI_FW_ROOT}/src/hal/OutputSignal.cc
   ${ATARI_FW_ROOT}/src/hal/OutputSignal.h
   ${ATARI_FW_ROOT}/src/hal/Spi.cc
   ${ATARI_FW_ROOT}/src/hal/Spi.h
   ${ATARI_FW_ROOT}/src/hal/Uart.cc
   ${ATARI_FW_ROOT}/src/hal/Uart.h
-  ${ATARI_FW_ROOT}/src/hal/duration_us.h
-  ${ATARI_FW_ROOT}/src/hal/misc.h
   ${ATARI_FW_ROOT}/src/keyboard/App.cc
   ${ATARI_FW_ROOT}/src/keyboard/App.h
-  ${ATARI_FW_ROOT}/src/keyboard/Controller.cc
-  ${ATARI_FW_ROOT}/src/keyboard/Controller.h
-  ${ATARI_FW_ROOT}/src/keyboard/Pipe.cc
-  ${ATARI_FW_ROOT}/src/keyboard/Pipe.h
   ${ATARI_FW_ROOT}/src/keyboard/console/Controller.cc
   ${ATARI_FW_ROOT}/src/keyboard/console/Controller.h
   ${ATARI_FW_ROOT}/src/keyboard/console/KeyBit.h
   ${ATARI_FW_ROOT}/src/keyboard/console/KeyReleaseObserver.cc
   ${ATARI_FW_ROOT}/src/keyboard/console/KeyReleaseObserver.h
+  ${ATARI_FW_ROOT}/src/keyboard/Controller.cc
+  ${ATARI_FW_ROOT}/src/keyboard/Controller.h
+  ${ATARI_FW_ROOT}/src/keyboard/Pipe.cc
+  ${ATARI_FW_ROOT}/src/keyboard/Pipe.h
   ${ATARI_FW_ROOT}/src/keyboard/pokey/Controller.cc
   ${ATARI_FW_ROOT}/src/keyboard/pokey/Controller.h
   ${ATARI_FW_ROOT}/src/keyboard/pokey/InputReport.cc
@@ -143,7 +145,6 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/platform/rp/tusb_config.h
   ${ATARI_FW_ROOT}/src/sd/Block.h
   ${ATARI_FW_ROOT}/src/sd/BlockSize.h
-  ${ATARI_FW_ROOT}/src/sd/CSD.h
   ${ATARI_FW_ROOT}/src/sd/Card.cc
   ${ATARI_FW_ROOT}/src/sd/Card.h
   ${ATARI_FW_ROOT}/src/sd/Command.cc
@@ -151,6 +152,7 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/sd/Controller.cc
   ${ATARI_FW_ROOT}/src/sd/Controller.fwd.h
   ${ATARI_FW_ROOT}/src/sd/Controller.h
+  ${ATARI_FW_ROOT}/src/sd/CSD.h
   ${ATARI_FW_ROOT}/src/sd/Response.cc
   ${ATARI_FW_ROOT}/src/sd/Response.h
   ${ATARI_FW_ROOT}/src/sd/SpiAccessor.cc
@@ -161,6 +163,8 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/sio/App.h
   ${ATARI_FW_ROOT}/src/sio/AtariControl.cc
   ${ATARI_FW_ROOT}/src/sio/AtariControl.h
+  ${ATARI_FW_ROOT}/src/sio/checksum.cc
+  ${ATARI_FW_ROOT}/src/sio/checksum.h
   ${ATARI_FW_ROOT}/src/sio/Controller.cc
   ${ATARI_FW_ROOT}/src/sio/Controller.h
   ${ATARI_FW_ROOT}/src/sio/Device.cc
@@ -173,19 +177,19 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/sio/Frame.h
   ${ATARI_FW_ROOT}/src/sio/Pipe.cc
   ${ATARI_FW_ROOT}/src/sio/Pipe.h
-  ${ATARI_FW_ROOT}/src/sio/Traits.h
-  ${ATARI_FW_ROOT}/src/sio/checksum.cc
-  ${ATARI_FW_ROOT}/src/sio/checksum.h
   ${ATARI_FW_ROOT}/src/sio/sdr/DiskDrive.h
   ${ATARI_FW_ROOT}/src/sio/sdr/FileSystem.h
   ${ATARI_FW_ROOT}/src/sio/sdr/Types.h
+  ${ATARI_FW_ROOT}/src/sio/Traits.h
   ${ATARI_FW_ROOT}/src/thread/Pipe.cc
   ${ATARI_FW_ROOT}/src/thread/Pipe.h
   ${ATARI_FW_ROOT}/src/util/Ascii.cc
   ${ATARI_FW_ROOT}/src/util/Ascii.h
-  ${ATARI_FW_ROOT}/src/util/PACKED.h
   ${ATARI_FW_ROOT}/src/util/crc.cc
   ${ATARI_FW_ROOT}/src/util/crc.h
+  ${ATARI_FW_ROOT}/src/util/hex.cc
+  ${ATARI_FW_ROOT}/src/util/hex.h
+  ${ATARI_FW_ROOT}/src/util/PACKED.h
   ${ATARI_FW_ROOT}/src/util/type_traits.h
 )
 

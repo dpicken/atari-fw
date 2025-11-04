@@ -15,20 +15,7 @@
 
 namespace {
 
-fs::File::ptr_type makeDevice() {
-  constexpr auto devicePath = "image/sd-card-3921920-512B-sectors-mbr_exfat_boot_and_fat_region_and_three_clusters-macos.img";
-  constexpr auto deviceBlockSize = fs::BlockSize::fromSizeLog2(9);
-  return fs::test::common::File::make(devicePath, deviceBlockSize.blockCountToByteCount(3921920), deviceBlockSize);
-}
-
-void testBootSector() {
-  auto device = makeDevice();
-  auto partition = fs::FileSlice::tryMake(device, device->blockSize().blockAddressToByteOffset(2048), device->blockSize().blockCountToByteCount(3919872));
-
-  if (partition == nullptr) {
-    throw std::logic_error("failed to slice first partition");
-  }
-
+void testBootSector(const fs::File::ptr_type& partition) {
   fs::exfat::BootSector bootSector;
   if (!partition->read(0, &bootSector)) {
     throw std::logic_error("failed to read boot sector");
@@ -43,10 +30,7 @@ void testBootSector() {
   }
 }
 
-void testVolume() {
-  auto device = makeDevice();
-  auto partition = fs::FileSlice::tryMake(device, device->blockSize().blockAddressToByteOffset(2048), device->blockSize().blockCountToByteCount(3919872));
-
+void testVolume(const fs::File::ptr_type& device, const fs::File::ptr_type& partition, std::uint64_t clusterHeapBlockCount) {
   fs::exfat::Volume volume(partition);
 
   auto activeFat = volume.tryGetActiveFat();
@@ -63,15 +47,12 @@ void testVolume() {
     throw std::logic_error("failed to get cluster heap");
   }
 
-  if (clusterHeap->size() != device->blockSize().blockCountToByteCount(3919232)) {
+  if (clusterHeap->size() != device->blockSize().blockCountToByteCount(clusterHeapBlockCount)) {
     throw std::logic_error("unexpected cluster heap size");
   }
 }
 
-void testClusterChain() {
-  auto device = makeDevice();
-  auto partition = fs::FileSlice::tryMake(device, device->blockSize().blockAddressToByteOffset(2048), device->blockSize().blockCountToByteCount(3919872));
-
+void testClusterChain(const fs::File::ptr_type& partition) {
   fs::exfat::Volume volume(partition);
 
   fs::exfat::ClusterChainEnumerator clusterChainEnumerator(volume.getRootDirectoryClusterChain());
@@ -93,10 +74,7 @@ void testClusterChain() {
   }
 }
 
-void testFile() {
-  auto device = makeDevice();
-  auto partition = fs::FileSlice::tryMake(device, device->blockSize().blockAddressToByteOffset(2048), device->blockSize().blockCountToByteCount(3919872));
-
+void testFile(const fs::File::ptr_type& partition) {
   fs::exfat::Volume volume(partition);
 
   auto file = volume.tryGetRootDirectoryFile();
@@ -144,10 +122,7 @@ void testFile() {
   }
 }
 
-void testVolumeLabel() {
-  auto device = makeDevice();
-  auto partition = fs::FileSlice::tryMake(device, device->blockSize().blockAddressToByteOffset(2048), device->blockSize().blockCountToByteCount(3919872));
-
+void testVolumeLabel(const fs::File::ptr_type& partition) {
   fs::exfat::Volume volume(partition);
 
   auto file = volume.tryGetRootDirectoryFile();
@@ -168,10 +143,7 @@ void testVolumeLabel() {
   throw std::logic_error("failed to find volume label");
 }
 
-void testFileSystem() {
-  auto device = makeDevice();
-  auto partition = fs::FileSlice::tryMake(device, device->blockSize().blockAddressToByteOffset(2048), device->blockSize().blockCountToByteCount(3919872));
-
+void testFileSystem(const fs::File::ptr_type& partition) {
   fs::exfat::Volume volume(partition);
 
   auto fs = volume.tryMakeFileSystem();
@@ -184,10 +156,7 @@ void testFileSystem() {
   }
 }
 
-void testRootDirectory() {
-  auto device = makeDevice();
-  auto partition = fs::FileSlice::tryMake(device, device->blockSize().blockAddressToByteOffset(2048), device->blockSize().blockCountToByteCount(3919872));
-
+void testRootDirectory(const fs::File::ptr_type& partition) {
   fs::exfat::Volume volume(partition);
 
   auto testDirectoryEmpty = [=](const fs::Directory::ptr_type& directory, const std::string& directoryName) {
@@ -226,6 +195,7 @@ void testRootDirectory() {
     }
   };
 
+  fs::exfat::Configuration::instance()->excludeHiddenDirectoryEntries(false);
   testRootDirectory({
     {".fseventsd", fs::DirectoryEntry::Type::Directory, 0},
     {".Spotlight-V100", fs::DirectoryEntry::Type::Directory, 1}
@@ -239,20 +209,32 @@ void testRootDirectory() {
     {".fseventsd", fs::DirectoryEntry::Type::Directory, 0},
     {".Spotlight-V100", fs::DirectoryEntry::Type::Directory, 1}
   });
+}
 
-  fs::exfat::Configuration::instance()->excludeUnixHiddenDirectoryEntries(true);
-  testRootDirectory({});
+void test(const std::filesystem::path& devicePath, fs::BlockSize deviceBlockSize, std::uint64_t deviceBlockCount, std::uint64_t partitionBlockOffset, std::uint64_t partitionBlockCount, std::uint64_t clusterHeapBlockCount) {
+  auto device  = fs::test::common::File::make(devicePath, deviceBlockSize.blockCountToByteCount(deviceBlockCount), deviceBlockSize);
+  if (device == nullptr) {
+    throw std::logic_error("device not found");
+  }
+
+  auto partition = fs::FileSlice::tryMake(device, device->blockSize().blockAddressToByteOffset(partitionBlockOffset), device->blockSize().blockCountToByteCount(partitionBlockCount));
+  if (partition == nullptr) {
+    throw std::logic_error("failed to slice first partition");
+  }
+
+  testBootSector(partition);
+  testVolume(device, partition, clusterHeapBlockCount);
+  testClusterChain(partition);
+  testFile(partition);
+  testVolumeLabel(partition);
+  testFileSystem(partition);
+  testRootDirectory(partition);
 }
 
 } // namespace
 
 int main(int, char**) {
-  testBootSector();
-  testVolume();
-  testClusterChain();
-  testFile();
-  testVolumeLabel();
-  testFileSystem();
-  testRootDirectory();
+  test("image/sd-card-3921920-512B-sectors-mbr_exfat_boot_and_fat_region_and_three_clusters-macos.img", fs::BlockSize::fromSizeLog2(9), 3'921'920, 2048, 3'919'872, 3'919'232);
+  test("image/sd-card-3921920-512B-sectors-gpt_exfat_boot_and_fat_region_and_three_clusters-macos.img", fs::BlockSize::fromSizeLog2(9), 3'921'920, 2048, 3'917'824, 3'917'184);
   return EXIT_SUCCESS;
 }

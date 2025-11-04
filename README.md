@@ -23,9 +23,9 @@ Clone and build:
 mkdir ./third-party
 git -C ./third-party clone https://github.com/raspberrypi/pico-sdk.git
 git -C ./third-party clone https://github.com/raspberrypi/pico-examples.git
-git -C ./third-party/pico-sdk checkout 2.0.0
+git -C ./third-party/pico-sdk checkout 2.2.0
 git -C ./third-party/pico-sdk submodule update --init
-git -C ./third-party/pico-examples checkout sdk-2.0.0
+git -C ./third-party/pico-examples checkout sdk-2.2.0
 git clone https://github.com/dpicken/fab.git
 git clone https://github.com/dpicken/atari-fw.git
 cd atari-fw
