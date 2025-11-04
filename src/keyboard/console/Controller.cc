@@ -24,14 +24,24 @@ void keyboard::console::Controller::receiveInputReport(const KeyBitset keyBitset
   processKeyBit<KeyBit::Option>(keyBitset, m_option);
   processKeyBit<KeyBit::Reset>(keyBitset, m_reset);
 
-  processKeyReleaseObserver<KeyBit::Power>(keyBitset, &m_powerKeyObserver, [this]() {
+  processKeyReleaseObserver<KeyBit::PowerOff>(keyBitset, &m_powerOffKeyObserver, [this]() {
+    powerOff();
+  });
+  processKeyReleaseObserver<KeyBit::PowerToggle>(keyBitset, &m_powerToggleKeyObserver, [this]() {
     togglePower();
   });
-  processKeyReleaseObserver<KeyBit::Eject>(keyBitset, &m_ejectKeyObserver, []() {
-    sio::Pipe::instance().tryPush(sio::Pipe::Message::EjectAll);
+  processKeyReleaseObserver<KeyBit::PowerCycle>(keyBitset, &m_powerCycleKeyObserver, [this]() {
+    powerOff();
+    togglePower();
+  });
+  processKeyReleaseObserver<KeyBit::SbcBoot>(keyBitset, &m_sbcBootObserver, []() {
+    ::sio::Pipe::instance().tryPush(::sio::Pipe::Message::SbcBoot);
+  });
+  processKeyReleaseObserver<KeyBit::D1Eject>(keyBitset, &m_d1EjectKeyObserver, []() {
+    ::sio::Pipe::instance().tryPush(::sio::Pipe::Message::D1Eject);
   });
   processKeyReleaseObserver<KeyBit::D1RotateDisk>(keyBitset, &m_d1RotateDiskKeyObserver, []() {
-    sio::Pipe::instance().tryPush(sio::Pipe::Message::D1_RotateDisk);
+    ::sio::Pipe::instance().tryPush(::sio::Pipe::Message::D1RotateDisk);
   });
 }
 
@@ -65,4 +75,9 @@ void keyboard::console::Controller::togglePower() {
   } else {
     m_power.deactivate();
   }
+}
+
+void keyboard::console::Controller::powerOff() {
+  m_powerActive = false;
+  m_power.deactivate();
 }

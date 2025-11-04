@@ -45,15 +45,11 @@ void keyboard::App::pollPipe() {
       break;
 
     case Pipe::Message::PowerOff:
-      m_consoleController.receiveInputReport(console::KeyBitset(console::KeyBit::Power));
-
+      m_consoleController.receiveInputReport(console::KeyBitset(console::KeyBit::PowerOff));
       break;
 
     case Pipe::Message::PowerCycle:
-      m_consoleController.receiveInputReport(console::KeyBitset(console::KeyBit::Power));
-      m_consoleController.receiveInputReport(console::KeyBitset(0));
-      m_consoleController.receiveInputReport(console::KeyBitset(console::KeyBit::Power));
-      m_consoleController.receiveInputReport(console::KeyBitset(0));
+      m_consoleController.receiveInputReport(console::KeyBitset(console::KeyBit::PowerCycle));
       break;
 
     case Pipe::Message::Reset:

@@ -6,6 +6,7 @@
 #include "hal/OutputSignal.h"
 #include "hal/Spi.h"
 #include "hal/Uart.h"
+#include "keyboard/App.h"
 #include "sd/Traits.h"
 #include "sio/App.h"
 #include "sio/Traits.h"

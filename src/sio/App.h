@@ -31,6 +31,7 @@ public:
 private:
   void pollPipe();
 
+  const ::fs::File::ptr_type m_sbcBootBuiltin;
   ::fs::DirectoryEnumerator m_d1LibraryEnumerator;
 
   DiskDrive m_d1;

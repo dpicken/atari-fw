@@ -3,6 +3,8 @@
 #include "Pipe.h"
 
 #include "fs/builtin/FileSystem.h"
+#include "fs/ResolvePath.h"
+#include "keyboard/Pipe.h"
 #include "media/Atr.h"
 #include "sd/Controller.h"
 
@@ -15,7 +17,8 @@ sio::App::App(
     ::hal::Spi sdSpi,
     ::hal::BusyWait busyWait,
     ::hal::BusyWaitEq busyWaitEq)
-  : m_d1LibraryEnumerator(::fs::builtin::FileSystem::instance()->getRootDirectory())
+  : m_sbcBootBuiltin(::fs::resolveFile("builtin/!sbc-boot.atr"))
+  , m_d1LibraryEnumerator(::fs::builtin::FileSystem::instance()->getRootDirectory())
   , m_d1(uart, busyWait)
   , m_atariControl(uart, busyWait)
   , m_fileSystem(uart, busyWait, &m_d1)
@@ -34,12 +37,20 @@ void sio::App::pollPipe() {
     case Pipe::Message::Null:
       break;
 
-    case Pipe::Message::EjectAll:
+    case Pipe::Message::SbcBoot:
+      m_d1.eject();
+      if (m_sbcBootBuiltin) {
+        m_d1.insert(::media::makeAtr(m_sbcBootBuiltin));
+        ::keyboard::Pipe::instance().tryPush(::keyboard::Pipe::Message::PowerCycle);
+      }
+      break;
+
+    case Pipe::Message::D1Eject:
       m_d1.eject();
       m_d1LibraryEnumerator.reset();
       break;
 
-    case Pipe::Message::D1_RotateDisk:
+    case Pipe::Message::D1RotateDisk:
       m_d1.eject();
       if (!m_d1LibraryEnumerator.isValid()) {
         m_d1LibraryEnumerator.reset();

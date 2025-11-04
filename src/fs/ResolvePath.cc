@@ -13,3 +13,11 @@ fs::Directory::ptr_type fs::resolveDirectory(const std::filesystem::path& path) 
 
   return directory;
 }
+
+fs::File::ptr_type fs::resolveFile(const std::filesystem::path& path) {
+  auto directory = resolveDirectory(path.parent_path());
+  if (!directory) {
+    return nullptr;
+  }
+  return directory->openFile(path.filename());
+}

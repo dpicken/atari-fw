@@ -32,6 +32,7 @@ private:
   void processKeyReleaseObserver(const KeyBitset keyBitset, KeyReleaseObserver* observer, std::function<void()> action);
 
   void togglePower();
+  void powerOff();
 
   const ::hal::OutputSignal m_start;
   const ::hal::OutputSignal m_select;
@@ -40,8 +41,11 @@ private:
   const ::hal::OutputSignal m_power;
   const ::hal::PowerOnSequence m_powerOnSequence;
 
-  KeyReleaseObserver m_powerKeyObserver;
-  KeyReleaseObserver m_ejectKeyObserver;
+  KeyReleaseObserver m_powerOffKeyObserver;
+  KeyReleaseObserver m_powerToggleKeyObserver;
+  KeyReleaseObserver m_powerCycleKeyObserver;
+  KeyReleaseObserver m_sbcBootObserver;
+  KeyReleaseObserver m_d1EjectKeyObserver;
   KeyReleaseObserver m_d1RotateDiskKeyObserver;
 
   bool m_powerActive;

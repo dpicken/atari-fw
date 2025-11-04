@@ -6,14 +6,17 @@
 
 namespace keyboard { namespace console {
 
-enum class KeyBit : std::uint8_t {
-  Start   = 1 << 0,
-  Select  = 1 << 1,
-  Option  = 1 << 2,
-  Reset   = 1 << 3,
-  Power   = 1 << 4,
-  Eject   = 1 << 5,
-  D1RotateDisk = 1 << 6
+enum class KeyBit {
+  Start             = 1 << 0,
+  Select            = 1 << 1,
+  Option            = 1 << 2,
+  Reset             = 1 << 3,
+  PowerOff          = 1 << 4,
+  PowerCycle        = 1 << 5,
+  PowerToggle       = 1 << 6,
+  SbcBoot           = 1 << 7,
+  D1Eject           = 1 << 8,
+  D1RotateDisk      = 1 << 9
 };
 
 using KeyBitset = std::underlying_type<KeyBit>::type;
