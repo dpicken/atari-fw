@@ -3,6 +3,7 @@
 
 #include "Types.h"
 
+#include <limits>
 #include <utility>
 
 namespace sio { namespace sdr {
@@ -13,7 +14,7 @@ struct DirEntry {
   using name_type = String<36>;
   using index_type = unsigned_int_type;
 
-  DirEntry() {
+  constexpr DirEntry() {
   }
 
 #ifndef BUILD_MOS
@@ -48,7 +49,7 @@ struct DirEntryPage {
 
   static constexpr auto max_entry_count = vector_type::capacity_v;
 
-  DirEntryPage()
+  constexpr DirEntryPage()
     : m_eos(true) {
   }
 
@@ -88,6 +89,47 @@ struct DirEntryPage {
 private:
   bool_type m_eos;
   vector_type m_entries;
+} PACKED;
+
+struct XexEntry {
+#ifndef BUILD_MOS
+  constexpr XexEntry()
+    : m_eos(true)
+    , m_segmentAddressBegin(0)
+    , m_segmentAddressLast(0) {
+  }
+#endif
+
+#ifndef BUILD_MOS
+  XexEntry(std::uint16_t segmentAddressBegin, std::uint16_t segmentAddressLast)
+    : m_eos(false)
+    , m_segmentAddressBegin(segmentAddressBegin)
+    , m_segmentAddressLast(segmentAddressLast) {
+  }
+#endif
+
+  static constexpr XexEntry makeEOS() { return XexEntry{}; }
+
+  bool eos() const {
+    return m_eos;
+  }
+
+  std::uint16_t segmentAddressBegin() const {
+    return m_segmentAddressBegin;
+  }
+
+  std::uint16_t segmentAddressLast() const {
+    return m_segmentAddressLast;
+  }
+
+  std::uint16_t segmentDataSize() const {
+    return (m_segmentAddressLast + 1) - m_segmentAddressBegin;
+  }
+
+private:
+  bool_type m_eos;
+  std::uint16_t m_segmentAddressBegin;
+  std::uint16_t m_segmentAddressLast;
 } PACKED;
 
 } } // namespace sio::sdr

@@ -1,20 +1,13 @@
 #include "DiskDrive.h"
 
-#include "checksum.h"
-#include "Frame.h"
-
 sio::DiskDrive::DiskDrive(::hal::Uart uart, ::hal::BusyWait busyWait)
-  : Device(uart, busyWait)
-  , m_sink([device = this](const std::uint8_t* sector, std::size_t sectorSize) {
-      device->uart()->tx(sector, sectorSize);
-      device->uart()->tx(checksum(sector, sectorSize));
-    }) {
+  : Device(uart, busyWait) {
 }
 
-void sio::DiskDrive::insert(disk_ptr disk) {
+void sio::DiskDrive::insert(const ::media::Disk::ptr_type& disk) {
   m_status.driveStatus = 0x00;
 
-  m_disk = std::move(disk);
+  m_disk = disk;
   if (m_disk == nullptr) {
     return;
   }
@@ -55,11 +48,9 @@ void sio::DiskDrive::handle(const Command* command) {
 }
 
 void sio::DiskDrive::handleStatus() {
-  Frame<sdr::Status> statusFrame(m_status);
-
   commandAck();
   commandComplete();
-  statusFrame.tx(uart());
+  sendData(m_status);
 }
 
 void sio::DiskDrive::handleRead(sector_address_type sectorAddress) {
@@ -70,6 +61,5 @@ void sio::DiskDrive::handleRead(sector_address_type sectorAddress) {
 
   commandAck();
   commandComplete();
-  // TODO: Handle readSector failure.
-  m_disk->readSector(sectorAddress, m_sink);
+  sinkData([this, sectorAddress](const data_sink_type& sink) { m_disk->readSector(sectorAddress, sink); });
 }

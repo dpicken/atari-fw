@@ -9,7 +9,7 @@
 
 namespace media {
 
-  std::unique_ptr<Disk> makeAtr(::fs::File::ptr_type atrFile);
+  Disk::ptr_type makeAtr(::fs::File::ptr_type atrFile);
 
 } // namespace media
 

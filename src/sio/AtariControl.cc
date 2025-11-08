@@ -30,6 +30,7 @@ void sio::AtariControl::handlePowerOff() {
 
   if (!keyboard::Pipe::instance().tryPush(keyboard::Pipe::Message::PowerOff)) {
     commandError();
+    return;
   }
 
   commandComplete();
@@ -40,6 +41,7 @@ void sio::AtariControl::handlePowerCycle() {
 
   if (!keyboard::Pipe::instance().tryPush(keyboard::Pipe::Message::PowerCycle)) {
     commandError();
+    return;
   }
 
   commandComplete();
@@ -50,6 +52,7 @@ void sio::AtariControl::handleReset() {
 
   if (!keyboard::Pipe::instance().tryPush(keyboard::Pipe::Message::Reset)) {
     commandError();
+    return;
   }
 
   commandComplete();
