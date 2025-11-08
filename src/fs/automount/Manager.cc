@@ -62,9 +62,6 @@ void fs::automount::Manager::onBlockDeviceAvailable(file_ptr_type device, name_t
 
   if (fileSystems.empty()) {
     name += ": no supported file systems";
-  } else if (fileSystems.size() == 1) {
-    name += ":";
-    name += fileSystems.front()->name();
   }
 
   auto [it, inserted] = m_devices.emplace(std::move(device), std::make_pair(std::move(name), std::move(fileSystems)));

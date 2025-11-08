@@ -1,7 +1,7 @@
 #include "media/Atr.h"
-#include "media/BuiltinAtrLibrary.h"
 
-#include "fs/builtin/File.h"
+#include "fs/DirectoryEnumerator.h"
+#include "fs/builtin/FileSystem.h"
 
 #include <cstdlib>
 #include <list>
@@ -10,7 +10,7 @@
 
 namespace {
 
-void testDisk(std::unique_ptr<media::Disk> disk) {
+void testDisk(const media::Disk::ptr_type& disk) {
   for (auto it = disk->getBeginSectorAddress(), end = disk->getEndSectorAddress(); it != end; ++it) {
     if (!disk->hasSector(it)) {
       throw std::logic_error("unreadable sector");
@@ -46,16 +46,23 @@ void testDisk(std::unique_ptr<media::Disk> disk) {
 
 void testBuiltinAtrLibrary() {
   std::list<std::string_view> badTitles;
-  for (unsigned int atrIndex = 0; atrIndex != media::BuiltinAtrLibrary::getAtrCount(); ++atrIndex) {
-    auto disk = media::makeAtr(fs::builtin::File::make(media::BuiltinAtrLibrary::getAtrData(atrIndex), media::BuiltinAtrLibrary::getAtrSize(atrIndex)));
+  for (fs::DirectoryEnumerator enumerator(::fs::builtin::FileSystem::instance()->getRootDirectory()); enumerator.isValid(); enumerator.next()) {
+    const auto& entry = enumerator.entry();
+    if (!entry.isFile()) {
+      continue;
+    }
+    if (!entry.name().ends_with(".atr")) {
+      continue;
+    }
+    auto disk = media::makeAtr(enumerator.openFile());
     if (disk != nullptr) {
       try {
-        testDisk(std::move(disk));
+        testDisk(disk);
       } catch (...) {
-        badTitles.push_back(media::BuiltinAtrLibrary::getAtrTitle(atrIndex));
+        badTitles.push_back(entry.name());
       }
     } else {
-      badTitles.push_back(media::BuiltinAtrLibrary::getAtrTitle(atrIndex));
+      badTitles.push_back(entry.name());
     }
   }
   if (!badTitles.empty()) {

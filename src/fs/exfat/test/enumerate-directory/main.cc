@@ -20,15 +20,7 @@ std::filesystem::path mountDevice(const std::filesystem::path& devicePath) {
 
   const std::string deviceName = "test-device";
   fs::automount::Manager::instance()->onBlockDeviceAvailable(device, deviceName);
-
-  for (fs::DirectoryEnumerator enumerator(::fs::root::FileSystem::instance()->getRootDirectory()); enumerator.isValid(); enumerator.next()) {
-    auto& entry = enumerator.entry();
-    if (entry.name().starts_with(deviceName + ":")) {
-      return enumerator.entry().name();
-    }
-  }
-
-  throw std::logic_error(devicePath.string() + ": device does not contain a file system");
+  return deviceName;
 }
 
 std::filesystem::path mountTestDevice() {
@@ -36,7 +28,7 @@ std::filesystem::path mountTestDevice() {
   auto device = fs::test::common::File::make("image/sd-card-3921920-512B-sectors-mbr_exfat_boot_and_fat_region_and_three_clusters-macos.img", deviceBlockSize.blockCountToByteCount(3921920), deviceBlockSize);
   const std::string deviceName = "test-device";
   fs::automount::Manager::instance()->onBlockDeviceAvailable(device, deviceName);
-  return deviceName + ":test-exfat";
+  return deviceName;
 }
 
 void testEnumerateDirectory(const std::filesystem::path& directoryPath) {

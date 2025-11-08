@@ -2,7 +2,6 @@
 #include "fs/ResolvePath.h"
 #include "fs/builtin/FileSystem.h"
 #include "fs/root/FileSystem.h"
-#include "media/BuiltinAtrLibrary.h"
 
 #include <cstdlib>
 #include <set>
@@ -61,9 +60,9 @@ void testBuiltinFileSystemRootDirectory(const fs::Directory::ptr_type& directory
   }
 
   std::set<std::string> expectedDirEntries;
-  for (media::BuiltinAtrLibrary::size_type index = 0; index != media::BuiltinAtrLibrary::getAtrCount(); ++index) {
-    expectedDirEntries.insert(std::string(media::BuiltinAtrLibrary::getAtrTitle(index)));
-  }
+  expectedDirEntries.insert("!sbc-boot.atr");
+  expectedDirEntries.insert("!sbc-boot.xex");
+  expectedDirEntries.insert("!xex-loader.atr");
 
   if (dirEntries != expectedDirEntries) {
     throw std::logic_error("builtin fs root directory inconsistent with expected dir entries");
