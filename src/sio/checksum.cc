@@ -1,13 +1,17 @@
 #include "checksum.h"
 
-std::uint8_t sio::checksum(const std::uint8_t* it, std::size_t byteCount) {
-  std::uint8_t sum = 0;
+void sio::Checksum::update(const std::uint8_t* it, std::size_t byteCount) {
   for (auto end = it + byteCount; it != end; ++it) {
-    auto prev = sum;
-    sum += *it;
-    if (sum < prev) {
-      ++sum;
+    auto prev = m_checksum;
+    m_checksum += *it;
+    if (m_checksum < prev) {
+      ++m_checksum;
     }
   }
-  return sum;
+}
+
+std::uint8_t sio::checksum(const std::uint8_t* it, std::size_t byteCount) {
+  Checksum checksum;
+  checksum.update(it, byteCount);
+  return checksum.get();
 }

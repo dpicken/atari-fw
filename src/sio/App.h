@@ -11,6 +11,7 @@
 #include "hal/misc.h"
 #include "hal/Spi.h"
 #include "hal/Uart.h"
+#include "media/Disk.h"
 #include "sd/Controller.h"
 
 namespace sio {
@@ -31,7 +32,7 @@ public:
 private:
   void pollPipe();
 
-  const ::fs::File::ptr_type m_sbcBootBuiltin;
+  const ::media::Disk::ptr_type m_sbcBootBuiltin;
   ::fs::DirectoryEnumerator m_d1LibraryEnumerator;
 
   DiskDrive m_d1;

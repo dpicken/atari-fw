@@ -24,6 +24,12 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/fs/builtin/File.h
   ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.cc
   ${ATARI_FW_ROOT}/src/fs/builtin/FileSystem.h
+  ${ATARI_FW_ROOT}/src/fs/builtin/Library.cc
+  ${ATARI_FW_ROOT}/src/fs/builtin/Library.gen.data.h
+  ${ATARI_FW_ROOT}/src/fs/builtin/Library.gen.paths.h
+  ${ATARI_FW_ROOT}/src/fs/builtin/Library.gen.sizes.h
+  ${ATARI_FW_ROOT}/src/fs/builtin/Library.h
+  ${ATARI_FW_ROOT}/src/fs/builtin/LibraryEnumerator.h
   ${ATARI_FW_ROOT}/src/fs/Directory.cc
   ${ATARI_FW_ROOT}/src/fs/Directory.h
   ${ATARI_FW_ROOT}/src/fs/DirectoryEntry.cc
@@ -130,12 +136,14 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/keyboard/usb/ModifierBit.h
   ${ATARI_FW_ROOT}/src/media/Atr.cc
   ${ATARI_FW_ROOT}/src/media/Atr.h
-  ${ATARI_FW_ROOT}/src/media/BuiltinAtrLibrary.gen.data.h
-  ${ATARI_FW_ROOT}/src/media/BuiltinAtrLibrary.gen.index.h
-  ${ATARI_FW_ROOT}/src/media/BuiltinAtrLibrary.gen.title.h
-  ${ATARI_FW_ROOT}/src/media/BuiltinAtrLibrary.h
   ${ATARI_FW_ROOT}/src/media/Disk.cc
   ${ATARI_FW_ROOT}/src/media/Disk.h
+  ${ATARI_FW_ROOT}/src/media/Xex.cc
+  ${ATARI_FW_ROOT}/src/media/Xex.h
+  ${ATARI_FW_ROOT}/src/media/XexEntry.cc
+  ${ATARI_FW_ROOT}/src/media/XexEntry.h
+  ${ATARI_FW_ROOT}/src/media/XexEnumerator.cc
+  ${ATARI_FW_ROOT}/src/media/XexEnumerator.h
   ${ATARI_FW_ROOT}/src/platform/rp/${RP_BOARD}/app.cc
   ${ATARI_FW_ROOT}/src/platform/rp/App.cc
   ${ATARI_FW_ROOT}/src/platform/rp/App.h

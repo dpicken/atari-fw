@@ -5,6 +5,7 @@
 #include <cstdint>
 
 #include <functional>
+#include <memory>
 
 namespace media {
 
@@ -13,6 +14,8 @@ public:
   using sector_address_type = std::uint16_t;
   using sector_count_type = std::uint16_t;
   using sector_sink_type = std::function<void(const std::uint8_t* sector, std::size_t sectorSize)>;
+
+  using ptr_type = std::shared_ptr<Disk>;
 
   virtual ~Disk();
 

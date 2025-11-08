@@ -21,3 +21,11 @@ fs::File::ptr_type fs::resolveFile(const std::filesystem::path& path) {
   }
   return directory->openFile(path.filename());
 }
+
+fs::File::ptr_type fs::resolveWellKnownFile(const std::string& name) {
+  auto file = resolveFile(std::filesystem::path{"/sd"} / name);
+  if (!file) {
+    file = resolveFile(std::filesystem::path{"/builtin"} / name);
+  }
+  return file;
+}

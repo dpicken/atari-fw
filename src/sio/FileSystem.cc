@@ -1,16 +1,16 @@
 #include "FileSystem.h"
 
-#include "Frame.h"
-
 #include "fs/ResolvePath.h"
 #include "fs/exfat/Configuration.h"
 #include "media/Atr.h"
 
 sio::FileSystem::FileSystem(::hal::Uart uart, ::hal::BusyWait busyWait, DiskDrive* d1)
   : Device(uart, busyWait)
+  , m_xexBootBuiltin(::media::makeAtr(::fs::resolveWellKnownFile("!xex-loader.atr")))
+  , m_d1(d1)
   , m_cwdPath("/")
   , m_cwdEnumerator(::fs::resolveDirectory(m_cwdPath))
-  , m_d1(d1) {
+  , m_xexEnumerator(media::Xex{}) {
   ::fs::exfat::Configuration::instance()->nonAsciiReplacementCharacter(0xBF);
   ::fs::exfat::Configuration::instance()->excludeHiddenDirectoryEntries(true);
   ::fs::exfat::Configuration::instance()->excludeSystemDirectoryEntries(true);
@@ -35,6 +35,14 @@ void sio::FileSystem::handle(const Command* command) {
       handleSelectDirEntry(command->aux());
       break;
 
+    case 0x04:
+      handleReadXexSegmentEntry(command->aux());
+      break;
+
+    case 0x05:
+      handleReadXexSegmentData();
+      break;
+
     default:
       commandNack();
   }
@@ -42,23 +50,15 @@ void sio::FileSystem::handle(const Command* command) {
 
 void sio::FileSystem::handleGetCurrentDir() {
   commandAck();
-
-  using sdr_path_type = sdr::CurrentDirPath;
-  Frame<sdr_path_type> pathFrame(sdr_path_type(m_cwdPath.string(), sdr_path_type::left_truncate));
-
   commandComplete();
-  pathFrame.tx(uart());
+  sendData(sdr::CurrentDirPath{m_cwdPath.string(), sdr::CurrentDirPath::left_truncate});
 }
 
 void sio::FileSystem::handleSelectParentDir() {
   commandAck();
-
   do {
     m_cwdPath = m_cwdPath.parent_path();
-    auto directory = ::fs::resolveDirectory(m_cwdPath);
-    if (directory) {
-      m_cwdEnumerator = ::fs::DirectoryEnumerator(std::move(directory));
-    }
+    m_cwdEnumerator = ::fs::DirectoryEnumerator(::fs::resolveDirectory(m_cwdPath));
   } while (m_cwdPath.has_relative_path() && !m_cwdEnumerator.isValid());
   commandComplete();
 }
@@ -67,16 +67,14 @@ void sio::FileSystem::handleReadDir(sdr::DirEntry::index_type index) {
   commandAck();
 
   m_cwdEnumerator.reposition(index);
-
-  Frame<sdr::DirEntryPage> pageFrame;
-  sdr::DirEntryPage* page = pageFrame.data();
-  for (; m_cwdEnumerator.isValid() && !page->full(); m_cwdEnumerator.next()) {
-    page->emplace_back(m_cwdEnumerator.entry().name(), m_cwdEnumerator.entry().isDirectory(), m_cwdEnumerator.entry().index());
+  sdr::DirEntryPage page;
+  for (; m_cwdEnumerator.isValid() && !page.full(); m_cwdEnumerator.next()) {
+    page.emplace_back(m_cwdEnumerator.entry().name(), m_cwdEnumerator.entry().isDirectory(), m_cwdEnumerator.entry().index());
   }
-  page->setEOS(!m_cwdEnumerator.isValid());
+  page.setEOS(!m_cwdEnumerator.isValid());
 
   commandComplete();
-  pageFrame.tx(uart());
+  sendData(page);
 }
 
 void sio::FileSystem::handleSelectDirEntry(sdr::DirEntry::index_type index) {
@@ -96,14 +94,50 @@ void sio::FileSystem::handleSelectDirEntry(sdr::DirEntry::index_type index) {
     }
     m_cwdPath /= m_cwdEnumerator.entry().name();
     m_cwdEnumerator = ::fs::DirectoryEnumerator(std::move(directory));
-  } else {
+  } else if (m_cwdEnumerator.entry().name().ends_with(".atr")) {
     auto disk = ::media::makeAtr(m_cwdEnumerator.openFile());
     if (disk == nullptr) {
       commandError();
       return;
     }
     m_d1->insert(std::move(disk));
+  } else if (m_cwdEnumerator.entry().name().ends_with(".xex")) {
+    ::media::XexEnumerator xexEnumerator(media::Xex{m_cwdEnumerator.openFile()});
+    if (!xexEnumerator.isValid()) {
+      commandError();
+      return;
+    }
+    m_xexEnumerator = std::move(xexEnumerator);
+    m_d1->insert(m_xexBootBuiltin);
+  } else {
+    commandError();
+    return;
   }
 
   commandComplete();
+}
+
+void sio::FileSystem::handleReadXexSegmentEntry(std::uint16_t index) {
+  m_xexEnumerator.reposition(index);
+
+  auto entry = m_xexEnumerator.isValid()
+      ? sdr::XexEntry{
+            m_xexEnumerator.entry().segmentHeader().loadAddressBegin,
+            m_xexEnumerator.entry().segmentHeader().loadAddressLast}
+      : sdr::XexEntry::makeEOS();
+
+  commandAck();
+  commandComplete();
+  sendData(entry);
+}
+
+void sio::FileSystem::handleReadXexSegmentData() {
+  if (!m_xexEnumerator.isValid()) {
+    commandNack();
+    return;
+  }
+
+  commandAck();
+  commandComplete();
+  sinkData([this](const data_sink_type& sink) { m_xexEnumerator.container().readSegmentData(m_xexEnumerator.entry(), sink); });
 }

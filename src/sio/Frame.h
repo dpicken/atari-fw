@@ -13,15 +13,7 @@ struct Frame {
   Frame() {
   }
 
-  Frame(const Data& data)
-    : m_data(data) {
-  }
-
   const Data* data() const {
-    return &m_data;
-  }
-
-  Data* data() {
     return &m_data;
   }
 
@@ -33,11 +25,6 @@ struct Frame {
       return false;
     }
     return true;
-  }
-
-  void tx(const ::hal::Uart* uart) {
-    m_checksum = checksum(reinterpret_cast<std::uint8_t*>(&m_data), sizeof(m_data));
-    uart->tx(*this);
   }
 
 private:

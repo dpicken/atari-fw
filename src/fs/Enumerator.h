@@ -47,7 +47,11 @@ public:
 
   void reset() {
     if constexpr (container_value_type_needs_dereference) {
-      m_currentEntry = m_container->begin();
+      if (m_container == nullptr) {
+        m_currentEntry = std::nullopt;
+      } else {
+        m_currentEntry = m_container->begin();
+      }
     } else {
       m_currentEntry = m_container.begin();
     }

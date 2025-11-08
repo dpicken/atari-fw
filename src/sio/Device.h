@@ -6,6 +6,7 @@
 #include "util/PACKED.h"
 
 #include <cstdint>
+#include <functional>
 
 namespace sio {
 
@@ -48,6 +49,18 @@ public:
   void commandError() const {
     busyWaitCommandDeadTime();
     m_uart.tx('E');
+  }
+
+  using data_sink_type = std::function<void(const std::uint8_t* data, std::size_t size)>;
+  using data_source_type = std::function<void(const data_sink_type& sink)>;
+
+  void sinkData(const data_source_type& source) const;
+
+  template<typename PackedType>
+  void sendData(const PackedType& value) const {
+    sinkData([&value](const data_sink_type& sink) {
+      sink(reinterpret_cast<const std::uint8_t*>(&value), sizeof(value));
+    });
   }
 
   const ::hal::Uart* uart() const {

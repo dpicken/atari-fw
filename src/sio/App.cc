@@ -17,7 +17,7 @@ sio::App::App(
     ::hal::Spi sdSpi,
     ::hal::BusyWait busyWait,
     ::hal::BusyWaitEq busyWaitEq)
-  : m_sbcBootBuiltin(::fs::resolveFile("builtin/!sbc-boot.atr"))
+  : m_sbcBootBuiltin(::media::makeAtr(::fs::resolveWellKnownFile("!sbc-boot.atr")))
   , m_d1LibraryEnumerator(::fs::builtin::FileSystem::instance()->getRootDirectory())
   , m_d1(uart, busyWait)
   , m_atariControl(uart, busyWait)
@@ -38,11 +38,7 @@ void sio::App::pollPipe() {
       break;
 
     case Pipe::Message::SbcBoot:
-      m_d1.eject();
-      if (m_sbcBootBuiltin) {
-        m_d1.insert(::media::makeAtr(m_sbcBootBuiltin));
-        ::keyboard::Pipe::instance().tryPush(::keyboard::Pipe::Message::PowerCycle);
-      }
+      m_d1.insert(m_sbcBootBuiltin);
       break;
 
     case Pipe::Message::D1Eject:

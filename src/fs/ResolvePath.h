@@ -12,6 +12,8 @@ Directory::ptr_type resolveDirectory(const std::filesystem::path& path);
 
 File::ptr_type resolveFile(const std::filesystem::path& path);
 
+File::ptr_type resolveWellKnownFile(const std::string& name);
+
 } // namespace fs
 
 #endif // ifndef fs_ResolvePath_h
