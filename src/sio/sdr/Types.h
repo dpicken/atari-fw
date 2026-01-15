@@ -44,7 +44,7 @@ struct Vector {
     return m_size == capacity_v;
   }
 
-  const size_type size() const {
+  size_type size() const {
     return m_size;
   }
 
