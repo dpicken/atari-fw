@@ -6,6 +6,8 @@
 
 #include "fs/FileSlice.h"
 
+#include <optional>
+
 namespace fs { namespace exfat {
 
 class ClusterChain {

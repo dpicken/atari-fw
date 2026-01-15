@@ -16,9 +16,13 @@ $(SRC_FS_BUILTIN_LIBRARY).data.h: $(BUILTIN_DEPS)
 	$(echo_recipe)[ -n "$(BUILTIN_FILES)" ] || (echo Error: no builtinfiles && false)
 	$(echo_recipe)hexdump -v -C $(BUILTIN_FILES) | cut -s -d ' ' -f 2-19 | tr -s ' ' | sed 's@ *$$@@g' | sed 's/ /, 0x/g' | sed 's/^, / /' | tr '\n' ',' | sed 's/,$$/\n/' >$@
 
+STAT_SIZE_linux := stat -c %s
+STAT_SIZE_darwin := stat -f %z
+STAT_SIZE := $(STAT_SIZE_$(host_os))
+
 $(SRC_FS_BUILTIN_LIBRARY).sizes.h: $(SRC_FS_BUILTIN_LIBRARY).data.h
 	$(echo_build_message)
-	$(echo_recipe)stat -f %z $(BUILTIN_FILES) | tr '\n' ',' | sed 's/,$$/\n/' >$@
+	$(echo_recipe)$(STAT_SIZE) $(BUILTIN_FILES) | tr '\n' ',' | sed 's/,$$/\n/' >$@
 
 $(SRC_FS_BUILTIN_LIBRARY).paths.h: $(SRC_FS_BUILTIN_LIBRARY).data.h
 	$(echo_build_message)
