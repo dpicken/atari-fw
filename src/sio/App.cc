@@ -2,9 +2,6 @@
 
 #include "Pipe.h"
 
-#include "fs/builtin/FileSystem.h"
-#include "fs/ResolvePath.h"
-#include "keyboard/Pipe.h"
 #include "media/Atr.h"
 #include "sd/Controller.h"
 
@@ -17,9 +14,7 @@ sio::App::App(
     ::hal::Spi sdSpi,
     ::hal::BusyWait busyWait,
     ::hal::BusyWaitEq busyWaitEq)
-  : m_sbcBootBuiltin(::media::makeAtr(::fs::resolveWellKnownFile("!sbc-boot.atr")))
-  , m_d1LibraryEnumerator(::fs::builtin::FileSystem::instance()->getRootDirectory())
-  , m_d1(uart, busyWait)
+  : m_d1(uart, busyWait)
   , m_atariControl(uart, busyWait)
   , m_fileSystem(uart, busyWait, &m_d1)
   , m_controller(command, uart, busyWaitEq, &m_d1, &m_atariControl, &m_fileSystem)
@@ -37,24 +32,12 @@ void sio::App::pollPipe() {
     case Pipe::Message::Null:
       break;
 
-    case Pipe::Message::SbcBoot:
-      m_d1.insert(m_sbcBootBuiltin);
+    case Pipe::Message::LoadSbcFiler:
+      m_fileSystem.loadSbcFiler();
       break;
 
-    case Pipe::Message::D1Eject:
+    case Pipe::Message::EjectD1:
       m_d1.eject();
-      m_d1LibraryEnumerator.reset();
-      break;
-
-    case Pipe::Message::D1RotateDisk:
-      m_d1.eject();
-      if (!m_d1LibraryEnumerator.isValid()) {
-        m_d1LibraryEnumerator.reset();
-      }
-      if (m_d1LibraryEnumerator.isValid()) {
-        m_d1.insert(::media::makeAtr(m_d1LibraryEnumerator.openFile()));
-        m_d1LibraryEnumerator.next();
-      }
       break;
   }
 }

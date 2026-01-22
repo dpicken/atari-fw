@@ -75,7 +75,7 @@ void testDiskDriveStatus() {
     0xE0 // Checksum
   };
 
-  auto disk = media::makeAtr(fs::builtin::FileSystem::instance()->getRootDirectory()->openFile("!sbc-boot.atr"));
+  auto disk = media::makeAtr(fs::builtin::FileSystem::instance()->getRootDirectory()->openFile("!sbc-xex-loader.atr"));
   switch (disk->getDensity()) {
     case media::Disk::Density::Single:
       break;
@@ -126,7 +126,7 @@ void testDiskDriveRead(sio::DiskDrive* diskDrive, const media::Disk::ptr_type& e
 void testDiskDriveRead() {
   sio::DiskDrive diskDrive(uart, busyWait);
 
-  auto disk = media::makeAtr(fs::builtin::FileSystem::instance()->getRootDirectory()->openFile("!xex-loader.atr"));
+  auto disk = media::makeAtr(fs::builtin::FileSystem::instance()->getRootDirectory()->openFile("!sbc-xex-loader.atr"));
   diskDrive.insert(disk);
 
   testDiskDriveRead(&diskDrive, disk);
@@ -283,15 +283,15 @@ void testFileSystemXexLoader() {
   sio::FileSystem fileSystem(uart, busyWait, &diskDrive);
 
   testSelectDirEntry(&fileSystem, 0); // /builtin
-  testSelectDirEntry(&fileSystem, 1); // /builtin/!sbc-boot.xex
+  testSelectDirEntry(&fileSystem, 0); // /builtin/!sbc-filer.xex
 
-  auto disk = media::makeAtr(fs::builtin::FileSystem::instance()->getRootDirectory()->openFile("!xex-loader.atr"));
+  auto disk = media::makeAtr(fs::builtin::FileSystem::instance()->getRootDirectory()->openFile("!sbc-xex-loader.atr"));
   testDiskDriveRead(&diskDrive, disk);
 
-  auto xexFile = fs::builtin::FileSystem::instance()->getRootDirectory()->openFile("!sbc-boot.xex");
+  auto xexFile = fs::builtin::FileSystem::instance()->getRootDirectory()->openFile("!sbc-filer.xex");
   ::fs::File::size_type xexFileOffset = 2;
 
-  // TODO: Check /builtin/!sbc-boot.xex is served.
+  // TODO: Check /builtin/!sbc-filer.xex is served.
   std::uint16_t segmentIndex = 0;
   testFileSystemReadXexSegmentEntry(&fileSystem, segmentIndex++, 0x02E0, 0x02E1);
   xexFileOffset += 4;
@@ -299,9 +299,9 @@ void testFileSystemXexLoader() {
   testFileSystemReadXexSegmentData(&fileSystem, xexFile, xexFileOffset, dataSize);
   xexFileOffset += dataSize;
 
-  testFileSystemReadXexSegmentEntry(&fileSystem, segmentIndex++, 0x2000, 0x4BFB);
+  testFileSystemReadXexSegmentEntry(&fileSystem, segmentIndex++, 0x2000, 0x4BFC);
   xexFileOffset += 4;
-  dataSize = (0x4BFB + 1) - 0x2000;
+  dataSize = (0x4BFC + 1) - 0x2000;
   testFileSystemReadXexSegmentData(&fileSystem, xexFile, xexFileOffset, dataSize);
   xexFileOffset += dataSize;
 

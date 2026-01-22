@@ -44,9 +44,8 @@ private:
   KeyReleaseObserver m_powerOffKeyObserver;
   KeyReleaseObserver m_powerToggleKeyObserver;
   KeyReleaseObserver m_powerCycleKeyObserver;
-  KeyReleaseObserver m_sbcBootObserver;
+  KeyReleaseObserver m_loadSbcFilerObserver;
   KeyReleaseObserver m_d1EjectKeyObserver;
-  KeyReleaseObserver m_d1RotateDiskKeyObserver;
 
   bool m_powerActive;
 };

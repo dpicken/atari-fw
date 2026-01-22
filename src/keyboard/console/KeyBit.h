@@ -14,9 +14,8 @@ enum class KeyBit {
   PowerOff          = 1 << 4,
   PowerCycle        = 1 << 5,
   PowerToggle       = 1 << 6,
-  SbcBoot           = 1 << 7,
-  D1Eject           = 1 << 8,
-  D1RotateDisk      = 1 << 9
+  LoadSbcFiler      = 1 << 7,
+  EjectD1           = 1 << 8
 };
 
 using KeyBitset = std::underlying_type<KeyBit>::type;

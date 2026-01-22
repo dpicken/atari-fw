@@ -34,14 +34,11 @@ void keyboard::console::Controller::receiveInputReport(const KeyBitset keyBitset
     powerOff();
     togglePower();
   });
-  processKeyReleaseObserver<KeyBit::SbcBoot>(keyBitset, &m_sbcBootObserver, []() {
-    ::sio::Pipe::instance().tryPush(::sio::Pipe::Message::SbcBoot);
+  processKeyReleaseObserver<KeyBit::LoadSbcFiler>(keyBitset, &m_loadSbcFilerObserver, []() {
+    ::sio::Pipe::instance().tryPush(::sio::Pipe::Message::LoadSbcFiler);
   });
-  processKeyReleaseObserver<KeyBit::D1Eject>(keyBitset, &m_d1EjectKeyObserver, []() {
-    ::sio::Pipe::instance().tryPush(::sio::Pipe::Message::D1Eject);
-  });
-  processKeyReleaseObserver<KeyBit::D1RotateDisk>(keyBitset, &m_d1RotateDiskKeyObserver, []() {
-    ::sio::Pipe::instance().tryPush(::sio::Pipe::Message::D1RotateDisk);
+  processKeyReleaseObserver<KeyBit::EjectD1>(keyBitset, &m_d1EjectKeyObserver, []() {
+    ::sio::Pipe::instance().tryPush(::sio::Pipe::Message::EjectD1);
   });
 }
 

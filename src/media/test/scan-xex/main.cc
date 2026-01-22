@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-  const auto xexPath = (argc > 1) ? argv[1] : "builtin/!sbc-boot.xex";
+  const auto xexPath = (argc > 1) ? argv[1] : "builtin/!sbc-filer.xex";
 
   scanXex(xexPath);
 

@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-  const auto atrPath = (argc > 1) ? argv[1] : "builtin/!sbc-boot.atr";
+  const auto atrPath = (argc > 1) ? argv[1] : "builtin/!sbc-xex-loader.atr";
 
   testLoadAtr(atrPath);
 
