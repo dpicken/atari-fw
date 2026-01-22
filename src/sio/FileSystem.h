@@ -17,6 +17,10 @@ class FileSystem : public Device {
 public:
   FileSystem(::hal::Uart uart, ::hal::BusyWait busyWait, DiskDrive* d1);
 
+  bool loadAtr(const ::fs::File::ptr_type& file);
+  bool loadXex(const ::fs::File::ptr_type& file);
+  bool loadSbcFiler();
+
   void handle(const Command* command) override;
 
 private:
@@ -28,7 +32,6 @@ private:
   void handleReadXexSegmentEntry(std::uint16_t index);
   void handleReadXexSegmentData();
 
-  const ::media::Disk::ptr_type m_xexBootBuiltin;
   DiskDrive* const m_d1;
 
   std::filesystem::path m_cwdPath;

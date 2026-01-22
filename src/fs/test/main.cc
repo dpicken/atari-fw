@@ -60,9 +60,8 @@ void testBuiltinFileSystemRootDirectory(const fs::Directory::ptr_type& directory
   }
 
   std::set<std::string> expectedDirEntries;
-  expectedDirEntries.insert("!sbc-boot.atr");
-  expectedDirEntries.insert("!sbc-boot.xex");
-  expectedDirEntries.insert("!xex-loader.atr");
+  expectedDirEntries.insert("!sbc-filer.xex");
+  expectedDirEntries.insert("!sbc-xex-loader.atr");
 
   if (dirEntries != expectedDirEntries) {
     throw std::logic_error("builtin fs root directory inconsistent with expected dir entries");

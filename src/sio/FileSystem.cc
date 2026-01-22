@@ -6,7 +6,6 @@
 
 sio::FileSystem::FileSystem(::hal::Uart uart, ::hal::BusyWait busyWait, DiskDrive* d1)
   : Device(uart, busyWait)
-  , m_xexBootBuiltin(::media::makeAtr(::fs::resolveWellKnownFile("!xex-loader.atr")))
   , m_d1(d1)
   , m_cwdPath("/")
   , m_cwdEnumerator(::fs::resolveDirectory(m_cwdPath))
@@ -15,6 +14,31 @@ sio::FileSystem::FileSystem(::hal::Uart uart, ::hal::BusyWait busyWait, DiskDriv
   ::fs::exfat::Configuration::instance()->excludeHiddenDirectoryEntries(true);
   ::fs::exfat::Configuration::instance()->excludeSystemDirectoryEntries(true);
   ::fs::exfat::Configuration::instance()->excludeUnixHiddenDirectoryEntries(true);
+}
+
+bool sio::FileSystem::loadAtr(const ::fs::File::ptr_type& file) {
+  auto disk = ::media::makeAtr(file);
+  if (disk == nullptr) {
+    return false;
+  }
+  m_d1->insert(std::move(disk));
+  return true;
+}
+
+bool sio::FileSystem::loadXex(const ::fs::File::ptr_type& file) {
+  ::media::XexEnumerator xexEnumerator(media::Xex{file});
+  if (!xexEnumerator.isValid()) {
+    return false;
+  }
+  if (!loadAtr(::fs::resolveWellKnownFile("!sbc-xex-loader.atr"))) {
+    return false;
+  }
+  m_xexEnumerator = std::move(xexEnumerator);
+  return true;
+}
+
+bool sio::FileSystem::loadSbcFiler() {
+  return loadXex(::fs::resolveWellKnownFile("!sbc-filer.xex"));
 }
 
 void sio::FileSystem::handle(const Command* command) {
@@ -95,20 +119,15 @@ void sio::FileSystem::handleSelectDirEntry(sdr::DirEntry::index_type index) {
     m_cwdPath /= m_cwdEnumerator.entry().name();
     m_cwdEnumerator = ::fs::DirectoryEnumerator(std::move(directory));
   } else if (m_cwdEnumerator.entry().name().ends_with(".atr")) {
-    auto disk = ::media::makeAtr(m_cwdEnumerator.openFile());
-    if (disk == nullptr) {
+    if (!loadAtr(m_cwdEnumerator.openFile())) {
       commandError();
       return;
     }
-    m_d1->insert(std::move(disk));
   } else if (m_cwdEnumerator.entry().name().ends_with(".xex")) {
-    ::media::XexEnumerator xexEnumerator(media::Xex{m_cwdEnumerator.openFile()});
-    if (!xexEnumerator.isValid()) {
+    if (!loadXex(m_cwdEnumerator.openFile())) {
       commandError();
       return;
     }
-    m_xexEnumerator = std::move(xexEnumerator);
-    m_d1->insert(m_xexBootBuiltin);
   } else {
     commandError();
     return;
