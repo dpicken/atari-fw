@@ -3,6 +3,7 @@
 #include "fs/ResolvePath.h"
 #include "fs/exfat/Configuration.h"
 #include "media/Atr.h"
+#include "util/Ascii.h"
 
 sio::FileSystem::FileSystem(::hal::Uart uart, ::hal::BusyWait busyWait, DiskDrive* d1)
   : Device(uart, busyWait)
@@ -118,12 +119,12 @@ void sio::FileSystem::handleSelectDirEntry(sdr::DirEntry::index_type index) {
     }
     m_cwdPath /= m_cwdEnumerator.entry().name();
     m_cwdEnumerator = ::fs::DirectoryEnumerator(std::move(directory));
-  } else if (m_cwdEnumerator.entry().name().ends_with(".atr")) {
+  } else if (filenameExtensionMatches(m_cwdEnumerator.entry().name(), "atr")) {
     if (!loadAtr(m_cwdEnumerator.openFile())) {
       commandError();
       return;
     }
-  } else if (m_cwdEnumerator.entry().name().ends_with(".xex")) {
+  } else if (filenameExtensionMatches(m_cwdEnumerator.entry().name(), "xex")) {
     if (!loadXex(m_cwdEnumerator.openFile())) {
       commandError();
       return;
@@ -159,4 +160,22 @@ void sio::FileSystem::handleReadXexSegmentData() {
   commandAck();
   commandComplete();
   sinkData([this](const data_sink_type& sink) { m_xexEnumerator.container().readSegmentData(m_xexEnumerator.entry(), sink); });
+}
+
+bool sio::FileSystem::filenameExtensionMatches(const std::string& filename, const std::string_view& extension) {
+  auto pos = filename.find('.');
+  if (pos++ == std::string::npos) {
+    return false;
+  }
+
+  for (auto e : extension) {
+    if (pos == filename.size()) {
+      return false;
+    }
+    if (!::util::asciiCaseInsensitivelyEqual(filename[pos], e)) {
+      return false;
+    }
+    ++pos;
+  }
+  return pos == filename.size();
 }

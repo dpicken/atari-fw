@@ -40,7 +40,7 @@ bool fs::exfat::File::readImpl(size_type offset, buffer_size_type byteCount, con
   return std::visit([this, &offset, &byteCount, &sink](auto&& clusterEnumerator) {
     auto clusterSize = m_clusterHeap->blockSize();
     while (byteCount != 0) {
-      auto vcn = virtual_cluster_number{clusterSize.byteOffsetToBlockAddress(offset)};
+      auto vcn = static_cast<virtual_cluster_number>(clusterSize.byteOffsetToBlockAddress(offset));
       clusterEnumerator.reposition(vcn);
       if (!clusterEnumerator.isValid()) {
         return false;

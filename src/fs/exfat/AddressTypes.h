@@ -5,7 +5,7 @@
 
 namespace fs { namespace exfat {
 
-using cluster_number = std::uint64_t;
+using cluster_number = std::uint32_t;
 
 using logical_cluster_number = cluster_number;
 using virtual_cluster_number = cluster_number;

@@ -36,6 +36,7 @@ public:
 private:
   App();
 
+  void pollDebugPipe();
   void reflectStateInIndicator();
 
   std::uint32_t m_indicatorRefreshTimePoint;
@@ -43,6 +44,7 @@ private:
 
   bool m_switchedPowerActive;
 
+  std::atomic_bool m_debug;
   std::atomic_bool m_sioXferActive;
   std::atomic_bool m_sioXferTimeout;
   std::atomic_bool m_sdXferActive;

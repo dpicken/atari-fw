@@ -17,6 +17,8 @@ pico_sdk_init()
 include_directories(${ATARI_FW_ROOT}/src)
 
 add_executable(atari-fw_${RP_BOARD}
+  ${ATARI_FW_ROOT}/src/debug/Pipe.cc
+  ${ATARI_FW_ROOT}/src/debug/Pipe.h
   ${ATARI_FW_ROOT}/src/fs/automount/Manager.cc
   ${ATARI_FW_ROOT}/src/fs/automount/Manager.h
   ${ATARI_FW_ROOT}/src/fs/BlockSize.h
@@ -44,14 +46,13 @@ add_executable(atari-fw_${RP_BOARD}
   ${ATARI_FW_ROOT}/src/fs/exfat/ClusterAllocation.h
   ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChain.cc
   ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChain.h
-  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChainEntry.cc
   ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChainEntry.h
   ${ATARI_FW_ROOT}/src/fs/exfat/ClusterChainEnumerator.h
   ${ATARI_FW_ROOT}/src/fs/exfat/ClusterHeap.cc
   ${ATARI_FW_ROOT}/src/fs/exfat/ClusterHeap.h
+  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterIndexEntry.h
   ${ATARI_FW_ROOT}/src/fs/exfat/ClusterRun.cc
   ${ATARI_FW_ROOT}/src/fs/exfat/ClusterRun.h
-  ${ATARI_FW_ROOT}/src/fs/exfat/ClusterRunEntry.h
   ${ATARI_FW_ROOT}/src/fs/exfat/ClusterRunEnumerator.h
   ${ATARI_FW_ROOT}/src/fs/exfat/Configuration.cc
   ${ATARI_FW_ROOT}/src/fs/exfat/Configuration.h

@@ -10,7 +10,7 @@
 namespace {
 
 fs::File::ptr_type makeDevice() {
-  constexpr auto devicePath = "image/sd-card-3921920-512B-sectors-gpt_exfat_boot_and_fat_region_and_three_clusters-macos.img";
+  constexpr auto devicePath = "image/sd-card-3921920-512B-sectors-gpt_exfat_head-macos.img";
   constexpr auto deviceBlockSize = fs::BlockSize::fromSizeLog2(9);
   return fs::test::common::File::make(devicePath, deviceBlockSize.blockCountToByteCount(3921920), deviceBlockSize);
 }

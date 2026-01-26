@@ -2,7 +2,7 @@
 #define fs_exfat_ClusterChain_h
 
 #include "AddressTypes.h"
-#include "ClusterChainEntry.h"
+#include "ClusterIndexEntry.h"
 
 #include "fs/FileSlice.h"
 
@@ -12,11 +12,11 @@ namespace fs { namespace exfat {
 
 class ClusterChain {
 public:
-  using entry_type = ClusterChainEntry;
+  using entry_type = ClusterIndexEntry;
   using entry_enumeration_type = std::optional<entry_type>;
 
   ClusterChain();
-  ClusterChain(const ::fs::FileSlice::impl_ptr_type& fat, logical_cluster_number begin);
+  ClusterChain(const ::fs::FileSlice::impl_ptr_type& fat, logical_cluster_number lcn);
 
   entry_enumeration_type begin();
   entry_enumeration_type next(const entry_type& entry);

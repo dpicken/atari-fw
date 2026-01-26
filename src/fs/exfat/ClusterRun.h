@@ -1,7 +1,7 @@
 #ifndef fs_exfat_ClusterRun_h
 #define fs_exfat_ClusterRun_h
 
-#include "ClusterRunEntry.h"
+#include "ClusterIndexEntry.h"
 
 #include "fs/BlockSize.h"
 
@@ -11,7 +11,7 @@ namespace fs { namespace exfat {
 
 class ClusterRun {
 public:
-  using entry_type = ClusterRunEntry;
+  using entry_type = ClusterIndexEntry;
   using entry_enumeration_type = std::optional<entry_type>;
 
   using block_count_type = BlockSize::block_count_type;
