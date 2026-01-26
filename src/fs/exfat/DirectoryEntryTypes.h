@@ -20,13 +20,16 @@ struct UntypedDirectoryEntry : GenericDirectoryEntry<> {
   template<typename DirectoryEntryType>
   const DirectoryEntryType* to() const {
     static_assert(sizeof(DirectoryEntryType) == sizeof(*this));
-    if (DirectoryEntryType::type_category_v != entryType().typeCategory()) {
+    if (!entryType().isInUse()) {
       return nullptr;
     }
-    if (DirectoryEntryType::type_importance_v != entryType().typeImportance()) {
+    if (entryType().typeCategory() != DirectoryEntryType::type_category_v) {
       return nullptr;
     }
-    if (DirectoryEntryType::type_code_v != entryType().typeCode()) {
+    if (entryType().typeImportance() != DirectoryEntryType::type_importance_v) {
+      return nullptr;
+    }
+    if (entryType().typeCode() != DirectoryEntryType::type_code_v) {
       return nullptr;
     }
     return reinterpret_cast<const DirectoryEntryType*>(this);
