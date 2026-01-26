@@ -38,12 +38,16 @@ public:
     return readImpl(offset, byteCount, sink);
   }
 
+
+  bool read(size_type offset, buffer_value_type* buffer, buffer_size_type bufferSize) {
+    return read(offset, bufferSize, [&buffer](const buffer_value_type* data, buffer_size_type size) {
+      buffer = std::copy(data, data + size, buffer);
+    });
+  }
+
   template<typename PackedType>
   bool read(size_type offset, PackedType* value) {
-    auto dest = reinterpret_cast<buffer_value_type*>(value);
-    return read(offset, sizeof(*value), [&dest](const buffer_value_type* data, buffer_size_type size) {
-      dest = std::copy(data, data + size, dest);
-    });
+    return read(offset, reinterpret_cast<buffer_value_type*>(value), sizeof(*value));
   }
 
 protected:

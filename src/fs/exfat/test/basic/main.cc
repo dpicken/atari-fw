@@ -156,59 +156,75 @@ void testFileSystem(const fs::File::ptr_type& partition) {
   }
 }
 
+void testDirectory(const ::fs::Directory::ptr_type& directory, const std::vector<fs::DirectoryEntry>& expectedEntries) {
+  std::vector<::fs::DirectoryEntry> entries;
+  for (::fs::DirectoryEnumerator enumerator(directory); enumerator.isValid(); enumerator.next()) {
+    entries.push_back(enumerator.entry());
+  }
+
+  if (entries != expectedEntries) {
+    throw std::logic_error("directory inconsistent with expected entries");
+  }
+}
+
+void testFile(const ::fs::File::ptr_type& file, const std::vector<std::uint8_t>& expectedData) {
+  if (file->size() != expectedData.size()) {
+    throw std::logic_error("file size inconsistent with expected data");
+  }
+
+  std::vector<std::uint8_t> data(expectedData.size());
+  if (!file->read(0, data.data(), data.size())) {
+    throw std::logic_error("failed to read file");
+  }
+
+  if (data != expectedData) {
+    throw std::logic_error("file data inconsistent with expected data");
+  }
+}
+
 void testRootDirectory(const fs::File::ptr_type& partition) {
   fs::exfat::Volume volume(partition);
 
-  auto testDirectoryEmpty = [=](const fs::Directory::ptr_type& directory, const std::string& directoryName) {
-    ::fs::DirectoryEnumerator enumerator(directory);
-    if (enumerator.isValid()) {
-      throw std::logic_error(directoryName + ": not empty");
-    }
-  };
+  auto fs = volume.tryMakeFileSystem();
+  if (!fs) {
+    throw std::logic_error("failed to get file system");
+  }
 
-  auto testSubDirectoryEmpty = [=](fs::Directory* parent, const std::string& subDirectoryName) {
-    auto directory = parent->openDirectory(subDirectoryName);
-    if (directory == nullptr) {
-      throw std::logic_error(subDirectoryName + ": failed to open directory");
-    }
-    testDirectoryEmpty(directory, subDirectoryName);
-  };
-
-  auto testRootDirectory = [=](const std::vector<fs::DirectoryEntry>& expectedEntries) {
-    auto fs = volume.tryMakeFileSystem();
-    if (!fs) {
-      throw std::logic_error("failed to get file system");
-    }
-
-    std::vector<::fs::DirectoryEntry> entries;
-    auto rootDirectory = fs->getRootDirectory();
-    for (::fs::DirectoryEnumerator enumerator(rootDirectory); enumerator.isValid(); enumerator.next()) {
-      entries.push_back(enumerator.entry());
-    }
-
-    if (entries != expectedEntries) {
-      throw std::logic_error("root directory inconsistent with expected entries");
-    }
-
-    for (auto& entry : expectedEntries) {
-      testSubDirectoryEmpty(rootDirectory.get(), entry.name());
-    }
-  };
+  auto rootDirectory = fs->getRootDirectory();
 
   fs::exfat::Configuration::instance()->excludeHiddenDirectoryEntries(false);
-  testRootDirectory({
+  testDirectory(rootDirectory, {
     {".fseventsd", fs::DirectoryEntry::Type::Directory, 0},
-    {".Spotlight-V100", fs::DirectoryEntry::Type::Directory, 1}
+    {".Spotlight-V100", fs::DirectoryEntry::Type::Directory, 1},
+    {"test-dir", fs::DirectoryEntry::Type::Directory, 2}
   });
 
   fs::exfat::Configuration::instance()->excludeHiddenDirectoryEntries(true);
-  testRootDirectory({});
+  testDirectory(rootDirectory, {
+    {"test-dir", fs::DirectoryEntry::Type::Directory, 0}
+  });
 
   fs::exfat::Configuration::instance()->excludeHiddenDirectoryEntries(false);
-  testRootDirectory({
+  testDirectory(rootDirectory, {
     {".fseventsd", fs::DirectoryEntry::Type::Directory, 0},
-    {".Spotlight-V100", fs::DirectoryEntry::Type::Directory, 1}
+    {".Spotlight-V100", fs::DirectoryEntry::Type::Directory, 1},
+    {"test-dir", fs::DirectoryEntry::Type::Directory, 2}
   });
+
+  auto subDirectory = rootDirectory->openDirectory("test-dir");
+  if (!subDirectory) {
+    throw std::logic_error("failed to open sub-directory");
+  }
+
+  testDirectory(subDirectory, {
+    {"test-file", fs::DirectoryEntry::Type::File, 0}
+  });
+
+  auto file = subDirectory->openFile("test-file");
+  if (!file) {
+    throw std::logic_error("failed to open file");
+  }
+  testFile(file, {'t', 'e', 's', 't', '-', 'd', 'a', 't', 'a', '\n'});
 }
 
 void test(const std::filesystem::path& devicePath, fs::BlockSize deviceBlockSize, std::uint64_t deviceBlockCount, std::uint64_t partitionBlockOffset, std::uint64_t partitionBlockCount, std::uint64_t clusterHeapBlockCount) {
@@ -234,7 +250,7 @@ void test(const std::filesystem::path& devicePath, fs::BlockSize deviceBlockSize
 } // namespace
 
 int main(int, char**) {
-  test("image/sd-card-3921920-512B-sectors-mbr_exfat_boot_and_fat_region_and_three_clusters-macos.img", fs::BlockSize::fromSizeLog2(9), 3'921'920, 2048, 3'919'872, 3'919'232);
-  test("image/sd-card-3921920-512B-sectors-gpt_exfat_boot_and_fat_region_and_three_clusters-macos.img", fs::BlockSize::fromSizeLog2(9), 3'921'920, 2048, 3'917'824, 3'917'184);
+  test("image/sd-card-3921920-512B-sectors-mbr_exfat_head-macos.img", fs::BlockSize::fromSizeLog2(9), 3'921'920, 2048, 3'919'872, 3'919'232);
+  test("image/sd-card-3921920-512B-sectors-gpt_exfat_head-macos.img", fs::BlockSize::fromSizeLog2(9), 3'921'920, 2048, 3'917'824, 3'917'184);
   return EXIT_SUCCESS;
 }

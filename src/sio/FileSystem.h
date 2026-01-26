@@ -32,6 +32,8 @@ private:
   void handleReadXexSegmentEntry(std::uint16_t index);
   void handleReadXexSegmentData();
 
+  static bool filenameExtensionMatches(const std::string& filename, const std::string_view& extension);
+
   DiskDrive* const m_d1;
 
   std::filesystem::path m_cwdPath;

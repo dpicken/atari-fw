@@ -1,11 +1,14 @@
 #include "App.h"
 
+#include "debug/Pipe.h"
+
 #include <class/hid/hid_host.h>
 
 platform::rp::App::App()
   : m_indicatorRefreshTimePoint(time_us_32())
   , m_indicator(nullptr)
   , m_switchedPowerActive(false)
+  , m_debug(false)
   , m_sioXferActive(false)
   , m_sioXferTimeout(false)
   , m_sdXferActive(false)
@@ -26,9 +29,10 @@ void platform::rp::App::setIndicator(::hal::Indicator* indicator) {
 void platform::rp::App::run(::keyboard::App& app) {
   m_keyboardApp = &app;
   for(;;) {
+    pollDebugPipe();
     tuh_task();
-    reflectStateInIndicator();
     m_keyboardApp->schedule();
+    reflectStateInIndicator();
   }
 }
 
@@ -75,6 +79,17 @@ void platform::rp::App::onSdXferTimeout() {
   m_sdXferTimeout.store(true, std::memory_order_relaxed);
 }
 
+void platform::rp::App::pollDebugPipe() {
+  switch (::debug::Pipe::instance().tryPop()) {
+    case ::debug::Pipe::Message::Null:
+      break;
+
+    case ::debug::Pipe::Message::IndicateDebug:
+      m_debug.store(true, std::memory_order_relaxed);
+      break;
+  }
+}
+
 void platform::rp::App::reflectStateInIndicator() {
   std::uint32_t currentTimePoint = time_us_32();
   if (currentTimePoint - m_indicatorRefreshTimePoint < 250 * 1000) {
@@ -84,6 +99,8 @@ void platform::rp::App::reflectStateInIndicator() {
 
   if (m_indicator == nullptr) {
     return;
+  } else if (m_debug.load(std::memory_order_relaxed)) {
+    m_indicator->setRGB(0xFF, 0xBF, 0x00);
   } else if (!m_keyboardApp->isKeyboardAttached()) {
     m_indicator->setRGB(0x00, 0x00, 0xFF); // Blue (bright)
   } else if (!m_switchedPowerActive) {
