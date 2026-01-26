@@ -10,7 +10,7 @@ namespace fs { namespace exfat {
 using PhysicalDirectoryEnumerator = Enumerator<PhysicalDirectory>;
 
 template<typename DirectoryEntryType>
-inline const DirectoryEntryType* find(PhysicalDirectoryEnumerator& enumerator) {
+inline const DirectoryEntryType* findEntrySet(PhysicalDirectoryEnumerator& enumerator) {
   const DirectoryEntryType* entry = nullptr;
   while (enumerator.isValid() && (entry = enumerator.entry().generic()->to<DirectoryEntryType>()) == nullptr) {
     enumerator.next();
@@ -19,12 +19,12 @@ inline const DirectoryEntryType* find(PhysicalDirectoryEnumerator& enumerator) {
 }
 
 template<typename DirectoryEntryType>
-inline const DirectoryEntryType* next(PhysicalDirectoryEnumerator& enumerator) {
-  const DirectoryEntryType* next = nullptr;
-  do {
-    enumerator.next();
-  } while (enumerator.isValid() && (next = enumerator.entry().generic()->to<DirectoryEntryType>()) == nullptr);
-  return next;
+inline const DirectoryEntryType* nextEntryInSet(PhysicalDirectoryEnumerator& enumerator) {
+  enumerator.next();
+  if (!enumerator.isValid()) {
+    return nullptr;
+  }
+  return enumerator.entry().generic()->to<DirectoryEntryType>();
 }
 
 } } // namespace fs::exfat
