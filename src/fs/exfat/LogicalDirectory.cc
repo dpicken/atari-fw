@@ -32,7 +32,7 @@ fs::exfat::LogicalDirectory::entry_enumeration_type fs::exfat::LogicalDirectory:
 }
 
 fs::exfat::LogicalDirectory::entry_enumeration_type fs::exfat::LogicalDirectory::find(entry_type::logical_index_type logicalIndex) {
-  auto fileDirectoryEntry = ::fs::exfat::find<FileDirectoryEntry>(m_enumerator);
+  auto fileDirectoryEntry = ::fs::exfat::findEntrySet<FileDirectoryEntry>(m_enumerator);
   if (!fileDirectoryEntry) {
     return std::nullopt;
   }
@@ -43,7 +43,7 @@ fs::exfat::LogicalDirectory::entry_enumeration_type fs::exfat::LogicalDirectory:
       ? ::fs::DirectoryEntry::Type::Directory
       : ::fs::DirectoryEntry::Type::File;
 
-  auto streamExtensionEntry = ::fs::exfat::next<StreamExtensionDirectoryEntry>(m_enumerator);
+  auto streamExtensionEntry = ::fs::exfat::nextEntryInSet<StreamExtensionDirectoryEntry>(m_enumerator);
   if (streamExtensionEntry == nullptr) {
     return std::nullopt;
   }
@@ -64,7 +64,7 @@ fs::exfat::LogicalDirectory::entry_enumeration_type fs::exfat::LogicalDirectory:
   std::string name;
   name.reserve(nameLength);
   while (name.size() != nameLength) {
-    const auto fileNameEntry = ::fs::exfat::next<FileNameDirectoryEntry>(m_enumerator);
+    const auto fileNameEntry = ::fs::exfat::nextEntryInSet<FileNameDirectoryEntry>(m_enumerator);
     if (fileNameEntry == nullptr) {
       return std::nullopt;
     }

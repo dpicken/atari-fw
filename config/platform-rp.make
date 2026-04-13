@@ -28,7 +28,7 @@ RP_MOUNT ?= /Volumes/RPI-RP2
 rp-src-list: fs-builtin-library
 	$(echo_recipe)find src -type f -name '*.cc' -o -name '*.h' | sed 's@^src/platform/rp/\(.*\)/app.cc@src/platform/rp/$${RP_BOARD}/app.cc@' | sed 's@^src/@$${ATARI_FW_ROOT}/src/@' | grep -v '/test/' | sort | uniq
 
-$(RP_BOARD_BUILD_DIR)/Makefile: $(RP_SRC_DIR)/CMakeLists.txt init
+$(RP_BOARD_BUILD_DIR)/Makefile: $(RP_SRC_DIR)/CMakeLists.txt | init
 	$(echo_build_message)
 	$(echo_recipe)rm -rf $(RP_BOARD_BUILD_DIR)
 	$(echo_recipe)cmake -S $(RP_SRC_DIR) -B $(RP_BOARD_BUILD_DIR) -DRP_BOARD=$(RP_BOARD) -DPICOTOOL_FETCH_FROM_GIT_PATH=$(PICOTOOL_DIR)
@@ -54,17 +54,16 @@ rp-install: rp
 	$(echo_recipe)cp $(RP_BOARD_BUILD_DIR)/atari-fw_$(RP_BOARD).uf2 $(RP_MOUNT)
 
 .PHONY: rp-distribute
-rp-distribute: rp test
+rp-distribute: rp
 	$(echo_build_message)
 	$(echo_recipe)cp $(RP_BOARD_BUILD_DIR)/atari-fw_$(RP_BOARD).uf2 ../atari-hw/prebuilt/
 
 .PHONY: distribute
-distribute:
+distribute: | test
 	$(echo_build_message)
-	$(echo_recipe)make clean
-	$(echo_recipe)EXTERNAL_ATR_DIR= RP_BOARD=adafruit_qtpy_rp2040 make rp-distribute
-	$(echo_recipe)EXTERNAL_ATR_DIR= RP_BOARD=pimoroni_tiny2350 make rp-distribute
-	$(echo_recipe)EXTERNAL_ATR_DIR= RP_BOARD=waveshare_rp2040_zero make rp-distribute
+	$(echo_recipe)RP_BOARD=adafruit_qtpy_rp2040 make rp-distribute
+	$(echo_recipe)RP_BOARD=pimoroni_tiny2350 make rp-distribute
+	$(echo_recipe)RP_BOARD=waveshare_rp2040_zero make rp-distribute
 
 PHONY: rp-clean
 rp-clean:

@@ -111,6 +111,6 @@ fs::exfat::FileSystem::impl_ptr_type fs::exfat::Volume::tryMakeFileSystem() cons
 
   PhysicalDirectory rootDirectory(std::move(rootDirectoryFile));
   PhysicalDirectoryEnumerator rootDirectoryEnumerator(rootDirectory);
-  auto volumeLabelEntry = find<VolumeLabelDirectoryEntry>(rootDirectoryEnumerator);
+  auto volumeLabelEntry = findEntrySet<VolumeLabelDirectoryEntry>(rootDirectoryEnumerator);
   return FileSystem::tryMake(volumeLabelEntry ? volumeLabelEntry->customDefined().customDefined().toAscii() : "", std::move(rootDirectory));
 }

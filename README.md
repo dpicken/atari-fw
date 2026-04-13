@@ -74,7 +74,7 @@ From [src/keyboard/Controller.cc](/src/keyboard/Controller.cc):
 | F2       | Start                            |
 | F3       | Select                           |
 | F4       | Option                           |
-| F10      | Load !sbc-filer.xex (UI for the builtin ATR/XEX library and SFF SD card adapter) |
+| F10      | D1: insert !sbc-filer.xex (file system UI) |
 | F11      | D1: eject                        |
 | F12      | Reset                            |
 | Ctrl-F12 | Toggle power on/off              |

@@ -14,7 +14,7 @@ struct EntryType {
   }
 
   bool isInUse() const {
-    return m_value >= 0x81;
+    return (m_value >> 7) & 0x1;
   }
 
   unsigned int typeCode() const {
