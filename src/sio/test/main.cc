@@ -92,7 +92,7 @@ void testDiskDriveStatus() {
   txIt = expectedResult;
   txEnd = txIt + sizeof(expectedResult);
 
-  sio::DiskDrive diskDrive(uart, busyWait);;
+  sio::DiskDrive diskDrive(uart, busyWait);
   diskDrive.insert(disk);
 
   testDeviceCommand(&diskDrive);
@@ -299,9 +299,13 @@ void testFileSystemXexLoader() {
   testFileSystemReadXexSegmentData(&fileSystem, xexFile, xexFileOffset, dataSize);
   xexFileOffset += dataSize;
 
-  testFileSystemReadXexSegmentEntry(&fileSystem, segmentIndex++, 0x2000, 0x4BFC);
+  // TODO: Don't hard-code the output of this.
+  //   ./build_release/media/test/scan-xex/scan-xex ./builtin/\!sbc-filer.xex | grep '^0001' | cut -d ' ' -f 4 | tr -d ']'
+  constexpr auto expectedLoadAddressLast = 0x4C29;
+
+  testFileSystemReadXexSegmentEntry(&fileSystem, segmentIndex++, 0x2000, expectedLoadAddressLast);
   xexFileOffset += 4;
-  dataSize = (0x4BFC + 1) - 0x2000;
+  dataSize = (expectedLoadAddressLast + 1) - 0x2000;
   testFileSystemReadXexSegmentData(&fileSystem, xexFile, xexFileOffset, dataSize);
   xexFileOffset += dataSize;
 

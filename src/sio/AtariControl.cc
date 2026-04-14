@@ -22,7 +22,7 @@ void sio::AtariControl::handle(const Command* command) {
 
     default:
       commandNack();
-  };
+  }
 }
 
 void sio::AtariControl::handlePowerOff() {
