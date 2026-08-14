@@ -5,7 +5,7 @@ fs::exfat::ClusterChain::ClusterChain() {
 
 fs::exfat::ClusterChain::ClusterChain(const ::fs::FileSlice::impl_ptr_type& fat, logical_cluster_number lcn)
   : m_fat(fat)
-  , m_begin(entry_type(0, lcn)) {
+  , m_begin(lcn != 0 ? entry_enumeration_type(entry_type(0, lcn)) : std::nullopt) {
 }
 
 fs::exfat::ClusterChain::entry_enumeration_type fs::exfat::ClusterChain::begin() {
